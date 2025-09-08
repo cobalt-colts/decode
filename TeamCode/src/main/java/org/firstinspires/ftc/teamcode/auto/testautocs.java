@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 
 @Autonomous(name = "Miles' Test auto (Centerstage)")
+@Disabled
 public class testautocs extends LinearOpMode{
 
 

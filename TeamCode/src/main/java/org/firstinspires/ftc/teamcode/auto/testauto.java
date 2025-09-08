@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name = "Miles' Test auto (Centerstage)")
+@Autonomous(name = "Miles' Test auto")
 public class testauto extends LinearOpMode{
 
 
@@ -19,7 +19,7 @@ public class testauto extends LinearOpMode{
         limelight.start();
         limelight.pipelineSwitch(0);
         telemetry.addLine("Telemetry works!");
-        while(opModeIsActive()) { // Changed from while(true)
+        while(opModeIsActive()) {
             LLResult result = limelight.getLatestResult();
             if (result != null && result.isValid()) {
                 double tx = result.getTx(); // How far left or right the target is (degrees)
