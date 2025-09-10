@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "Main Decode TeleOp")
 public class decodemain extends LinearOpMode {
 
-    public static double flyWheelPower = 1;
+    public static double flyWheelPower = 0.85;
     public static double intakePower = 0.75;
 
     public static double indexerPos = 0.92;
@@ -50,9 +50,6 @@ public class decodemain extends LinearOpMode {
 
         CRServo elevator = hardwareMap.crservo.get("elevator");
 
-        boolean intakeon = true;
-
-        boolean throwon = false;
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -64,14 +61,14 @@ public class decodemain extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.REVERSE);
         flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        // Retrieve the IMU from the hardware map
-        IMU imu = hardwareMap.get(IMU.class, "imu");
-        // Adjust the orientation parameters to match your robot
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
-        imu.initialize(parameters);
+//        // Retrieve the IMU from the hardware map
+//        IMU imu = hardwareMap.get(IMU.class, "imu");
+//        // Adjust the orientation parameters to match your robot
+//        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+//                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+//                RevHubOrientationOnRobot.UsbFacingDirection.UP));
+//        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
+//        imu.initialize(parameters);
 
         waitForStart();
 
@@ -81,66 +78,10 @@ public class decodemain extends LinearOpMode {
             double y = -(gamepad1.left_stick_y + gamepad2.left_stick_y); // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x + gamepad2.left_stick_x;
             double rx = -(gamepad1.right_stick_x + gamepad2.right_stick_x);
-            intake.setPower(intakePower);
-            indexer.setPosition(indexerPos);
-            elevator.setPower(elevatorPower);
-
-
-            // This button choice was made so that it is hard to hit on accident,
-            // it can be freely changed based on preference.
-            // The equivalent button is start on Xbox-style controllers.
-            if (gamepad1.options) {
-                imu.resetYaw();
-            }
-
-            if (gamepad1.right_trigger >= 0.25) {
-                intakeon = !intakeon;
-            }
-
-            if (gamepad1.right_bumper) {
-                throwon = !throwon;
-
-            }
-
-//            if (indexeractive){
-//                indexer.setPosition(indexerPos);
-//                sleep(250);
-//                indexer.setPosition(0.84);
-//                sleep(3000);
-//                indexer.setPosition(0.75);
-//                sleep(3000);
-//                indexeractive = false;
-//
-//            } else {
-//                indexer.setPosition(indexerPos);
-//            }
-            if (gamepad1.a) indexerPos = indexerHome;
-            if (gamepad1.b) indexerPos = indexerPush1;
-            if (gamepad1.x) indexerPos = indexerPush2;
-            if (gamepad1.y) indexerPos = indexerPush3;
-
-            telemetry.addLine("fast reload works!!!");
-
-            if (intakeon) {
-                intake.setPower(intakePower);
-                telemetry.addData("intake:", "on");
-            } else {
-                intake.setPower(0);
-                telemetry.addData("intake:", "off");
-
-            }
-
-            if (throwon) {
-                flywheel.setPower(0.75);
-            } else {
-                flywheel.setPower(0);
-            }
-
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             // Rotate the movement direction counter to the bot's rotation
-            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+            double rotX = x - y;
+            double rotY = x + y;
 
             rotX = rotX * 1.1;  // Counteract imperfect strafing
 
@@ -162,6 +103,45 @@ public class decodemain extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+
+//            // This button choice was made so that it is hard to hit on accident,
+//            // it can be freely changed based on preference.
+//            // The equivalent button is start on Xbox-style controllers.
+//            if (gamepad1.options) {
+//                imu.resetYaw();
+//            }
+
+            if (gamepad1.cross) {
+                intake.setPower(1);
+                indexerPos = indexerHome;
+            } else if (gamepad1.square) {
+                intake.setPower(-0.4);
+            } else {
+                intake.setPower(0);
+            }
+
+            if (gamepad1.right_trigger >= 0.2) {
+                flywheel.setPower(flyWheelPower);
+            } else {
+                flywheel.setPower(0);
+            }
+
+            if (gamepad1.right_trigger > gamepad1.left_trigger) {
+                elevatorPower = gamepad1.right_trigger;
+            } else if (gamepad1.left_trigger > gamepad1.right_trigger) {
+                elevatorPower = -gamepad1.left_trigger;
+            } else {
+                elevatorPower = 0;
+            }
+
+            if (gamepad1.dpad_down) indexerPos = indexerHome;
+            if (gamepad1.dpad_right) indexerPos = indexerPush1;
+            if (gamepad1.dpad_up) indexerPos = indexerPush2;
+            if (gamepad1.dpad_left) indexerPos = indexerPush3;
+
+            indexer.setPosition(indexerPos);
+            elevator.setPower(elevatorPower);
 
 
             telemetry.update();
