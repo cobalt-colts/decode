@@ -8,6 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+//DOESN'T WORK AND I HAVE NO F**KING IDEA WHY
 @Configurable
 @Autonomous
 public class r3hauto extends LinearOpMode {

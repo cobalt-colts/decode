@@ -3107,7 +3107,6 @@ int drawable ic_warning 0x0
 int drawable icon_menu 0x0
 int drawable icon_robotcontroller 0x0
 int drawable indeterminate_static 0x0
-int drawable intothedeep_background 0x0
 int drawable m3_avd_hide_password 0x0
 int drawable m3_avd_show_password 0x0
 int drawable m3_bottom_sheet_drag_handle 0x0
