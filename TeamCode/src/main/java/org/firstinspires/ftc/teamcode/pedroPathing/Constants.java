@@ -5,6 +5,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -18,8 +19,7 @@ public class Constants {
             .mass(11.57)
             .forwardZeroPowerAcceleration(-51.38)
             .lateralZeroPowerAcceleration(-55.01)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.09, 0.0001, 0.001, 0))
-            .headingPIDFCoefficients(new PIDFCoefficients(-1.5, 0, 0.03, 0.01));
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.17, 0.0001, 0.012, 0));
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-1.875)
@@ -28,7 +28,7 @@ public class Constants {
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)

@@ -49,12 +49,14 @@ public class decodemain extends LinearOpMode {
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRight");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("backRight");
 
+
+
         DcMotor intake = hardwareMap.dcMotor.get("intake");
         DcMotorEx flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
 
         Servo indexer = hardwareMap.servo.get("indexer");
 
-        CRServo elevator = hardwareMap.crservo.get("elevator");
+        DcMotor elevator = hardwareMap.dcMotor.get("elevator");
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
@@ -93,8 +95,9 @@ public class decodemain extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        while (opModeIsActive()) {
 
+
+        while (opModeIsActive()) {
 
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
