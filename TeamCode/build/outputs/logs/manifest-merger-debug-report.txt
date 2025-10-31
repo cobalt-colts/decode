@@ -7,7 +7,7 @@ INJECTED from /home/miles/colts/decode/TeamCode/src/main/AndroidManifest.xml:8:1
 MERGED from [:FtcRobotController] /home/miles/colts/decode/FtcRobotController/build/intermediates/merged_manifest/debug/processDebugManifest/AndroidManifest.xml:2:1-78:12
 MERGED from [org.firstinspires.ftc:OnBotJava:11.0.0] /home/miles/.gradle/caches/8.9/transforms/5cc357a9d653ab3ad98b0b44f1d3c565/transformed/OnBotJava-11.0.0/AndroidManifest.xml:34:1-41:12
 MERGED from [org.firstinspires.ftc:Blocks:11.0.0] /home/miles/.gradle/caches/8.9/transforms/23b061013a83c2c3b7fe7159ed76ff21/transformed/Blocks-11.0.0/AndroidManifest.xml:2:1-24:12
-MERGED from [org.team11260:fast-load:0.1.2] /home/miles/.gradle/caches/8.9/transforms/dcc1eae76c07193a3ee9d7390962354b/transformed/fast-load-0.1.2/AndroidManifest.xml:2:1-7:12
+MERGED from [org.team11260:fast-load:0.1.4-beta1] /home/miles/.gradle/caches/8.9/transforms/314c0bde1ae9fa1546a26174dc825a5e/transformed/fast-load-0.1.4-beta1/AndroidManifest.xml:2:1-7:12
 MERGED from [com.acmerobotics.roadrunner:ftc:0.1.23] /home/miles/.gradle/caches/8.9/transforms/a72f251e412429fe3a002ddbecec9e9e/transformed/ftc-0.1.23/AndroidManifest.xml:3:1-10:12
 MERGED from [com.acmerobotics.dashboard:dashboard:0.4.10] /home/miles/.gradle/caches/8.9/transforms/5eb89856a6591b39e240c6fa9ad1e689/transformed/dashboard-0.4.10/AndroidManifest.xml:2:1-9:12
 MERGED from [org.firstinspires.ftc:FtcCommon:11.0.0] /home/miles/.gradle/caches/8.9/transforms/68e31a5130beeb660189d3e721d9a732/transformed/FtcCommon-11.0.0/AndroidManifest.xml:3:1-178:12
@@ -16,7 +16,7 @@ MERGED from [org.firstinspires.ftc:RobotServer:11.0.0] /home/miles/.gradle/cache
 MERGED from [org.firstinspires.ftc:Hardware:11.0.0] /home/miles/.gradle/caches/8.9/transforms/4b97b89036b2ab46a63215845fbf37c1/transformed/Hardware-11.0.0/AndroidManifest.xml:2:1-9:12
 MERGED from [org.firstinspires.ftc:Vision:11.0.0] /home/miles/.gradle/caches/8.9/transforms/3e6ea899d6c159c184bb6f3db60cda7f/transformed/Vision-11.0.0/AndroidManifest.xml:2:1-7:12
 MERGED from [org.firstinspires.ftc:RobotCore:11.0.0] /home/miles/.gradle/caches/8.9/transforms/ed8b97fe8b26ca0ed995580bab04e033/transformed/RobotCore-11.0.0/AndroidManifest.xml:2:1-129:12
-MERGED from [com.bylazar:fullpanels:1.0.6] /home/miles/.gradle/caches/8.9/transforms/881d2a581922e2e4ba1ca0696631c7ca/transformed/fullpanels-1.0.6/AndroidManifest.xml:2:1-7:12
+MERGED from [com.bylazar:fullpanels:1.0.8] /home/miles/.gradle/caches/8.9/transforms/8c45a19cd8d542b5c0bde2c13daa7dc8/transformed/fullpanels-1.0.8/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c3c113897f1f6ef440e4f1198be2e348/transformed/panels-1.0.3/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.12.0] /home/miles/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /home/miles/.gradle/caches/8.9/transforms/215ecb5878c843171e494fa26264f74b/transformed/constraintlayout-2.0.1/AndroidManifest.xml:2:1-11:12
@@ -66,7 +66,7 @@ MERGED from [androidx.print:print:1.0.0] /home/miles/.gradle/caches/8.9/transfor
 MERGED from [org.openftc:easyopencv:1.7.3] /home/miles/.gradle/caches/8.9/transforms/e346056a95a4ef69718e36aad1c50971/transformed/easyopencv-1.7.3/AndroidManifest.xml:2:1-9:12
 MERGED from [org.openftc:apriltag:2.1.0] /home/miles/.gradle/caches/8.9/transforms/96e1502c9f9cd6a1b7876e734e60b55a/transformed/apriltag-2.1.0/AndroidManifest.xml:2:1-9:12
 MERGED from [com.bylazar:opmodecontrol:1.0.2] /home/miles/.gradle/caches/8.9/transforms/707ae2750720cf1f8d3351b16223f548/transformed/opmodecontrol-1.0.2/AndroidManifest.xml:2:1-7:12
-MERGED from [com.bylazar:telemetry:1.0.3] /home/miles/.gradle/caches/8.9/transforms/e618c07a5f12938cf5781556a74ef4a3/transformed/telemetry-1.0.3/AndroidManifest.xml:2:1-7:12
+MERGED from [com.bylazar:telemetry:1.0.4] /home/miles/.gradle/caches/8.9/transforms/95fdf82d7967da8d26e280c9f609add4/transformed/telemetry-1.0.4/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:themes:1.0.2] /home/miles/.gradle/caches/8.9/transforms/8fc24b714d432fddc5e3ff2ac93852c9/transformed/themes-1.0.2/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:capture:1.0.2] /home/miles/.gradle/caches/8.9/transforms/d3a8eb64c50ed07484eeeee0f1b482d0/transformed/capture-1.0.2/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:limelightproxy:1.0.2] /home/miles/.gradle/caches/8.9/transforms/d625c3123ed6138be322dc8baf8bcbe7/transformed/limelightproxy-1.0.2/AndroidManifest.xml:2:1-7:12
@@ -76,7 +76,7 @@ MERGED from [com.bylazar:docs:1.0.4] /home/miles/.gradle/caches/8.9/transforms/8
 MERGED from [com.bylazar:battery:1.0.2] /home/miles/.gradle/caches/8.9/transforms/82e75d42e03446b87e57ac62b25fe588/transformed/battery-1.0.2/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:utils:1.0.3] /home/miles/.gradle/caches/8.9/transforms/d3163c4c30e7b6f7be27c32e05bac259/transformed/utils-1.0.3/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:pinger:1.0.2] /home/miles/.gradle/caches/8.9/transforms/71be8abbaa43dde3179d427b69a6f001/transformed/pinger-1.0.2/AndroidManifest.xml:2:1-7:12
-MERGED from [com.bylazar:graph:1.0.2] /home/miles/.gradle/caches/8.9/transforms/252c87bbc9c5ca705de626cc806898dc/transformed/graph-1.0.2/AndroidManifest.xml:2:1-7:12
+MERGED from [com.bylazar:graph:1.0.3] /home/miles/.gradle/caches/8.9/transforms/2d36798a2c90d7f6de628ba7dfdea9dd/transformed/graph-1.0.3/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:lights:1.0.2] /home/miles/.gradle/caches/8.9/transforms/1c3e8cfe2a832f31c55b3133118fbf77/transformed/lights-1.0.2/AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/miles/.gradle/caches/8.9/transforms/79871b9702f06cd63f907ec6409d83ef/transformed/annotation-experimental-1.4.0/AndroidManifest.xml:2:1-7:12
 MERGED from [org.openftc:opencv-repackaged-bundled-dylibs:4.10.0-A] /home/miles/.gradle/caches/8.9/transforms/3507aa29116b22df209ea81291312055/transformed/opencv-repackaged-bundled-dylibs-4.10.0-A/AndroidManifest.xml:2:1-9:12
@@ -151,8 +151,8 @@ MERGED from [org.firstinspires.ftc:OnBotJava:11.0.0] /home/miles/.gradle/caches/
 MERGED from [org.firstinspires.ftc:OnBotJava:11.0.0] /home/miles/.gradle/caches/8.9/transforms/5cc357a9d653ab3ad98b0b44f1d3c565/transformed/OnBotJava-11.0.0/AndroidManifest.xml:39:5-44
 MERGED from [org.firstinspires.ftc:Blocks:11.0.0] /home/miles/.gradle/caches/8.9/transforms/23b061013a83c2c3b7fe7159ed76ff21/transformed/Blocks-11.0.0/AndroidManifest.xml:7:5-44
 MERGED from [org.firstinspires.ftc:Blocks:11.0.0] /home/miles/.gradle/caches/8.9/transforms/23b061013a83c2c3b7fe7159ed76ff21/transformed/Blocks-11.0.0/AndroidManifest.xml:7:5-44
-MERGED from [org.team11260:fast-load:0.1.2] /home/miles/.gradle/caches/8.9/transforms/dcc1eae76c07193a3ee9d7390962354b/transformed/fast-load-0.1.2/AndroidManifest.xml:5:5-44
-MERGED from [org.team11260:fast-load:0.1.2] /home/miles/.gradle/caches/8.9/transforms/dcc1eae76c07193a3ee9d7390962354b/transformed/fast-load-0.1.2/AndroidManifest.xml:5:5-44
+MERGED from [org.team11260:fast-load:0.1.4-beta1] /home/miles/.gradle/caches/8.9/transforms/314c0bde1ae9fa1546a26174dc825a5e/transformed/fast-load-0.1.4-beta1/AndroidManifest.xml:5:5-44
+MERGED from [org.team11260:fast-load:0.1.4-beta1] /home/miles/.gradle/caches/8.9/transforms/314c0bde1ae9fa1546a26174dc825a5e/transformed/fast-load-0.1.4-beta1/AndroidManifest.xml:5:5-44
 MERGED from [com.acmerobotics.roadrunner:ftc:0.1.23] /home/miles/.gradle/caches/8.9/transforms/a72f251e412429fe3a002ddbecec9e9e/transformed/ftc-0.1.23/AndroidManifest.xml:6:5-44
 MERGED from [com.acmerobotics.roadrunner:ftc:0.1.23] /home/miles/.gradle/caches/8.9/transforms/a72f251e412429fe3a002ddbecec9e9e/transformed/ftc-0.1.23/AndroidManifest.xml:6:5-44
 MERGED from [com.acmerobotics.dashboard:dashboard:0.4.10] /home/miles/.gradle/caches/8.9/transforms/5eb89856a6591b39e240c6fa9ad1e689/transformed/dashboard-0.4.10/AndroidManifest.xml:5:5-7:41
@@ -169,8 +169,8 @@ MERGED from [org.firstinspires.ftc:Vision:11.0.0] /home/miles/.gradle/caches/8.9
 MERGED from [org.firstinspires.ftc:Vision:11.0.0] /home/miles/.gradle/caches/8.9/transforms/3e6ea899d6c159c184bb6f3db60cda7f/transformed/Vision-11.0.0/AndroidManifest.xml:5:5-44
 MERGED from [org.firstinspires.ftc:RobotCore:11.0.0] /home/miles/.gradle/caches/8.9/transforms/ed8b97fe8b26ca0ed995580bab04e033/transformed/RobotCore-11.0.0/AndroidManifest.xml:7:5-44
 MERGED from [org.firstinspires.ftc:RobotCore:11.0.0] /home/miles/.gradle/caches/8.9/transforms/ed8b97fe8b26ca0ed995580bab04e033/transformed/RobotCore-11.0.0/AndroidManifest.xml:7:5-44
-MERGED from [com.bylazar:fullpanels:1.0.6] /home/miles/.gradle/caches/8.9/transforms/881d2a581922e2e4ba1ca0696631c7ca/transformed/fullpanels-1.0.6/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:fullpanels:1.0.6] /home/miles/.gradle/caches/8.9/transforms/881d2a581922e2e4ba1ca0696631c7ca/transformed/fullpanels-1.0.6/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:fullpanels:1.0.8] /home/miles/.gradle/caches/8.9/transforms/8c45a19cd8d542b5c0bde2c13daa7dc8/transformed/fullpanels-1.0.8/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:fullpanels:1.0.8] /home/miles/.gradle/caches/8.9/transforms/8c45a19cd8d542b5c0bde2c13daa7dc8/transformed/fullpanels-1.0.8/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c3c113897f1f6ef440e4f1198be2e348/transformed/panels-1.0.3/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c3c113897f1f6ef440e4f1198be2e348/transformed/panels-1.0.3/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.material:material:1.12.0] /home/miles/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/AndroidManifest.xml:20:5-44
@@ -269,8 +269,8 @@ MERGED from [org.openftc:apriltag:2.1.0] /home/miles/.gradle/caches/8.9/transfor
 MERGED from [org.openftc:apriltag:2.1.0] /home/miles/.gradle/caches/8.9/transforms/96e1502c9f9cd6a1b7876e734e60b55a/transformed/apriltag-2.1.0/AndroidManifest.xml:5:5-7:41
 MERGED from [com.bylazar:opmodecontrol:1.0.2] /home/miles/.gradle/caches/8.9/transforms/707ae2750720cf1f8d3351b16223f548/transformed/opmodecontrol-1.0.2/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:opmodecontrol:1.0.2] /home/miles/.gradle/caches/8.9/transforms/707ae2750720cf1f8d3351b16223f548/transformed/opmodecontrol-1.0.2/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:telemetry:1.0.3] /home/miles/.gradle/caches/8.9/transforms/e618c07a5f12938cf5781556a74ef4a3/transformed/telemetry-1.0.3/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:telemetry:1.0.3] /home/miles/.gradle/caches/8.9/transforms/e618c07a5f12938cf5781556a74ef4a3/transformed/telemetry-1.0.3/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:telemetry:1.0.4] /home/miles/.gradle/caches/8.9/transforms/95fdf82d7967da8d26e280c9f609add4/transformed/telemetry-1.0.4/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:telemetry:1.0.4] /home/miles/.gradle/caches/8.9/transforms/95fdf82d7967da8d26e280c9f609add4/transformed/telemetry-1.0.4/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:themes:1.0.2] /home/miles/.gradle/caches/8.9/transforms/8fc24b714d432fddc5e3ff2ac93852c9/transformed/themes-1.0.2/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:themes:1.0.2] /home/miles/.gradle/caches/8.9/transforms/8fc24b714d432fddc5e3ff2ac93852c9/transformed/themes-1.0.2/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:capture:1.0.2] /home/miles/.gradle/caches/8.9/transforms/d3a8eb64c50ed07484eeeee0f1b482d0/transformed/capture-1.0.2/AndroidManifest.xml:5:5-44
@@ -289,8 +289,8 @@ MERGED from [com.bylazar:utils:1.0.3] /home/miles/.gradle/caches/8.9/transforms/
 MERGED from [com.bylazar:utils:1.0.3] /home/miles/.gradle/caches/8.9/transforms/d3163c4c30e7b6f7be27c32e05bac259/transformed/utils-1.0.3/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:pinger:1.0.2] /home/miles/.gradle/caches/8.9/transforms/71be8abbaa43dde3179d427b69a6f001/transformed/pinger-1.0.2/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:pinger:1.0.2] /home/miles/.gradle/caches/8.9/transforms/71be8abbaa43dde3179d427b69a6f001/transformed/pinger-1.0.2/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:graph:1.0.2] /home/miles/.gradle/caches/8.9/transforms/252c87bbc9c5ca705de626cc806898dc/transformed/graph-1.0.2/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:graph:1.0.2] /home/miles/.gradle/caches/8.9/transforms/252c87bbc9c5ca705de626cc806898dc/transformed/graph-1.0.2/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:graph:1.0.3] /home/miles/.gradle/caches/8.9/transforms/2d36798a2c90d7f6de628ba7dfdea9dd/transformed/graph-1.0.3/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:graph:1.0.3] /home/miles/.gradle/caches/8.9/transforms/2d36798a2c90d7f6de628ba7dfdea9dd/transformed/graph-1.0.3/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:lights:1.0.2] /home/miles/.gradle/caches/8.9/transforms/1c3e8cfe2a832f31c55b3133118fbf77/transformed/lights-1.0.2/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:lights:1.0.2] /home/miles/.gradle/caches/8.9/transforms/1c3e8cfe2a832f31c55b3133118fbf77/transformed/lights-1.0.2/AndroidManifest.xml:5:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.0] /home/miles/.gradle/caches/8.9/transforms/79871b9702f06cd63f907ec6409d83ef/transformed/annotation-experimental-1.4.0/AndroidManifest.xml:5:5-44

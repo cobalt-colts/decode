@@ -22,7 +22,7 @@ public class Constants {
             .lateralZeroPowerAcceleration(-55.01)
             .translationalPIDFCoefficients(new PIDFCoefficients(0.17, 0.0001, 0.012, 0))
             .headingPIDFCoefficients(new PIDFCoefficients(1.15, 0.01, 0.02, 0.01))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.026,0.0,0.00001,0.6,0.01))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.02,0.0,0.00001,0.6,0.01))
             .centripetalScaling(0.00025);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
