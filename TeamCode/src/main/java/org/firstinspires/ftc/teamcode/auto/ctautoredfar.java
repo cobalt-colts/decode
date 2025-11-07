@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
@@ -35,28 +36,34 @@ public class ctautoredfar extends OpMode {
         public static PathChain offline;
         public static PathChain line1;
         public static PathChain line1launch;
+        public static PathChain autoreturn;
+
 
         public Paths(Follower follower) {
             preload = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(120.000, 128.000), new Pose(80.000, 100.000))
+                            new BezierLine(new Pose(120.000, 128.000), new Pose(100.000, 100.000))
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(216.5))
+                    .setConstantHeadingInterpolation(Math.toRadians(-135))
                     .build();
 
             offline = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(80.000, 97), new Pose(100.000, 83.500))
+                            new BezierCurve(
+                                    new Pose(100.000, 100.000),
+                                    new Pose(80.584, 88.627),
+                                    new Pose(91.566, 83.500)
+                            )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(216.5), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(0))
                     .build();
 
             line1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(97.000, 83.500), new Pose(120.000, 83.368))
+                            new BezierLine(new Pose(91.566, 83.500), new Pose(120.000, 83.368))
                     )
                     .setTangentHeadingInterpolation()
                     .build();
@@ -64,9 +71,26 @@ public class ctautoredfar extends OpMode {
             line1launch = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(120.000, 83.368), new Pose(80.000, 100.000))
+                            new BezierCurve(
+                                    new Pose(120.000, 83.368),
+                                    new Pose(81.667, 82.595),
+                                    new Pose(101.929, 93.577),
+                                    new Pose(100.000, 100.000)
+                            )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(216.5))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-135))
+                    .build();
+
+            autoreturn = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierCurve(
+                                    new Pose(100.000, 100.000),
+                                    new Pose(64.653, 75.016),
+                                    new Pose(101.774, 59.858)
+                            )
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(-135), Math.toRadians(0))
                     .build();
         }
     }
@@ -92,7 +116,11 @@ public class ctautoredfar extends OpMode {
 
                     indexer.setPosition(0.75);
 
-                    Thread.sleep(5000);
+                    Thread.sleep(2500);
+
+                    flywheel.setVelocity(-flywheelpower*0.8);
+
+                    Thread.sleep(2500);
 
                     flywheel.setVelocity(0);
                     elevator.setPower(0);
@@ -119,18 +147,22 @@ public class ctautoredfar extends OpMode {
                 break;
             case 4:
                 if(!follower.isBusy()) {
-                    flywheel.setVelocity(-flywheelpower);
+                    flywheel.setVelocity(-1330);
                     elevator.setPower(1);
 
                     indexer.setPosition(0.75);
 
-                    Thread.sleep(5000);
+                    Thread.sleep(2500);
+
+                    flywheel.setVelocity(-1330*0.8);
+
+                    Thread.sleep(2500);
 
                     intake.setPower(0);
                     flywheel.setVelocity(0);
                     elevator.setPower(0);
 
-                    follower.followPath(Paths.offline, true);
+                    follower.followPath(Paths.autoreturn, true);
                     setPathState(-1);
                 }
         }
@@ -162,7 +194,7 @@ public class ctautoredfar extends OpMode {
     }
 
     public static int waittime = 1000;
-    public static double flywheelpower = 1430;
+    public static double flywheelpower = 1400;
 
     boolean pathDone = false;
 

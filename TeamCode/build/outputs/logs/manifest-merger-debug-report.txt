@@ -17,7 +17,7 @@ MERGED from [org.firstinspires.ftc:Hardware:11.0.0] /home/miles/.gradle/caches/8
 MERGED from [org.firstinspires.ftc:Vision:11.0.0] /home/miles/.gradle/caches/8.9/transforms/3e6ea899d6c159c184bb6f3db60cda7f/transformed/Vision-11.0.0/AndroidManifest.xml:2:1-7:12
 MERGED from [org.firstinspires.ftc:RobotCore:11.0.0] /home/miles/.gradle/caches/8.9/transforms/ed8b97fe8b26ca0ed995580bab04e033/transformed/RobotCore-11.0.0/AndroidManifest.xml:2:1-129:12
 MERGED from [com.bylazar:fullpanels:1.0.8] /home/miles/.gradle/caches/8.9/transforms/8c45a19cd8d542b5c0bde2c13daa7dc8/transformed/fullpanels-1.0.8/AndroidManifest.xml:2:1-7:12
-MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c3c113897f1f6ef440e4f1198be2e348/transformed/panels-1.0.3/AndroidManifest.xml:2:1-7:12
+MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/d85211279ece6c2059a7222ca520e147/transformed/panels-1.0.3/AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.12.0] /home/miles/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /home/miles/.gradle/caches/8.9/transforms/215ecb5878c843171e494fa26264f74b/transformed/constraintlayout-2.0.1/AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /home/miles/.gradle/caches/8.9/transforms/0076a8f85dca97df07d54d0a6f4b340b/transformed/appcompat-resources-1.6.1/AndroidManifest.xml:17:1-22:12
@@ -171,8 +171,8 @@ MERGED from [org.firstinspires.ftc:RobotCore:11.0.0] /home/miles/.gradle/caches/
 MERGED from [org.firstinspires.ftc:RobotCore:11.0.0] /home/miles/.gradle/caches/8.9/transforms/ed8b97fe8b26ca0ed995580bab04e033/transformed/RobotCore-11.0.0/AndroidManifest.xml:7:5-44
 MERGED from [com.bylazar:fullpanels:1.0.8] /home/miles/.gradle/caches/8.9/transforms/8c45a19cd8d542b5c0bde2c13daa7dc8/transformed/fullpanels-1.0.8/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:fullpanels:1.0.8] /home/miles/.gradle/caches/8.9/transforms/8c45a19cd8d542b5c0bde2c13daa7dc8/transformed/fullpanels-1.0.8/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c3c113897f1f6ef440e4f1198be2e348/transformed/panels-1.0.3/AndroidManifest.xml:5:5-44
-MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c3c113897f1f6ef440e4f1198be2e348/transformed/panels-1.0.3/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/d85211279ece6c2059a7222ca520e147/transformed/panels-1.0.3/AndroidManifest.xml:5:5-44
+MERGED from [com.bylazar:panels:1.0.3] /home/miles/.gradle/caches/8.9/transforms/d85211279ece6c2059a7222ca520e147/transformed/panels-1.0.3/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.material:material:1.12.0] /home/miles/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.material:material:1.12.0] /home/miles/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /home/miles/.gradle/caches/8.9/transforms/215ecb5878c843171e494fa26264f74b/transformed/constraintlayout-2.0.1/AndroidManifest.xml:5:5-7:41

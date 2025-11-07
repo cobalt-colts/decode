@@ -15,6 +15,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.util.ll;
 
 import java.util.List;
 
@@ -142,7 +143,9 @@ public class decodemain extends LinearOpMode {
             }
 
             if (gamepad1.right_trigger >= 0.2) {
-                flywheel.setVelocity(flyWheelPower);
+                double flywheelpow = ll.fetchFlywheelSpeed(limelight);
+                flywheel.setVelocity(flywheelpow);
+
             } else {
                 flywheel.setVelocity(0);
             }
