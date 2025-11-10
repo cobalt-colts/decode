@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -22,7 +23,7 @@ import java.util.List;
 
 @Config
 @Configurable
-@TeleOp(name = "Main Decode TeleOp")
+@TeleOp(name = "Meet 1 TeleOp")
 public class decodemain extends LinearOpMode {
 
     public static double flyWheelPower = 1400;
@@ -30,9 +31,11 @@ public class decodemain extends LinearOpMode {
 
     public static double indexerPos = 0.93;
 
-    public static double elevatorPower = 1;
+    public static double liftPos = 1;
 
     public static boolean indexeractive = false;
+
+    public static double engageopenpos = 0;
 
     final double indexerHome = 0.93;
     final double indexerPush1 = 0.85;
@@ -40,6 +43,14 @@ public class decodemain extends LinearOpMode {
     final double indexerPush3 = 0.75;
 
     final double indexerTransfer = 0.75;
+
+    private boolean isWhite(ColorSensor sensor){
+        if (sensor.red() >= 120 && sensor.blue() >= 120 && sensor.green() >= 120){
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -53,13 +64,18 @@ public class decodemain extends LinearOpMode {
 
 
         DcMotor intake = hardwareMap.dcMotor.get("intake");
-        DcMotorEx flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
+        DcMotorEx thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
+        DcMotorEx thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
 
-        Servo indexer = hardwareMap.servo.get("indexer");
+        CRServo indexer = hardwareMap.crservo.get("indexer");
+        Servo indexengage = hardwareMap.servo.get("indexEngage");
 
-        DcMotor elevator = hardwareMap.dcMotor.get("elevator");
+        Servo lift = hardwareMap.servo.get("lift");
+        Servo hood = hardwareMap.servo.get("hood");
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        ColorSensor indexsensor = hardwareMap.colorSensor.get("indexSensor");
 
 
         telemetry.setMsTransmissionInterval(100);
@@ -76,14 +92,14 @@ public class decodemain extends LinearOpMode {
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        thrower1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        thrower2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Retrieve the IMU from the hardware map
         IMU imu = hardwareMap.get(IMU.class, "imu");
         // Adjust the orientation parameters to match your robot
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                 RevHubOrientationOnRobot.UsbFacingDirection.UP));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
@@ -135,6 +151,7 @@ public class decodemain extends LinearOpMode {
 
             if (gamepad1.cross) {
                 intake.setPower(1);
+                indexengage.setPosition(engageopenpos);
                 indexerPos = indexerHome;
             } else if (gamepad1.square) {
                 intake.setPower(-0.4);
@@ -142,38 +159,29 @@ public class decodemain extends LinearOpMode {
                 intake.setPower(0);
             }
 
+            if (gamepad1.triangle) {
+                indexengage.setPosition(1);
+
+            }
+
             if (gamepad1.right_trigger >= 0.2) {
                 double flywheelpow = ll.fetchFlywheelSpeed(limelight);
-                flywheel.setVelocity(flywheelpow);
-
+                telemetry.addData("flywheelvelocity", flyWheelPower);
+                thrower1.setVelocity(flyWheelPower);
             } else {
-                flywheel.setVelocity(0);
+                thrower1.setVelocity(0);
             }
 
-            if (gamepad1.right_trigger > gamepad1.left_trigger) {
-                elevatorPower = gamepad1.right_trigger;
-            } else if (gamepad1.left_trigger > gamepad1.right_trigger) {
-                elevatorPower = -gamepad1.left_trigger;
+            if (gamepad1.left_bumper){
+                lift.setPosition(liftPos);
             } else {
-                elevatorPower = 0;
+                lift.setPosition(0);
             }
-
-            if (gamepad1.dpad_down) indexerPos = indexerHome;
-            if (gamepad1.dpad_right) indexerPos = indexerPush1;
-            if (gamepad1.dpad_up) indexerPos = indexerPush2;
-            if (gamepad1.dpad_left) indexerPos = indexerPush3;
-
-            indexer.setPosition(indexerPos);
-            elevator.setPower(elevatorPower);
 
 
                     if (gamepad1.right_bumper) {
                       LLResult result = limelight.getLatestResult();
                     List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-
-                        for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                          telemetry.addData("Limelight ID", fiducial.getFiducialId());
-                        }
                         double horizontalOffset = result.getTx();
                         double turnPower = 0.25;
                         double tolerance = 1;
