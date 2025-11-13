@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.sax.StartElementListener;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -12,9 +14,12 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.util.ll;
 
@@ -26,7 +31,7 @@ import java.util.List;
 @TeleOp(name = "Meet 1 TeleOp")
 public class decodemain extends LinearOpMode {
 
-    public static double flyWheelPower = 1400;
+    public static double flyWheelPower = 6000;
     public static double intakePower = 0.75;
 
     public static double indexerPos = 0.93;
@@ -35,7 +40,9 @@ public class decodemain extends LinearOpMode {
 
     public static boolean indexeractive = false;
 
-    public static double engageopenpos = 0;
+    public static double engageopenpos = 0.7;
+    public static double liftpos = 1;
+    public static double hoodpos = 0.35; // bottom is 0.35, top is 0.
 
     final double indexerHome = 0.93;
     final double indexerPush1 = 0.85;
@@ -44,12 +51,10 @@ public class decodemain extends LinearOpMode {
 
     final double indexerTransfer = 0.75;
 
-    private boolean isWhite(ColorSensor sensor){
-        if (sensor.red() >= 120 && sensor.blue() >= 120 && sensor.green() >= 120){
-            return true;
-        } else {
-            return false;
-        }
+    private boolean isWhite(NormalizedColorSensor sensor){
+        NormalizedRGBA colors = sensor.getNormalizedColors();
+        return colors.red >= 0.07 && colors.blue >= 0.07 && colors.green >= 0.07;
+
     }
 
     @Override
@@ -75,7 +80,7 @@ public class decodemain extends LinearOpMode {
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
-        ColorSensor indexsensor = hardwareMap.colorSensor.get("indexSensor");
+        NormalizedColorSensor indexsensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
 
 
         telemetry.setMsTransmissionInterval(100);
@@ -110,7 +115,10 @@ public class decodemain extends LinearOpMode {
 
         if (isStopRequested()) return;
 
+        // State machine for indexer
+        int indexerState = 0; // 0: idle, 1: moving to white, 2: moving past white, 3: moving to next white
 
+        indexengage.setPosition(engageopenpos);
 
         while (opModeIsActive()) {
 
@@ -152,64 +160,112 @@ public class decodemain extends LinearOpMode {
             if (gamepad1.cross) {
                 intake.setPower(1);
                 indexengage.setPosition(engageopenpos);
-                indexerPos = indexerHome;
             } else if (gamepad1.square) {
                 intake.setPower(-0.4);
             } else {
                 intake.setPower(0);
             }
 
+            // Start the indexer sequence
             if (gamepad1.triangle) {
-                indexengage.setPosition(1);
-
+                indexerState = 1;
+                indexengage.setPosition(0.825); //0.825;
             }
 
+            // Indexer State Machine
+            switch (indexerState) {
+                case 1: // Move until white is detected
+                    if (isWhite(indexsensor)) {
+                        indexerState = 2;
+                    } else {
+                        indexerState = 4;
+                    }
+                    break;
+                case 2: // Move until white is no longer detected
+                    if (!isWhite(indexsensor)) {
+                        indexerState = 3;
+                    } else {
+                        indexer.setPower(0.125);
+                    }
+                    break;
+                case 3: // Move until the next white is detected
+                    if (isWhite(indexsensor)) {
+                        indexer.setPower(0);
+                        indexerState = 0; // Sequence finished
+                    } else {
+                        indexer.setPower(0.125);
+                    }
+                    break;
+                case 4:
+                    if (isWhite(indexsensor)) {
+                        indexer.setPower(0);
+                        indexerState = 0; // Sequence finished
+                    } else {
+                        indexer.setPower(0.125);
+                    }
+                    break;
+
+                default: // Idle state
+                    indexer.setPower(0);
+                    break;
+            }
+
+
             if (gamepad1.right_trigger >= 0.2) {
-                double flywheelpow = ll.fetchFlywheelSpeed(limelight);
-                telemetry.addData("flywheelvelocity", flyWheelPower);
-                thrower1.setVelocity(flyWheelPower);
+                thrower1.setVelocity(ll.fetchFlywheelSpeed(limelight)/60, AngleUnit.DEGREES);
+                thrower2.setVelocity(ll.fetchFlywheelSpeed(limelight)/60, AngleUnit.DEGREES);
+                hood.setPosition(ll.fetchHoodPos(limelight));
             } else {
                 thrower1.setVelocity(0);
+                thrower2.setVelocity(0);
             }
 
             if (gamepad1.left_bumper){
-                lift.setPosition(liftPos);
-            } else {
                 lift.setPosition(0);
+            } else {
+                lift.setPosition(0.9);
             }
 
 
-                    if (gamepad1.right_bumper) {
-                      LLResult result = limelight.getLatestResult();
+            if (gamepad1.right_bumper) {
+                LLResult result = limelight.getLatestResult();
+                if(result != null && result.isValid()) {
                     List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                        double horizontalOffset = result.getTx();
-                        double turnPower = 0.25;
-                        double tolerance = 1;
+                    double horizontalOffset = result.getTx();
+                    double turnPower = 0.25;
+                    double tolerance = 1;
 
-                        while (opModeIsActive() && Math.abs(horizontalOffset) > tolerance) {
-                            if (horizontalOffset > 0) {
-                                frontLeftMotor.setPower(-turnPower);
-                                frontRightMotor.setPower(turnPower);
-                                backLeftMotor.setPower(-turnPower);
-                                backRightMotor.setPower(turnPower);
+                    if (Math.abs(horizontalOffset) > tolerance) {
+                        if (horizontalOffset > 0) {
+                            frontLeftMotor.setPower(-turnPower);
+                            frontRightMotor.setPower(turnPower);
+                            backLeftMotor.setPower(-turnPower);
+                            backRightMotor.setPower(turnPower);
 
-                            } else {
-                                frontLeftMotor.setPower(turnPower);
-                                frontRightMotor.setPower(-turnPower);
-                                backLeftMotor.setPower(turnPower);
-                                backLeftMotor.setPower(-turnPower);
-                            }
-                            LLResult newresult = limelight.getLatestResult();
-                            horizontalOffset = newresult.getTx();
+                        } else {
+                            frontLeftMotor.setPower(turnPower);
+                            frontRightMotor.setPower(-turnPower);
+                            backLeftMotor.setPower(turnPower);
+                            backRightMotor.setPower(-turnPower);
                         }
-
+                    } else {
                         frontRightMotor.setPower(0);
                         frontLeftMotor.setPower(0);
                         backLeftMotor.setPower(0);
                         backRightMotor.setPower(0);
-
                     }
                 }
-                telemetry.update();
+            }
+
+            // Telemetry
+            NormalizedRGBA colors = indexsensor.getNormalizedColors();
+            telemetry.addData("red", colors.red);
+            telemetry.addData("green", colors.green);
+            telemetry.addData("blue", colors.blue);
+            telemetry.addData("thrower1velocity", thrower1.getVelocity(AngleUnit.DEGREES)*60);
+            telemetry.addData("thrower2velocity", thrower2.getVelocity(AngleUnit.DEGREES)*60);
+            telemetry.update();
+
         }
-        }
+    }
+}

@@ -15,10 +15,26 @@ public class ll {
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             ta = result.getTa();
-            flywheelspeed = 2161 * Math.pow(0.86, ta);
+            // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
+            flywheelspeed = 5293 * Math.pow(0.9236, ta);
         } else {
             flywheelspeed = 1430;
         }
         return flywheelspeed;
+    }
+    public static double fetchHoodPos(Limelight3A limelight) {
+        double ta = 0;
+        double hoodpos = 0.5;
+        limelight.setPollRateHz(100);
+        limelight.start();
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            ta = result.getTa();
+            // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
+            hoodpos = .33649 * Math.pow(1.2303, ta);
+        } else {
+            hoodpos = 0.5;
+        }
+        return hoodpos;
     }
 }
