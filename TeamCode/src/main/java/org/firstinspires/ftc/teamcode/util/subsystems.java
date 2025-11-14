@@ -5,10 +5,13 @@ import android.service.controls.Control;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.R;
+
 import java.util.stream.DoubleStream;
 
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.hardware.controllable.RunToPosition;
 import dev.nextftc.hardware.controllable.RunToVelocity;
@@ -20,9 +23,6 @@ import dev.nextftc.hardware.powerable.SetPower;
 
 public class subsystems {
 
-    private static void index(){
-        return;
-    }
     public static class Indexer implements Subsystem {
         public static final Indexer INSTANCE = new Indexer();
         private Indexer() { }
@@ -60,12 +60,33 @@ public class subsystems {
                 .basicFF(0.000357)
                 .build();
 
+        public Command spinup = new LambdaCommand()
+                .setStart(() -> {
+                    new RunToVelocity(controlSystem, 2000).schedule();
+                    new RunToVelocity(controlSystem, 2000).schedule();
+                        }
+                )
+                .requires(this)
+                .setInterruptible(true)
+                .setIsDone(() -> true)
+                .named("Spin Thrower Up");
+
+        public Command autoshootpos = new LambdaCommand()
+                .setStart(() -> {
+                            new RunToVelocity(controlSystem, 2000).schedule();
+                            new RunToVelocity(controlSystem, 2000).schedule();
+                        }
+                )
+                .requires(this)
+                .setInterruptible(true)
+                .named("Spin Thrower Up");
+
         @Override
         public void periodic() {
             Subsystem.super.periodic();
             double power = controlSystem.calculate(thrower1.getState());
             thrower1.setPower(power);
-            thrower2.setPower();
+            thrower2.setPower(power);
         }
 
     }
