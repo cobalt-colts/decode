@@ -22,7 +22,7 @@ MERGED from [com.google.android.material:material:1.12.0] /home/miles/.gradle/ca
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /home/miles/.gradle/caches/8.9/transforms/215ecb5878c843171e494fa26264f74b/transformed/constraintlayout-2.0.1/AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /home/miles/.gradle/caches/8.9/transforms/0076a8f85dca97df07d54d0a6f4b340b/transformed/appcompat-resources-1.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.appcompat:appcompat:1.6.1] /home/miles/.gradle/caches/8.9/transforms/ce2ad3af4cf17368a74e21f17f868bd1/transformed/appcompat-1.6.1/AndroidManifest.xml:17:1-22:12
-MERGED from [com.pedropathing:ftc:2.0.3] /home/miles/.gradle/caches/8.9/transforms/194ea47464a701bc20bd276eac089467/transformed/ftc-2.0.3/AndroidManifest.xml:2:1-7:12
+MERGED from [com.pedropathing:ftc:2.0.4] /home/miles/.gradle/caches/8.9/transforms/0d124d8e91978bda746c0741df2c615b/transformed/ftc-2.0.4/AndroidManifest.xml:2:1-7:12
 MERGED from [com.pedropathing:telemetry:1.0.0] /home/miles/.gradle/caches/8.9/transforms/f1ad4d8d82f4bdadbf86684279578b6a/transformed/telemetry-1.0.0/AndroidManifest.xml:2:1-7:12
 MERGED from [com.bylazar:configurables:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c1700c3a7622653af5cceea37b7e5677/transformed/configurables-1.0.3/AndroidManifest.xml:2:1-7:12
 MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/miles/.gradle/caches/8.9/transforms/54327fc486dba706935927183821c8d8/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:17:1-56:12
@@ -181,8 +181,8 @@ MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /home/miles/.gradle/c
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /home/miles/.gradle/caches/8.9/transforms/0076a8f85dca97df07d54d0a6f4b340b/transformed/appcompat-resources-1.6.1/AndroidManifest.xml:20:5-44
 MERGED from [androidx.appcompat:appcompat:1.6.1] /home/miles/.gradle/caches/8.9/transforms/ce2ad3af4cf17368a74e21f17f868bd1/transformed/appcompat-1.6.1/AndroidManifest.xml:20:5-44
 MERGED from [androidx.appcompat:appcompat:1.6.1] /home/miles/.gradle/caches/8.9/transforms/ce2ad3af4cf17368a74e21f17f868bd1/transformed/appcompat-1.6.1/AndroidManifest.xml:20:5-44
-MERGED from [com.pedropathing:ftc:2.0.3] /home/miles/.gradle/caches/8.9/transforms/194ea47464a701bc20bd276eac089467/transformed/ftc-2.0.3/AndroidManifest.xml:5:5-44
-MERGED from [com.pedropathing:ftc:2.0.3] /home/miles/.gradle/caches/8.9/transforms/194ea47464a701bc20bd276eac089467/transformed/ftc-2.0.3/AndroidManifest.xml:5:5-44
+MERGED from [com.pedropathing:ftc:2.0.4] /home/miles/.gradle/caches/8.9/transforms/0d124d8e91978bda746c0741df2c615b/transformed/ftc-2.0.4/AndroidManifest.xml:5:5-44
+MERGED from [com.pedropathing:ftc:2.0.4] /home/miles/.gradle/caches/8.9/transforms/0d124d8e91978bda746c0741df2c615b/transformed/ftc-2.0.4/AndroidManifest.xml:5:5-44
 MERGED from [com.pedropathing:telemetry:1.0.0] /home/miles/.gradle/caches/8.9/transforms/f1ad4d8d82f4bdadbf86684279578b6a/transformed/telemetry-1.0.0/AndroidManifest.xml:5:5-44
 MERGED from [com.pedropathing:telemetry:1.0.0] /home/miles/.gradle/caches/8.9/transforms/f1ad4d8d82f4bdadbf86684279578b6a/transformed/telemetry-1.0.0/AndroidManifest.xml:5:5-44
 MERGED from [com.bylazar:configurables:1.0.3] /home/miles/.gradle/caches/8.9/transforms/c1700c3a7622653af5cceea37b7e5677/transformed/configurables-1.0.3/AndroidManifest.xml:5:5-44

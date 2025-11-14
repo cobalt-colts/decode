@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 
 @Config
+@Configurable
 public class ShooterPIDConfig {
+
+
 
     // 6000 RPM goBILDA motors — they generally use 28 CPR encoders.
     // If you have no gearbox, then ticksPerRev = 28.

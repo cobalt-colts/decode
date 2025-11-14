@@ -16,9 +16,9 @@ public class ll {
         if (result != null && result.isValid()) {
             ta = result.getTa();
             // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
-            flywheelspeed = 5293 * Math.pow(0.9236, ta);
+            flywheelspeed = 1943.72 * Math.pow(0.90446, ta);
         } else {
-            flywheelspeed = 1430;
+            flywheelspeed = 1600;
         }
         return flywheelspeed;
     }

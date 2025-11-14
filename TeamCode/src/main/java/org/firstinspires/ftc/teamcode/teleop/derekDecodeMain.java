@@ -31,7 +31,7 @@ import java.util.List;
 
 @Config
 @Configurable
-@TeleOp(name = "Derek'Meet 1 TeleOp")
+@TeleOp(name = "Meet 1 TeleOp")
 public class derekDecodeMain extends LinearOpMode {
 
     public static double flyWheelP = 0;
