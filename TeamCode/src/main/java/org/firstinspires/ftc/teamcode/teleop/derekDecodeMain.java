@@ -148,29 +148,29 @@ public class derekDecodeMain extends LinearOpMode {
 
             limelight.start();
 
-            if (gamepad1.left_bumper) {
-                LLResult result = limelight.getLatestResult();
-                if(result != null && result.isValid()) {
-                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                    double horizontalOffset = result.getTx();
-                    double turnPower = 0.25;
-                    double tolerance = 1;
-
-                    if (Math.abs(horizontalOffset) > tolerance) {
-                        if (horizontalOffset > 0) {
-                            rx = -turnPower;
-
-                        } else {
-                            rx = turnPower;
-                        }
-                    } else {
-                        frontRightMotor.setPower(0);
-                        frontLeftMotor.setPower(0);
-                        backLeftMotor.setPower(0);
-                        backRightMotor.setPower(0);
-                    }
-                }
-            }
+//            if (gamepad1.left_bumper) {
+//                LLResult result = limelight.getLatestResult();
+//                if(result != null && result.isValid()) {
+//                    List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+//                    double horizontalOffset = result.getTx();
+//                    double turnPower = 0.25;
+//                    double tolerance = 1;
+//
+//                    if (Math.abs(horizontalOffset) > tolerance) {
+//                        if (horizontalOffset > 0) {
+//                            rx = -turnPower;
+//
+//                        } else {
+//                            rx = turnPower;
+//                        }
+//                    } else {
+//                        frontRightMotor.setPower(0);
+//                        frontLeftMotor.setPower(0);
+//                        backLeftMotor.setPower(0);
+//                        backRightMotor.setPower(0);
+//                    }
+//                }
+//            }
 
             // This button choice was made so that it is hard to hit on accident,
             // it can be freely changed based on preference.
@@ -285,27 +285,61 @@ public class derekDecodeMain extends LinearOpMode {
 
             if (gamepad1.right_trigger >= 0.2) {
                 targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
+                if (targetTps >= 1000) hoodpos = .15;
+                else hoodpos = .25;
+
+                if (targetTps < 775) gamepad1.rumble(500);
 
                 double v1 = thrower1.getVelocity();
                 double v2 = thrower2.getVelocity();
 
-                if (Math.abs(targetTps/thrower1.getVelocity()) <= 1.3 && !gamepad1.dpad_down) liftUp = true;
+                if (Math.abs(targetTps/thrower1.getVelocity()) <= 1.3 && !gamepad1.dpad_down && !gamepad1.left_bumper) liftUp = true;
 
 
-                telemetry.addData("error", Math.abs(targetTps - thrower1.getVelocity()) <= 5 && !gamepad1.dpad_down);
-                telemetry.addData("Target (tps)", targetTps);
-                telemetry.addData("Thrower1 (tps)", v1);
-                telemetry.addData("Thrower2 (tps)", v2);
-                telemetry.update();
+//                telemetry.addData("error", Math.abs(targetTps - thrower1.getVelocity()) <= 5 && !gamepad1.dpad_down);
+//                telemetry.addData("Target (tps)", targetTps);
+//                telemetry.addData("Thrower1 (tps)", v1);
+//                telemetry.addData("Thrower2 (tps)", v2);
+//                telemetry.update();
 //                hood.setPosition(ll.fetchHoodPos(limelight));
-                hoodpos = 0.25;
+//                hoodpos = 0.25;
+
+                if (gamepad1.left_bumper) {
+                    LLResult result = limelight.getLatestResult();
+                    if(result != null && result.isValid()) {
+                        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                        double horizontalOffset = -result.getTy();
+                        double turnPower = 0.25;
+                        double tolerance = 1;
+
+                        if (Math.abs(horizontalOffset) > tolerance) {
+                            if (horizontalOffset > 0) {
+                                frontLeftMotor.setPower(-turnPower);
+                                frontRightMotor.setPower(turnPower);
+                                backLeftMotor.setPower(-turnPower);
+                                backRightMotor.setPower(turnPower);
+
+                            } else {
+                                frontLeftMotor.setPower(turnPower);
+                                frontRightMotor.setPower(-turnPower);
+                                backLeftMotor.setPower(turnPower);
+                                backRightMotor.setPower(-turnPower);
+                            }
+                        } else {
+                            frontRightMotor.setPower(0);
+                            frontLeftMotor.setPower(0);
+                            backLeftMotor.setPower(0);
+                            backRightMotor.setPower(0);
+                        }
+                    }
+                }
             } else {
                 targetTps = 0;
             }
 
             if (gamepad1.dpad_up){
                 liftUp = true;
-            } else if (gamepad1.dpad_down){
+            } else if (gamepad1.dpad_down || gamepad1.right_trigger < 0.1){
                 liftUp = false;
             }
 
@@ -322,6 +356,8 @@ public class derekDecodeMain extends LinearOpMode {
             telemetry.addData("red", colors.red);
             telemetry.addData("green", colors.green);
             telemetry.addData("blue", colors.blue);
+            telemetry.addData("hood: ", hoodpos);
+            telemetry.addData("target: ", targetTps);
             telemetry.addData("thrower1velocity", thrower1.getVelocity(AngleUnit.DEGREES)*60);
             telemetry.addData("thrower2velocity", thrower2.getVelocity(AngleUnit.DEGREES)*60);
             telemetry.update();

@@ -22,4 +22,7 @@ public class ShooterPIDConfig {
 
     // Desired shooter RPM (dashboard-adjustable)
     public static double targetRpm = 0;
+
+    public static double hoodPos = 0.25;
+    public static boolean autoAim = false;
 }
