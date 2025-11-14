@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,12 +18,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.util.ShooterPIDConfig;
 import org.firstinspires.ftc.teamcode.util.ll;
 
+@Config
 @TeleOp(name = "Shooter Dashboard Tuning", group = "Tuning")
 public class ShooterDashboardTuning extends LinearOpMode {
 
     private DcMotorEx thrower1, thrower2;
 
-    public static double hoodPos = 0.25;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -62,7 +65,11 @@ public class ShooterDashboardTuning extends LinearOpMode {
             );
 
 //            double targetTps = ShooterPIDConfig.targetRpm * ShooterPIDConfig.TICKS_PER_REV / 60.0;
-            double targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
+//            double targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
+
+            double targetTps = ShooterPIDConfig.TICKS_PER_REV / 60.0;
+            if (ShooterPIDConfig.autoAim) targetTps *= ll.fetchFlywheelSpeed(limelight);
+            else targetTps *= ShooterPIDConfig.targetRpm;
 
             thrower1.setVelocity(targetTps);
             thrower2.setVelocity(targetTps);
@@ -70,7 +77,7 @@ public class ShooterDashboardTuning extends LinearOpMode {
             double v1 = thrower1.getVelocity() / ShooterPIDConfig.TICKS_PER_REV * 60.0;
             double v2 = thrower2.getVelocity() / ShooterPIDConfig.TICKS_PER_REV * 60.0;
 
-            hood.setPosition(hoodPos);
+            hood.setPosition(ShooterPIDConfig.hoodPos);
 
             TelemetryPacket p = new TelemetryPacket();
             p.put("target_tps", targetTps);

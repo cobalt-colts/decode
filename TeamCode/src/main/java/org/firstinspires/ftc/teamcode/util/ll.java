@@ -15,8 +15,12 @@ public class ll {
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             ta = result.getTa();
-            // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
-            flywheelspeed = 1943.72 * Math.pow(0.90446, ta);
+            if (ta >= 0.5) {
+                // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
+                flywheelspeed = 1943.72 * Math.pow(0.90446, ta);
+            } else {
+                flywheelspeed = 2300;
+            }
         } else {
             flywheelspeed = 1600;
         }
