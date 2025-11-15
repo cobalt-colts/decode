@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
+
+import java.util.List;
 
 
 public class ll {
@@ -25,6 +28,22 @@ public class ll {
             flywheelspeed = 1600;
         }
         return flywheelspeed;
+    }
+    public static double fetchAlignment(Limelight3A limelight) {
+        LLResult result = limelight.getLatestResult();
+        if(result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            double horizontalOffset = -result.getTy();
+            double turnPower = 0.25;
+            double tolerance = 1;
+
+            if (Math.abs(horizontalOffset) > tolerance) {
+//                if (horizontalOffset > 0) return 0.2;
+//                else return -0.2;
+                return  (horizontalOffset / 10);
+            } else return 0;
+        }
+        else return 6767;
     }
     public static double fetchHoodPos(Limelight3A limelight) {
         double ta = 0;

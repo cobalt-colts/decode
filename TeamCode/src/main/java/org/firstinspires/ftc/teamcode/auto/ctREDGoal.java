@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@Autonomous(name = "Meet 1-RED Goal")
+@Autonomous(name = "Meet 1-RED Goal", preselectTeleOp = "Meet 1 TeleOp SAFE")
 public class ctREDGoal extends LinearOpMode {
 
     private Follower follower;
@@ -53,7 +53,7 @@ public class ctREDGoal extends LinearOpMode {
                             new BezierCurve(
                                     new Pose(85.000, 100.000),
                                     new Pose(77.646, 81.667),
-                                    new Pose(105.000, 80.500)
+                                    new Pose(110.000, 80.500) // x 105
                             )
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(216), Math.toRadians(0))
@@ -89,7 +89,7 @@ public class ctREDGoal extends LinearOpMode {
 
     // Blocking index routine for LinearOpMode
     public void index(NormalizedColorSensor sensor, CRServo indexer) {
-        final double power = 0.125;
+        final double power = 0.075; // 0.125
         long start = System.currentTimeMillis();
 
         DcMotor intake = hardwareMap.dcMotor.get("intake");
@@ -199,17 +199,20 @@ public class ctREDGoal extends LinearOpMode {
                         thrower2.setVelocity(speed);
 
                         sleep(2000);
-                        for (int i = 0; i < 5; i++) {
+                        lift.setPosition(0);
+                        sleep(2000);
+                        lift.setPosition(0.9);
+                        for (int i = 0; i < 2; i++) {
+                            sleep(1000);
+                            index(indexsensor, indexer);
                             lift.setPosition(0);
                             sleep(2000);
                             lift.setPosition(0.9);
-                            sleep(1000);
-                            index(indexsensor, indexer);
                         }
 
                         indexengage.setPosition(0.7);
-
-                        follower.followPath(Paths.offline, false);
+                        intake.setPower(1);
+                        follower.followPath(Paths.offline, 0.8, false);
                         setPathState(2);
                     }
                     break;

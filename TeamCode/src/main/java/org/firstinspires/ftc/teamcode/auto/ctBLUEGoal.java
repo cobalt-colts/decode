@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@Autonomous(name = "Meet 1-BLUE Goal")
+@Autonomous(name = "Meet 1-BLUE Goal", preselectTeleOp = "Meet 1 TeleOp SAFE")
 public class ctBLUEGoal extends LinearOpMode {
 
     private Follower follower;
@@ -89,7 +89,7 @@ public class ctBLUEGoal extends LinearOpMode {
 
     // Blocking index routine for LinearOpMode
     public void index(NormalizedColorSensor sensor, CRServo indexer) {
-        final double power = 0.125;
+        final double power = 0.085; // 0.125
         long start = System.currentTimeMillis();
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
@@ -197,7 +197,7 @@ public class ctBLUEGoal extends LinearOpMode {
                         thrower1.setVelocity(speed);
                         thrower2.setVelocity(speed);
 
-                        sleep(1000);
+                        sleep(2500);
                         for (int i = 0; i < 10; i++) {
                             lift.setPosition(0);
                             sleep(2000);

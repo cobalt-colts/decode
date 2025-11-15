@@ -42,7 +42,7 @@
 //
 //    public static double engageopenpos = 0.7;
 //    public static double liftpos = 1;
-//    public static double hoodpos = 0.35; // bottom is 0.35, top is 0.
+//    public static double hoodPos = 0.35; // bottom is 0.35, top is 0.
 //
 //    final double indexerHome = 0.93;
 //    final double indexerPush1 = 0.85;
