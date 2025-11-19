@@ -112,57 +112,47 @@ public class subsystems {
             public Command intakeon = new SetPower(intake,-0.4).requires(this);
             public Command intakeoff = new SetPower(intake, 0).requires(this);
     }
-    public static class Thrower implements Subsystem {
-        public static final Thrower INSTANCE = new Thrower();
-
-        private Thrower() { }
-
-        private final MotorEx thrower1 = new MotorEx("thrower1");
-        private final MotorEx thrower2 = new MotorEx("thrower2");
-
-        private final ControlSystem controlSystem = ControlSystem.builder()
-                .velPid(100, 0, 0)
-                .armFF(0.000357)
-                .build();
-
-        public Command spinup = new LambdaCommand()
-                .setStart(() -> {
-                    new RunToVelocity(controlSystem, 800).schedule();
-                        }
-                )
-                .requires(this)
-                .setInterruptible(true)
-                .setIsDone(() -> true)
-                .named("Spin Thrower Up");
-
-        public Command autoshootpos = new LambdaCommand()
-                .setStart(() -> {
-                    new RunToVelocity(controlSystem, 400, 25).schedule();
-                        }
-                )
-                .requires(this)
-                .setInterruptible(true)
-                .setIsDone(() -> true)
-                .named("Spin auto thrower");
-
-        public Command throwerstart = new LambdaCommand()
-                .setStart(() -> {
-                    thrower1.setPower(0);
-                    thrower2.setPower(0);
-                })
-                .requires(this)
-                .setIsDone(() -> true)
-                .named("reset thrower on init");
-
-        @Override
-        public void periodic() {
-            Subsystem.super.periodic();
-            double power = controlSystem.calculate(thrower1.getState());
-            thrower1.setPower(power);
-            thrower2.setPower(power);
-        }
-
-    }
+//    public static class Thrower implements Subsystem {
+//        public static final Thrower INSTANCE = new Thrower();
+//
+//        private Thrower() { }
+//
+//        private final MotorEx thrower1 = new MotorEx("thrower1");
+//        private final MotorEx thrower2 = new MotorEx("thrower2");
+//
+//        private final ControlSystem controlSystem = ControlSystem.builder()
+//                .velPid(100, 0, 0)
+//                .armFF(0.000357)
+//                .build();
+//
+//        public Command spinup = new LambdaCommand()
+//                .setStart(() -> {
+//                    new RunToVelocity(controlSystem, 800).schedule();
+//                        }
+//                )
+//                .requires(this)
+//                .setInterruptible(true)
+//                .setIsDone(() -> true)
+//                .named("Spin Thrower Up");
+//
+//        public Command autoshootpos = new LambdaCommand()
+//                .setStart(() -> {
+//                    new RunToVelocity(controlSystem, 400, 25).schedule();
+//                        }
+//                )
+//                .requires(this)
+//                .setInterruptible(true)
+//                .setIsDone(() -> true)
+//                .named("Spin auto thrower");
+//
+//        @Override
+//        public void periodic() {
+//            Subsystem.super.periodic();
+//            double power = controlSystem.calculate(thrower1.getState());
+//            thrower1.setPower(power);
+//            thrower2.setPower(power);
+//        }
+//    }
     public static class Lift implements Subsystem {
         public static final Lift INSTANCE = new Lift();
 

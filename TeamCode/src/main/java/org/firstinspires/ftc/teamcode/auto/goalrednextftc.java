@@ -25,7 +25,7 @@ public class goalrednextftc extends NextFTCOpMode {
 
     public goalrednextftc() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(subsystems.Thrower.INSTANCE, subsystems.Lift.INSTANCE),
+                new SubsystemComponent(subsystems.Lift.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -35,7 +35,7 @@ public class goalrednextftc extends NextFTCOpMode {
     private Command autoRoutine() {
         return new SequentialGroup(
                 new ParallelGroup(
-                        subsystems.Thrower.INSTANCE.autoshootpos,
+//                        subsystems.Thrower.INSTANCE.autoshootpos,
                         new FollowPath(goalred.preload, true)
                 ),
                 subsystems.Lift.INSTANCE.liftup
@@ -48,7 +48,6 @@ public class goalrednextftc extends NextFTCOpMode {
     @Override public void onInit() {
         goalred.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(120.000, 128.000, Math.toRadians(216.5)));
-        subsystems.Thrower.INSTANCE.throwerstart.schedule();
     }
     @Override
     public void onStartButtonPressed() {
