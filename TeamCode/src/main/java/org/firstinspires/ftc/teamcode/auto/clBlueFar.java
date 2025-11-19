@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@Autonomous(name = "Meet 1-BLUE Far", preselectTeleOp = "Meet 1 TeleOp SAFE")
+@Autonomous(name = "Meet 1-BLUE Far", preselectTeleOp = "Meet 1 TeleOp")
 public class clBlueFar extends LinearOpMode {
 
 
@@ -41,7 +41,7 @@ public class clBlueFar extends LinearOpMode {
         long start = System.currentTimeMillis();
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
-        intake.setPower(.5);
+        intake.setPower(-.5);
         indexer.setPower(power);
 
 //        // Phase 1: wait for white
@@ -53,15 +53,21 @@ public class clBlueFar extends LinearOpMode {
         // Phase 2: wait for NOT white
         start = System.currentTimeMillis();
         while (opModeIsActive() && isWhite(sensor)) {
-            if (System.currentTimeMillis() - start > 3000) break;
-            sleep(10);
+            if (System.currentTimeMillis() - start > 2500) {
+                indexer.setPower(-0.25);
+                if (System.currentTimeMillis() - start > 3000) break;
+            }
+            sleep(75); // 10
         }
 
         // Phase 3: wait for white again
         start = System.currentTimeMillis();
         while (opModeIsActive() && !isWhite(sensor)) {
-            if (System.currentTimeMillis() - start > 3000) break;
-            sleep(10);
+            if (System.currentTimeMillis() - start > 2500) {
+                indexer.setPower(-0.25);
+                if (System.currentTimeMillis() - start > 3000) break;
+            }
+            sleep(75); // 10
         }
 
         indexer.setPower(0);
@@ -85,7 +91,7 @@ public class clBlueFar extends LinearOpMode {
 
         Servo lift = hardwareMap.servo.get("lift");
         Servo hood = hardwareMap.servo.get("hood");
-        hood.setPosition(0.15);
+        hood.setPosition(0.2);
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
         NormalizedColorSensor indexsensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
@@ -105,18 +111,19 @@ public class clBlueFar extends LinearOpMode {
         telemetry.addLine("Initialized - Waiting for Start");
         telemetry.update();
 
-        hood.setPosition(0.4);
+        hood.setPosition(0.2);
+        indexengage.setPosition(0.825);
 
         waitForStart();
 
         while (opModeIsActive()) {
-            double speed = 2300 * ShooterPIDConfig.TICKS_PER_REV / 60.0;
+            double speed = 2150 * ShooterPIDConfig.TICKS_PER_REV / 60.0; // 2300   2200
 
             thrower1.setVelocity(speed);
             thrower2.setVelocity(speed);
-            hood.setPosition(0.15);
+            hood.setPosition(0.2); // 0.125?
 
-            sleep(2500);
+            sleep(3500);
             for (int i = 0; i < 5; i++) {
                 lift.setPosition(0);
                 sleep(2000);
@@ -125,10 +132,10 @@ public class clBlueFar extends LinearOpMode {
                 index(indexsensor, indexer);
             }
 
-            backLeftMotor.setPower(1);
-            frontLeftMotor.setPower(1);
-            backRightMotor.setPower(-1);
-            frontRightMotor.setPower(-1);
+            backLeftMotor.setPower(0.5);
+            frontLeftMotor.setPower(0.5);
+            backRightMotor.setPower(-0.5);
+            frontRightMotor.setPower(-0.5);
 
             indexengage.setPosition(0.7);
 
