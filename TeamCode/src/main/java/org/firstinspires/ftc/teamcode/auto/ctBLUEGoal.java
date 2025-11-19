@@ -146,6 +146,7 @@ public class ctBLUEGoal extends LinearOpMode {
 
         CRServo indexer = hardwareMap.crservo.get("indexer");
         Servo indexengage = hardwareMap.servo.get("indexEngage");
+        indexengage.setPosition(0.825);
 
         Servo lift = hardwareMap.servo.get("lift");
         Servo hood = hardwareMap.servo.get("hood");
@@ -168,7 +169,7 @@ public class ctBLUEGoal extends LinearOpMode {
         telemetry.addLine("Initialized - Waiting for Start");
         telemetry.update();
 
-        hood.setPosition(0.4);
+        hood.setPosition(0.4); // 0.25
 
         waitForStart();
         opmodeTimer.resetTimer();

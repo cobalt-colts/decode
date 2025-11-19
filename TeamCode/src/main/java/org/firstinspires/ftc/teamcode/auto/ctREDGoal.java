@@ -42,7 +42,7 @@ public class ctREDGoal extends LinearOpMode {
             preload = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(120.000, 128.000), new Pose(85.000, 100.000))
+                            new BezierLine(new Pose(120.000, 128.000), new Pose(92.500, 107.500)) // 85 100
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(216))
                     .build();
@@ -62,7 +62,7 @@ public class ctREDGoal extends LinearOpMode {
             line1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(100.000, 83.500), new Pose(120.000, 83.368))
+                            new BezierLine(new Pose(100.000, 83.500), new Pose(120, 83.368)) // 120
                     )
                     .setTangentHeadingInterpolation()
                     .build();
@@ -89,12 +89,11 @@ public class ctREDGoal extends LinearOpMode {
 
     // Blocking index routine for LinearOpMode
     public void index(NormalizedColorSensor sensor, CRServo indexer) {
-        final double power = 0.075; // 0.125
+        final double power = 0.081; // 0.125   0.085
         long start = System.currentTimeMillis();
-
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
-        intake.setPower(.5);
+//        intake.setPower(-.5);
         indexer.setPower(power);
 
 //        // Phase 1: wait for white
@@ -106,15 +105,21 @@ public class ctREDGoal extends LinearOpMode {
         // Phase 2: wait for NOT white
         start = System.currentTimeMillis();
         while (opModeIsActive() && isWhite(sensor)) {
-            if (System.currentTimeMillis() - start > 3000) break;
-            sleep(10);
+            if (System.currentTimeMillis() - start > 3500) {
+                indexer.setPower(-0.25);
+                if (System.currentTimeMillis() - start > 3800) break;
+            }
+            sleep(75); // 10
         }
 
         // Phase 3: wait for white again
         start = System.currentTimeMillis();
         while (opModeIsActive() && !isWhite(sensor)) {
-            if (System.currentTimeMillis() - start > 3000) break;
-            sleep(10);
+            if (System.currentTimeMillis() - start > 3500) {
+                indexer.setPower(-0.25);
+                if (System.currentTimeMillis() - start > 3800) break;
+            }
+            sleep(75); // 10
         }
 
         indexer.setPower(0);
@@ -147,6 +152,7 @@ public class ctREDGoal extends LinearOpMode {
 
         CRServo indexer = hardwareMap.crservo.get("indexer");
         Servo indexengage = hardwareMap.servo.get("indexEngage");
+        indexengage.setPosition(0.825);
 
         Servo lift = hardwareMap.servo.get("lift");
         Servo hood = hardwareMap.servo.get("hood");
@@ -169,7 +175,7 @@ public class ctREDGoal extends LinearOpMode {
         telemetry.addLine("Initialized - Waiting for Start");
         telemetry.update();
 
-        hood.setPosition(0.4);
+        hood.setPosition(0.4); // 0.25
 
         waitForStart();
         opmodeTimer.resetTimer();
@@ -202,7 +208,7 @@ public class ctREDGoal extends LinearOpMode {
                         lift.setPosition(0);
                         sleep(2000);
                         lift.setPosition(0.9);
-                        for (int i = 0; i < 2; i++) {
+                        for (int i = 0; i < 3; i++) {
                             sleep(1000);
                             index(indexsensor, indexer);
                             lift.setPosition(0);

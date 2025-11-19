@@ -22,7 +22,7 @@ public class ll {
                 // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
                 flywheelspeed = 1943.72 * Math.pow(0.90446, ta);
             } else {
-                flywheelspeed = 2300;
+                flywheelspeed = 2200;
             }
         } else {
             flywheelspeed = 1600;
