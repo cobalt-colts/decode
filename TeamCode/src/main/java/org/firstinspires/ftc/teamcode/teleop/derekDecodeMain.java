@@ -5,6 +5,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,16 +21,18 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@TeleOp(name = "Meet 1 TeleOp")
+@TeleOp(name = "Meet 2 TeleOp")
 public class derekDecodeMain extends LinearOpMode {
     public static double intakeIn = 1;
     public static double intakeOut = -0.67;
     public static double intakeTransfer = 0.5;
 
-    private boolean isWhite(NormalizedColorSensor sensor){
-        NormalizedRGBA colors = sensor.getNormalizedColors();
-        return colors.red >= 0.04 && colors.blue >= 0.04 && colors.green >= 0.04;
-
+    private boolean isMagnet(DigitalChannel sensor1, DigitalChannel sensor2, DigitalChannel sensor3){
+        if (sensor1.getState() || sensor2.getState() || sensor3.getState()) {
+            return true;
+        } else {
+            return false;
+        }
     }
     public static boolean moveIndex = false;
     public static double manualIndex = 0.25;
@@ -67,6 +70,13 @@ public class derekDecodeMain extends LinearOpMode {
 
         DcMotorEx thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
         DcMotorEx thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
+
+        DigitalChannel mag1 = hardwareMap.get(DigitalChannel.class, "mag1");
+        DigitalChannel mag2 = hardwareMap.get(DigitalChannel.class, "mag2");
+        DigitalChannel mag3 = hardwareMap.get(DigitalChannel.class, "mag3");
+
+
+
         thrower1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         thrower2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         thrower1.setVelocityPIDFCoefficients(ShooterPIDConfig.kP, ShooterPIDConfig.kI, ShooterPIDConfig.kD, ShooterPIDConfig.kF);
@@ -128,8 +138,8 @@ public class derekDecodeMain extends LinearOpMode {
                 indexer.setPower(-manualIndex);
                 moveIndex = false;
             }
-            else if (moveIndex ) {
-                if (isWhite(indexSensor)) {
+            else if (moveIndex) {
+                if (isMagnet(mag1, mag2, mag3)) {
                     indexer.setPower(0);
                     moveIndex = false;
                 } else {

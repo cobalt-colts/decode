@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "org.firstinspires.ftc.teamcode.TeamCode-mergeDebugResources-42:/values-sw600dp-v13/values-sw600dp-v13.xml",
+            "outputFile": "org.firstinspires.ftc.teamcode.TeamCode-mergeDebugResources-41:/values-sw600dp-v13/values-sw600dp-v13.xml",
             "map": [
                 {
-                    "source": "/Users/derektownsend/.gradle/caches/8.9/transforms/ce2ad3af4cf17368a74e21f17f868bd1/transformed/appcompat-1.6.1/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "source": "/home/miles/.gradle/caches/8.9/transforms/ce2ad3af4cf17368a74e21f17f868bd1/transformed/appcompat-1.6.1/res/values-sw600dp-v13/values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "/Users/derektownsend/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/res/values-sw600dp-v13/values-sw600dp-v13.xml",
+                    "source": "/home/miles/.gradle/caches/8.9/transforms/26243ef55623e944fb88fadf658572c7/transformed/material-1.12.0/res/values-sw600dp-v13/values-sw600dp-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,10,11,12,13,14",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4",

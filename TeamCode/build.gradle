@@ -9,24 +9,11 @@
 // before doing so.
 
 
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url = 'https://www.matthewo.tech/maven/'
-        }
-
-    }
-    dependencies {
-        classpath 'org.team11260:fast-load-plugin:0.1.4-beta1'
-    }
-}
 
 
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
-apply plugin: 'org.team11260.fast-load-plugin'
 
 
 android {
@@ -40,13 +27,13 @@ android {
 }
 
 repositories {
+
     maven {
         url = 'https://maven.brott.dev/'
     }
-    maven {
-        url = 'https://www.matthewo.tech/maven/'
-    }
     /*
+
+
     maven {
         url = "https://repo.dairy.foundation/releases"
     }
@@ -63,7 +50,6 @@ dependencies {
     implementation "com.acmerobotics.roadrunner:core:1.0.1"
     implementation "com.acmerobotics.roadrunner:actions:1.0.1"
     implementation "com.bylazar:fullpanels:1.0.8"
-    implementation 'org.team11260:fast-load:0.1.4-beta1'
     implementation 'dev.nextftc:ftc:1.0.1'
     implementation 'dev.nextftc:hardware:1.0.1'
     implementation 'dev.nextftc.extensions:pedro:1.0.0'
