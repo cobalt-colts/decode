@@ -21,14 +21,14 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@TeleOp(name = "Meet 2 TeleOp")
+@TeleOp(name = "Meet 2.0 TeleOp")
 public class derekDecodeMain extends LinearOpMode {
     public static double intakeIn = 1;
     public static double intakeOut = -0.67;
     public static double intakeTransfer = 0.5;
 
     private boolean isMagnet(DigitalChannel sensor1, DigitalChannel sensor2, DigitalChannel sensor3){
-        if (sensor1.getState() || sensor2.getState() || sensor3.getState()) {
+        if (!sensor2.getState()) { // !sensor1.getState() || !sensor2.getState() || !sensor3.getState()
             return true;
         } else {
             return false;
@@ -36,17 +36,17 @@ public class derekDecodeMain extends LinearOpMode {
     }
     public static boolean moveIndex = false;
     public static double manualIndex = 0.25;
-    public static double autoIndex = 0.1;
+    public static double autoIndex = 0.25;
     public static double indexEngaged = 0.825;
     public static double indexDisengaged = 0.7;
     public static boolean engageIndex = true;
 
     public static double closeSpeed = 746.67;
-    public static double closeHood = 0.4; // 0.25   0.35
+    public static double closeHood = 0.35; // 0.25   0.35
     public static double farSpeed = 1073.33;
     public static double farHood = 0.21; // 0.1
     double targetTps = 0;
-    public static double hoodPos = 0.35; // bottom is 0.35, top is 0.
+    public static double hoodPos = 0.05; // bottom is 0.35, top is 0.
 
 
     @Override
@@ -64,10 +64,10 @@ public class derekDecodeMain extends LinearOpMode {
 
         CRServo indexer = hardwareMap.crservo.get("indexer");
         Servo indexEngage = hardwareMap.servo.get("indexEngage");
-        NormalizedColorSensor indexSensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
 
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
+        DcMotorEx turret = hardwareMap.get(DcMotorEx.class, "turret");
         DcMotorEx thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
         DcMotorEx thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
 
@@ -97,7 +97,10 @@ public class derekDecodeMain extends LinearOpMode {
 //            shoot(gamepad1.right_trigger, gamepad1.left_bumper, gamepad1.dpad_up, gamepad1.dpad_down, gamepad1.dpad_left, gamepad1.dpad_right);
 
 
-            if (gamepad1.options) imu.resetYaw();
+            if (gamepad1.options) {
+                imu.resetYaw();
+                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
             double rx = -gamepad1.right_stick_x;
@@ -157,44 +160,49 @@ public class derekDecodeMain extends LinearOpMode {
             if (gamepad1.b || gamepad1.x) indexEngage.setPosition(indexEngage.getPosition() + 0.025);
 
             limelight.start();
+            if (gamepad1.left_trigger >= 0.2) {
+                targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
+                double turnPower = ll.fetchAlignment(limelight);
+                if (turnPower < 6767) {
+                    if ((turnPower > 0 && turret.getCurrentPosition() < 200) || (turnPower < 0 && turret.getCurrentPosition() > -80)) turret.setPower(turnPower);
+                } else if (turnPower == 0) gamepad1.setLedColor(0, 1, 0, 1000);
+                else gamepad1.rumble(200);
+            }
             if (gamepad1.right_trigger >= 0.2) {
-                if (gamepad1.left_bumper) {
-                    targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
-                    double turnPower = ll.fetchAlignment(limelight);
-                    if (turnPower < 6767) {
-                        frontLeftMotor.setPower(-0.15);
-                        frontRightMotor.setPower(0.15);
-                        backLeftMotor.setPower(-0.15);
-                        backRightMotor.setPower(0.15);
-                    }
-                    else gamepad1.rumble(200);
-                }
                 hoodPos = (targetTps >= 1000 ? farHood : closeHood);
-            } else if (gamepad1.dpad_left) {
-                targetTps = closeSpeed;
-                hoodPos = closeHood;
-            } else if (gamepad1.dpad_right) {
-                targetTps = farSpeed;
-                hoodPos = farHood;
-            } else {
+            }
+//            else if (gamepad1.dpad_left) {
+//                targetTps = closeSpeed;
+//                hoodPos = closeHood;
+//            } else if (gamepad1.dpad_right) {
+//                targetTps = farSpeed;
+//                hoodPos = farHood;
+//            }
+            else {
                 targetTps = 0;
             }
 
-            lift.setPosition(((Math.abs(targetTps / thrower1.getVelocity()) <= 1.3 || gamepad1.dpad_up) && !gamepad1.dpad_down && !gamepad1.left_bumper && gamepad1.right_trigger > 0.1) ? 0 : 0.9); // Teehee
+            if (gamepad1.dpad_left) turret.setPower(-0.25);
+            else if (gamepad1.dpad_right) turret.setPower(0.25);
+            else turret.setPower(0);
+
+            if (gamepad1.left_bumper) {
+                lift.setPosition(0.5);
+            } else {
+                lift.setPosition(0.25);
+            }
+
             hood.setPosition(hoodPos);
             thrower1.setVelocity(targetTps);
             thrower2.setVelocity(targetTps);
-
-            NormalizedRGBA colors = indexSensor.getNormalizedColors();
-            telemetry.addData("red", colors.red);
-            telemetry.addData("green", colors.green);
-            telemetry.addData("blue", colors.blue);
 
             telemetry.addData("error: ", targetTps / thrower1.getVelocity());
             telemetry.addData("hood: ", hoodPos);
             telemetry.addData("target: ", targetTps);
             telemetry.addData("thrower1velocity", thrower1.getVelocity(AngleUnit.DEGREES) * 60);
             telemetry.addData("thrower2velocity", thrower2.getVelocity(AngleUnit.DEGREES) * 60);
+            telemetry.addData("thrower1power", thrower1.getPower());
+            telemetry.addData("thrower2power", thrower2.getPower());
             telemetry.update();
         }
     }

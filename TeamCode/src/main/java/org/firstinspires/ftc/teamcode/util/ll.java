@@ -38,9 +38,9 @@ public class ll {
             double tolerance = 1;
 
             if (Math.abs(horizontalOffset) > tolerance) {
-//                if (horizontalOffset > 0) return 0.2;
-//                else return -0.2;
-                return  (horizontalOffset / 10);
+                if (horizontalOffset > 0) return turnPower;
+                else return (turnPower * -1);
+//                return  (horizontalOffset / 10);
             } else return 0;
         }
         else return 6767;
