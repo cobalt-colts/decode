@@ -64,7 +64,7 @@ public class derekDecodeMain extends LinearOpMode {
 
         CRServo indexer = hardwareMap.crservo.get("indexer");
         Servo indexEngage = hardwareMap.servo.get("indexEngage");
-        NormalizedColorSensor indexSensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
+//        NormalizedColorSensor indexSensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
 
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
@@ -180,15 +180,20 @@ public class derekDecodeMain extends LinearOpMode {
                 targetTps = 0;
             }
 
-            lift.setPosition(((Math.abs(targetTps / thrower1.getVelocity()) <= 1.3 || gamepad1.dpad_up) && !gamepad1.dpad_down && !gamepad1.left_bumper && gamepad1.right_trigger > 0.1) ? 0 : 0.9); // Teehee
+//            lift.setPosition(((Math.abs(targetTps / thrower1.getVelocity()) <= 1.3 || gamepad1.dpad_up) && !gamepad1.dpad_down && !gamepad1.left_bumper && gamepad1.right_trigger > 0.1) ? 0 : 0.9); // Teehee
+            if (gamepad1.right_bumper) {
+                lift.setPosition(0.5);
+            } else {
+                lift.setPosition(0.25);
+            }
             hood.setPosition(hoodPos);
             thrower1.setVelocity(targetTps);
             thrower2.setVelocity(targetTps);
 
-            NormalizedRGBA colors = indexSensor.getNormalizedColors();
-            telemetry.addData("red", colors.red);
-            telemetry.addData("green", colors.green);
-            telemetry.addData("blue", colors.blue);
+//            NormalizedRGBA colors = indexSensor.getNormalizedColors();
+//            telemetry.addData("red", colors.red);
+//            telemetry.addData("green", colors.green);
+//            telemetry.addData("blue", colors.blue);
 
             telemetry.addData("error: ", targetTps / thrower1.getVelocity());
             telemetry.addData("hood: ", hoodPos);

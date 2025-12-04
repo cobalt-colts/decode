@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="Lift Test")
 public class lifttest extends LinearOpMode {
 
-    public static double servopos = 0.5;
+    public static double servopos = 0.25; // .5 = all the way up, 0.25 down
 
     @Override
     public void runOpMode() throws InterruptedException {
