@@ -22,20 +22,24 @@ import org.firstinspires.ftc.teamcode.util.ll;
 @TeleOp(name = "Shooter Dashboard Tuning", group = "Tuning")
 public class ShooterDashboardTuning extends LinearOpMode {
 
-    private DcMotorEx thrower1, thrower2;
+    private DcMotorEx thrower1, thrower2, turret;
 
+    public static double turretPower = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
         thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
+        turret = hardwareMap.get(DcMotorEx.class, "turret");
 
         thrower1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         thrower2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         thrower1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         thrower2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         Servo hood = hardwareMap.servo.get("hood");
 
@@ -68,11 +72,22 @@ public class ShooterDashboardTuning extends LinearOpMode {
 //            double targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
 
             double targetTps = ShooterPIDConfig.TICKS_PER_REV / 60.0;
-            if (ShooterPIDConfig.autoAim) targetTps *= ll.fetchFlywheelSpeed(limelight);
-            else targetTps *= ShooterPIDConfig.targetRpm;
+            if (ShooterPIDConfig.autoAim) {
+                targetTps *= ll.fetchFlywheelSpeed(limelight);
+                turretPower = ll.fetchAlignment(limelight, true);
+            }
+            else {
+                if (gamepad1.dpad_right) turretPower = 0.3;
+                else if (gamepad1.dpad_left) turretPower = -0.3;
+                else turretPower = 0;
+                targetTps *= ShooterPIDConfig.targetRpm;
+            }
 
-            thrower1.setVelocity(targetTps);
-            thrower2.setVelocity(targetTps);
+
+//            thrower1.setVelocity(-targetTps);
+////            thrower2.setVelocity(targetTps);
+            thrower1.setPower(targetTps);
+            thrower2.setPower(thrower1.getPower());
 
             double v1 = thrower1.getVelocity() / ShooterPIDConfig.TICKS_PER_REV * 60.0;
             double v2 = thrower2.getVelocity() / ShooterPIDConfig.TICKS_PER_REV * 60.0;

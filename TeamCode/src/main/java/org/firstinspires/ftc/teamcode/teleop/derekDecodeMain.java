@@ -48,9 +48,9 @@ public class derekDecodeMain extends LinearOpMode {
     public static int indexTimer = 0;
     public static boolean moveIndex = false;
     public static double manualIndex = 0.25;
-    public static double autoIndex = -0.25;
-    public static double correctIndex = 0.1;
-    public static double indexEngaged = 0.825;
+    public static double autoIndex = -0.1;  // -0.25     // Normal index speed
+    public static double correctIndex = 0.1;    //  0.1    Fine adjust speed
+    public static double indexEngaged = 0.84; //0.825
     public static double indexDisengaged = 0.7;
     public static double indexEngagePos = indexEngaged;
     public static double indexPower;
@@ -62,13 +62,13 @@ public class derekDecodeMain extends LinearOpMode {
     public  static double liftPos = liftDown;
 
     public static double closeSpeed = 746.67;
-    public static double closeHood = 0.35; // 0.25   0.35
+    public static double closeHood = 0.3; // 0.25   0.35
     public static double farSpeed = 1073.33;
     public static double farHood = 0.21; // 0.1
     double targetTps = 0;
     public static double hoodPos = 0.05; // bottom is 0.35, top is 0.
 
-    public static double turretManual = 0.25;
+    public static double turretManual = 0.35; // 0.25
     public static double turretPower = 0;
 
     public static int limelightSlow = 250;
@@ -98,7 +98,7 @@ public class derekDecodeMain extends LinearOpMode {
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         imu = hardwareMap.get(IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP));
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
 
         indexer = hardwareMap.crservo.get("indexer");
@@ -107,6 +107,7 @@ public class derekDecodeMain extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
         thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
 
@@ -149,6 +150,7 @@ public class derekDecodeMain extends LinearOpMode {
         double x = gamepad1.left_stick_x;
         double rx = -gamepad1.right_stick_x;
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        botHeading = Math.toRadians(180);
         double rotX = 1.1 * (x * Math.cos(-botHeading) - y * Math.sin(-botHeading));
         double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
@@ -160,9 +162,10 @@ public class derekDecodeMain extends LinearOpMode {
     public void index() {
         indexTimer++;
         if (gamepad1.rightBumperWasPressed()) intake();
-        if (gamepad1.aWasPressed()) outtake();
-        if (gamepad1.rightBumperWasReleased() || gamepad1.aWasReleased()) intakePower = 0;
-        if (gamepad1.yWasPressed()) {
+        if (gamepad1.a) intakePower = intakeOut;
+        if (gamepad1.aWasReleased()) intakePower = 0;
+//        if (gamepad1.rightBumperWasReleased() || gamepad1.aWasReleased()) intakePower = 0;
+        if (gamepad1.yWasPressed()) { // triangle on ps controller
             indexTimer = 0;
             indexState = Index.AUTO;
         }
@@ -173,7 +176,6 @@ public class derekDecodeMain extends LinearOpMode {
 
             case AUTO:
                 engageIndex();
-                indexPower = autoIndex;
                 autoIndex();
                 break;
 
@@ -205,7 +207,8 @@ public class derekDecodeMain extends LinearOpMode {
         }
     }
     public void intake() {
-        intakePower = intakeIn;
+        if (intakePower == intakeIn) intakePower = 0;
+        else intakePower = intakeIn;
         indexState = Index.INTAKE;
     }
     public void outtake() {
@@ -229,25 +232,37 @@ public class derekDecodeMain extends LinearOpMode {
 //        } else if (mag1) {
 //            indexState = Index.BACKWARD;
 //        }
-        if (indexTimer <= 50) {
-            if (mag2) {
-                if (mag1) indexState = Index.SHOOT;
-                else indexPower = correctIndex;
-            } else if (mag1) indexPower = -correctIndex;
+        if (!gamepad1.y) {
+            if (mag3) {
+                if (mag2) indexPower = correctIndex;
+                else if (mag1) {
+                    gamepad1.rumble(250);
+                    indexPower = 0;
+                }
+//                else indexState = Index.SHOOT;
+            }
+            else indexPower = autoIndex;
+//            else if (mag1) indexPower = -correctIndex;
         }
+        else indexPower = autoIndex;
     }
     public void shoot() {
         if (gamepad1.dpad_right) turretPower = turretManual;
         else if (gamepad1.dpad_left) turretPower = -turretManual;
         else turretPower = ll.fetchAlignment(limelight, redAlliance);
         if (turretPower != 6767) {
-            if ((turretPower > 0 && turret.getCurrentPosition() < 200) || (turretPower < 0 && turret.getCurrentPosition() > -80)) turret.setPower(turretPower);
+            if ((turretPower > 0 && turret.getCurrentPosition() < 200) || (turretPower < 0 && turret.getCurrentPosition() > -80)) {
+                turret.setPower(turretPower); // Glenn 12/4/2025
+            }
         } else turretPower = 0;
         hoodPos = (targetTps >= 1000 ? farHood : closeHood);
         if (gamepad1.right_trigger >= 0.2) {
             telemetry.setMsTransmissionInterval(limelightFast);
             targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
-            if (turretPower == 6767) gamepad1.rumble(200);
+//            if (turretPower > 6766) gamepad1.rumble(200);
+//            if ((turretPower > 0 && turret.getCurrentPosition() < 200) || (turretPower < 0 && turret.getCurrentPosition() > -80)) {
+//                turret.setPower(turretPower); // Glenn 12/4/2025
+//            } else turretPower = 0;
         } else if (gamepad1.dpad_up) {
             telemetry.setMsTransmissionInterval(limelightSlow);
             targetTps = closeSpeed;
@@ -278,9 +293,9 @@ public class derekDecodeMain extends LinearOpMode {
         backLeftMotor.setPower(backLeftPower);
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
-        thrower1.setVelocity(targetTps);
+        thrower1.setVelocity( -1 * targetTps); // Glenn 12/4/2025
         thrower2.setPower(thrower1.getPower());
-        turret.setPower(turretPower);
+        turret.setPower(turretPower); // Glenn 12/4/2025
         intake.setPower(intakePower);
 
         hood.setPosition(hoodPos);
