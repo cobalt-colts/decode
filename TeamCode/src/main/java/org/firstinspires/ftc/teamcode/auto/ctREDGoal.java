@@ -15,9 +15,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.ShooterPIDConfig;
@@ -33,6 +35,9 @@ public class ctREDGoal extends LinearOpMode {
 
     private int pathState = 0;
     private boolean indexon = false;
+
+    private boolean mag1, mag2, mag3;
+
 
     // ---------- Path Definitions ----------
     public static class Paths {
@@ -134,6 +139,10 @@ public class ctREDGoal extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        DigitalChannel magnet1 = hardwareMap.get(DigitalChannel.class, "mag1");
+        DigitalChannel magnet2 = hardwareMap.get(DigitalChannel.class, "mag2");
+        DigitalChannel magnet3 = hardwareMap.get(DigitalChannel.class, "mag3");
+
         // ----- Timers -----
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -182,6 +191,10 @@ public class ctREDGoal extends LinearOpMode {
         setPathState(0);
 
         while (opModeIsActive()) {
+
+            mag1 = !magnet1.getState();
+            mag2 = !magnet2.getState();
+            mag3 = !magnet3.getState();
 
             follower.update();
 

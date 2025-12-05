@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@TeleOp(name = "Meet 2.0 TeleOp")
+@TeleOp(name = "Meet 2 TeleOp")
 public class derekDecodeMain extends LinearOpMode {
     public static boolean redAlliance = true;
 
