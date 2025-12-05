@@ -15,6 +15,7 @@ public class lifttest extends LinearOpMode {
 
     public static double servopos = 0.25;
 
+
     /* TURRET MAX POS:
     0 IS OPPOSITE INTAKE
     -80 TO 200
