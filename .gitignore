@@ -1,5 +1,5 @@
 # Android/FTC build files
 /build/
 *.iml
-/local.properties
+local.properties
 /.gradle/
