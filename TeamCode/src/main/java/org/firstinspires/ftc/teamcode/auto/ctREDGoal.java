@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftDown;
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftUp;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
@@ -15,19 +18,23 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+//import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorLimelight3A;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.ShooterPIDConfig;
 import org.firstinspires.ftc.teamcode.util.ll;
 
+import dev.nextftc.hardware.impl.ServoEx;
+
 @Config
 @Configurable
-@Autonomous(name = "Meet 1-RED Goal", preselectTeleOp = "Meet 1 TeleOp SAFE")
+@Autonomous(name = "Meet 1-RED Goal", preselectTeleOp = "Meet 2.0 Teleop")
 public class ctREDGoal extends LinearOpMode {
 
     private Follower follower;
@@ -35,101 +42,190 @@ public class ctREDGoal extends LinearOpMode {
 
     private int pathState = 0;
     private boolean indexon = false;
+    private int indexState = 0;
+    private int indexno = 0;
+    private long indexStateTime = 0;
 
     private boolean mag1, mag2, mag3;
+
+    // Track previous magnet states to detect transitions (magnet leaving prong)
+    private boolean prevMag1 = false;
+    private boolean prevMag2 = false;
+    private boolean prevMag3 = false;
+
+    // Track which initial magnets we've already counted (for pre-loaded balls)
+    private boolean countedInitialMag1 = false;
+    private boolean countedInitialMag2 = false;
+    private boolean countedInitialMag3 = false;
+
+
+    // Index variables from meet2teleop
+    double indexPower = 0;
+    public static double autoIndex = -0.1;
+    public static double correctIndex = 0.1;
+    public static double indexEngaged = 0.84;
+    public static double indexDisengaged = 0.7;
+    public static double intakePower = 0.5;
 
 
     // ---------- Path Definitions ----------
     public static class Paths {
-        public static PathChain preload, offline, line1, line1launch, autoreturn;
+
+        public static PathChain launch1;
+        public static PathChain line1;
+        public static PathChain launch2;
+        public static PathChain line2;
 
         public Paths(Follower follower) {
-            preload = follower
+            launch1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(120.000, 128.000), new Pose(92.500, 107.500)) // 85 100
+                            new BezierLine(new Pose(122.501, 124.975), new Pose(73.000, 83.500))
                     )
-                    .setConstantHeadingInterpolation(Math.toRadians(216))
-                    .build();
-
-            offline = follower
-                    .pathBuilder()
-                    .addPath(
-                            new BezierCurve(
-                                    new Pose(85.000, 100.000),
-                                    new Pose(77.646, 81.667),
-                                    new Pose(110.000, 80.500) // x 105
-                            )
-                    )
-                    .setLinearHeadingInterpolation(Math.toRadians(216), Math.toRadians(0))
+                    .setConstantHeadingInterpolation(Math.toRadians(220))
                     .build();
 
             line1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(100.000, 83.500), new Pose(120, 83.368)) // 120
+                            new BezierLine(new Pose(73.000, 83.500), new Pose(104.000, 83.500))
                     )
-                    .setTangentHeadingInterpolation()
+                    .setLinearHeadingInterpolation(Math.toRadians(220), Math.toRadians(0))
                     .build();
 
-            line1launch = follower
+            line2 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierCurve(
-                                    new Pose(120.000, 83.368),
-                                    new Pose(81.667, 82.595),
-                                    new Pose(101.929, 93.577),
-                                    new Pose(85.000, 100.000)
-                            )
+                            new BezierLine(new Pose(104.000, 83.500), new Pose(125.000, 83.500))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(220))
+                    .setConstantHeadingInterpolation(Math.toRadians(0))
                     .build();
         }
     }
 
-    public boolean isWhite(NormalizedColorSensor sensor) {
-        NormalizedRGBA c = sensor.getNormalizedColors();
-        return c.red >= 0.04 && c.green >= 0.04 && c.blue >= 0.04;
-    }
-
-    // Blocking index routine for LinearOpMode
-    public void index(NormalizedColorSensor sensor, CRServo indexer) {
-        final double power = 0.081; // 0.125   0.085
-        long start = System.currentTimeMillis();
-        DcMotor intake = hardwareMap.dcMotor.get("intake");
-
-//        intake.setPower(-.5);
-        indexer.setPower(power);
-
-//        // Phase 1: wait for white
-//        while (opModeIsActive() && !isWhite(sensor)) {
-//            if (System.currentTimeMillis() - start > 3000) break;
-//            sleep(10);
+//
+//    // Blocking index routine for LinearOpMode
+//    public void index(CRServo indexer, DigitalChannel magnet1, DigitalChannel magnet2, DigitalChannel magnet3, Servo indexEngage, DcMotor intake) {
+//        indexEngage.setPosition(indexEngaged);
+//        intake.setPower(intakePower);
+//
+//        long timeoutStart = System.currentTimeMillis();
+//        final long TIMEOUT = 5000;
+//
+//        while (opModeIsActive() && System.currentTimeMillis() - timeoutStart < TIMEOUT) {
+//            boolean mag1State = !magnet1.getState();
+//            boolean mag2State = !magnet2.getState();
+//            boolean mag3State = !magnet3.getState();
+//
+//            if (mag3State) {
+//                if (mag2State) {
+//                    indexer.setPower(correctIndex);
+//                } else if (mag1State) {
+//                    indexer.setPower(0);
+//                    break;
+//                } else {
+//                    indexer.setPower(autoIndex);
+//                }
+//            } else {
+//                indexer.setPower(autoIndex);
+//            }
+//
+//            sleep(50);
 //        }
+//
+//        indexer.setPower(0);
+//        intake.setPower(0);
+//    }
 
-        // Phase 2: wait for NOT white
-        start = System.currentTimeMillis();
-        while (opModeIsActive() && isWhite(sensor)) {
-            if (System.currentTimeMillis() - start > 3500) {
-                indexer.setPower(-0.25);
-                if (System.currentTimeMillis() - start > 3800) break;
-            }
-            sleep(75); // 10
+    // Non-blocking index routine - tracks magnet transitions to detect ball movement
+    public boolean updateIndex(
+            CRServo indexer,
+            DigitalChannel magnet1,
+            DigitalChannel magnet2,
+            DigitalChannel magnet3,
+            Servo indexEngage,
+            DcMotor intake
+    ) {
+        // read current (logical) magnet states: true == magnet present on prong
+        boolean mag1State = !magnet1.getState();
+        boolean mag2State = !magnet2.getState();
+        boolean mag3State = !magnet3.getState();
+
+        telemetry.addData("mag 1 state", mag1State);
+        telemetry.addData("mag 2 state", mag2State);
+        telemetry.addData("mag 3 state", mag3State);
+
+        telemetry.update();
+
+        Servo lift = hardwareMap.servo.get("lift");
+
+        final long TIMEOUT = 5000;
+        long now = System.currentTimeMillis();
+
+        indexer.setPower(indexPower);
+
+        switch (indexState) {
+
+            // -------------------- START --------------------
+            case 0:
+                // engage and start intake/indexer
+                indexEngage.setPosition(indexEngaged);
+                intake.setPower(intakePower);
+                indexer.setPower(indexPower);
+
+                indexStateTime = now;
+                indexState = 1;
+                indexPower = autoIndex;
+                return false;
+
+
+            // -------------------- INDEXING - WAIT FOR MAGNET TRANSITION --------------------
+            case 1:
+                // Detect when a magnet LEAVES (falling edge: was true, now false)
+                // This indicates a ball has cycled past the sensor
+
+//                indexPower = autoIndex;
+
+                if (mag3State){
+                    if (mag2State) {
+                        indexPower = correctIndex;
+                    }
+                    else if (mag1State) {
+                        indexPower = 0;
+                        lift.setPosition(liftUp);
+                        sleep(500);
+                        lift.setPosition(liftDown);
+                        indexState = 2;
+                        indexno++;
+
+                    }
+                } else {
+                    indexPower = autoIndex;
+                }
+            return false;
+
+
+            // -------------------- FINISHED ONE BALL - SETTLE & PREPARE FOR NEXT --------------------
+            case 2:
+
+                // turn off intake/indexer briefly to settle
+                indexer.setPower(0);
+                intake.setPower(0);
+
+                if (indexno >= 3) {
+                    // finished all 3 balls
+                    indexState = 67;
+                    return true;
+                }
+
+                // not finished → start another index cycle
+                indexState = 0;
+                return false;
         }
 
-        // Phase 3: wait for white again
-        start = System.currentTimeMillis();
-        while (opModeIsActive() && !isWhite(sensor)) {
-            if (System.currentTimeMillis() - start > 3500) {
-                indexer.setPower(-0.25);
-                if (System.currentTimeMillis() - start > 3800) break;
-            }
-            sleep(75); // 10
-        }
-
-        indexer.setPower(0);
-        intake.setPower(0);
+        return false;
     }
+
 
     public void setPathState(int s) {
         pathState = s;
@@ -167,12 +263,13 @@ public class ctREDGoal extends LinearOpMode {
         Servo hood = hardwareMap.servo.get("hood");
 
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        NormalizedColorSensor indexsensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
+//        NormalizedColorSensor indexsensor = hardwareMap.get(NormalizedColorSensor.class, "indexSensor");
 
         // Shooter setup
         thrower1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         thrower2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        thrower1.setDirection(DcMotorSimple.Direction.REVERSE);
+        thrower2.setDirection(DcMotorSimple.Direction.REVERSE);
         thrower1.setVelocityPIDFCoefficients(
                 ShooterPIDConfig.kP, ShooterPIDConfig.kI, ShooterPIDConfig.kD, ShooterPIDConfig.kF);
         thrower2.setVelocityPIDFCoefficients(
@@ -184,13 +281,15 @@ public class ctREDGoal extends LinearOpMode {
         telemetry.addLine("Initialized - Waiting for Start");
         telemetry.update();
 
-        hood.setPosition(0.4); // 0.25
+//        hood.setPosition(0.4); // 0.25
 
         waitForStart();
         opmodeTimer.resetTimer();
         setPathState(0);
 
         while (opModeIsActive()) {
+
+            double throwervelocity = thrower1.getVelocity();
 
             mag1 = !magnet1.getState();
             mag2 = !magnet2.getState();
@@ -201,51 +300,63 @@ public class ctREDGoal extends LinearOpMode {
             switch (pathState) {
 
                 case 0:
-                    thrower1.setVelocity(2000 * ShooterPIDConfig.TICKS_PER_REV / 60.0);
-                    thrower2.setVelocity(2000 * ShooterPIDConfig.TICKS_PER_REV / 60.0);
+                        // No balls loaded, launch and then index
+                        thrower1.setVelocity(2000 * ShooterPIDConfig.TICKS_PER_REV / 60.0);
+                        thrower2.setVelocity(2000 * ShooterPIDConfig.TICKS_PER_REV / 60.0);
 
-                    indexengage.setPosition(0.825);
-                    follower.followPath(Paths.preload, true);
-                    setPathState(1);
+                        indexengage.setPosition(0.84);
+
+                        follower.followPath(Paths.launch1, true);
+                        setPathState(1);
                     break;
 
                 case 1:
-                    if (!follower.isBusy()) {
+                    if (!follower.isBusy() && throwervelocity >= 600) {
+
                         double speed = ll.fetchFlywheelSpeed(limelight) *
                                 ShooterPIDConfig.TICKS_PER_REV / 60.0;
 
                         thrower1.setVelocity(speed);
                         thrower2.setVelocity(speed);
 
-                        sleep(2000);
-                        lift.setPosition(0);
-                        sleep(2000);
-                        lift.setPosition(0.9);
-                        for (int i = 0; i < 3; i++) {
-                            sleep(1000);
-                            index(indexsensor, indexer);
-                            lift.setPosition(0);
-                            sleep(2000);
-                            lift.setPosition(0.9);
-                        }
-
-                        indexengage.setPosition(0.7);
-                        intake.setPower(1);
-                        follower.followPath(Paths.offline, 0.8, false);
+//                        indexno = 0;        // IMPORTANT: reset to 0
+//                        indexState = 0;     // start index routine
                         setPathState(2);
                     }
                     break;
 
+
                 case 2:
-                    if (!follower.isBusy())
+                    // run index routine until it returns TRUE after 3 balls
+                    if (mag1 && mag3 && !mag2) {
+                        lift.setPosition(liftUp);
+                        sleep(1000);
+                        lift.setPosition(liftDown);
+                        indexState = 0;
+                        indexno = 2;
+                    } else {
+                        indexState = 0;
+                        indexno = 1;
+
+                    }
+                    if (updateIndex(indexer, magnet1, magnet2, magnet3, indexengage, intake)) {
+//                     follower.followPath(Paths.line1, true);
                         setPathState(-1);
+                    }
                     break;
 
-                default:
+                case 3:
+                    if (!follower.isBusy()) {
+                        setPathState(-1);
+                    }
                     break;
             }
 
+            telemetry.addData("Index Power", indexPower);
+            telemetry.addData("Auto Index", autoIndex);
             telemetry.addData("State", pathState);
+            telemetry.addData("Index State", indexState);
+            telemetry.addData("Thrower Velocity", throwervelocity);
             telemetry.update();
         }
     }
