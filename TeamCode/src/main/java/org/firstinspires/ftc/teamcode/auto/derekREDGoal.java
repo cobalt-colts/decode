@@ -16,6 +16,7 @@ import com.pedropathing.util.Timer;
 
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -35,6 +36,7 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 import dev.nextftc.hardware.impl.ServoEx;
 
+@Disabled
 @Config
 @Configurable
 @Autonomous(name = "Derek-RED Goal", preselectTeleOp = "Meet 2.0 Teleop")

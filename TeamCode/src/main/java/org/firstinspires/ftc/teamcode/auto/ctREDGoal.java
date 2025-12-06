@@ -193,10 +193,10 @@ public class ctREDGoal extends LinearOpMode {
                 if (mag3State && mag1State) {
 //                    indexer.setPower(indexPower);
                     lift.setPosition(liftUp);
-                    sleep(250);
+                    sleep(200);
                     lift.setPosition(liftDown);
                     indexno++;
-                    if (indexno >= 3) {
+                    if (indexno >= 4) {
                         // finished all 3 balls
                         indexPower = 0;
                         indexer.setPower(indexPower);
@@ -327,7 +327,7 @@ public class ctREDGoal extends LinearOpMode {
                         indexengage.setPosition(0.84);
 
 // Glenn 12/6/2025 so we don't drive
-//                        follower.followPath(Paths.launch1, true);
+                        follower.followPath(Paths.launch1, true);
                         setPathState(1);
                     break;
 
@@ -355,8 +355,8 @@ public class ctREDGoal extends LinearOpMode {
                     thrower2.setVelocity(llSpeed);
 
                     if (updateIndex(indexer, magnet1, magnet2, magnet3, indexengage, intake)) {
-//                     follower.followPath(Paths.line1, true);
-                        setPathState(-1);
+                     follower.followPath(Paths.line1, true);
+                        setPathState(3);
                     }
                     break;
 
