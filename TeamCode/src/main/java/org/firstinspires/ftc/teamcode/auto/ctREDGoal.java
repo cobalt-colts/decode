@@ -34,7 +34,7 @@ import dev.nextftc.hardware.impl.ServoEx;
 
 @Config
 @Configurable
-@Autonomous(name = "Meet 1-RED Goal", preselectTeleOp = "Meet 2.0 Teleop")
+@Autonomous(name = "Meet 2-RED Goal", preselectTeleOp = "Meet 2.0 Teleop")
 public class ctREDGoal extends LinearOpMode {
 
     private Follower follower;
@@ -66,6 +66,8 @@ public class ctREDGoal extends LinearOpMode {
     public static double indexEngaged = 0.84;
     public static double indexDisengaged = 0.7;
     public static double intakePower = 0.5;
+
+    private double llSpeed = 0;
 
 
     // ---------- Path Definitions ----------
@@ -171,11 +173,12 @@ public class ctREDGoal extends LinearOpMode {
                 // engage and start intake/indexer
                 indexEngage.setPosition(indexEngaged);
                 intake.setPower(intakePower);
+                indexPower = autoIndex;
                 indexer.setPower(indexPower);
+//                sleep(1500); // Sleep so we advance past any magnets from a previous cycle
 
                 indexStateTime = now;
                 indexState = 1;
-                indexPower = autoIndex;
                 return false;
 
 
@@ -186,22 +189,39 @@ public class ctREDGoal extends LinearOpMode {
 
 //                indexPower = autoIndex;
 
-                if (mag3State){
-                    if (mag2State) {
-                        indexPower = correctIndex;
-                    }
-                    else if (mag1State) {
+                // Just go for it. When mag3&mag1, launch. It's fast enough that mag2 won't be lit yet
+                if (mag3State && mag1State) {
+//                    indexer.setPower(indexPower);
+                    lift.setPosition(liftUp);
+                    sleep(250);
+                    lift.setPosition(liftDown);
+                    indexno++;
+                    if (indexno >= 3) {
+                        // finished all 3 balls
                         indexPower = 0;
-                        lift.setPosition(liftUp);
-                        sleep(500);
-                        lift.setPosition(liftDown);
-                        indexState = 2;
-                        indexno++;
-
+                        indexer.setPower(indexPower);
+                        indexState = 67;
+                        return true;
                     }
-                } else {
-                    indexPower = autoIndex;
                 }
+//                if (mag3State){
+//                    if (mag2State) {
+//                        indexPower = correctIndex;  // Went too far, go back slowly
+//                        indexer.setPower(indexPower);
+//                    }
+//                    else if (mag1State) {
+//                        // At mag3 + mag1 + !mag2 = ready to launch:
+//                        indexPower = 0;
+//                        indexer.setPower(indexPower);
+//                        lift.setPosition(liftUp);
+//                        sleep(750);
+//                        lift.setPosition(liftDown);
+//                        indexState = 2;
+//                        indexno++;
+//                    }
+//                } else {
+//                    indexPower = autoIndex;
+//                }
             return false;
 
 
@@ -306,18 +326,19 @@ public class ctREDGoal extends LinearOpMode {
 
                         indexengage.setPosition(0.84);
 
-                        follower.followPath(Paths.launch1, true);
+// Glenn 12/6/2025 so we don't drive
+//                        follower.followPath(Paths.launch1, true);
                         setPathState(1);
                     break;
 
                 case 1:
                     if (!follower.isBusy() && throwervelocity >= 600) {
 
-                        double speed = ll.fetchFlywheelSpeed(limelight) *
+                        llSpeed = ll.fetchFlywheelSpeed(limelight) *
                                 ShooterPIDConfig.TICKS_PER_REV / 60.0;
 
-                        thrower1.setVelocity(speed);
-                        thrower2.setVelocity(speed);
+                        thrower1.setVelocity(llSpeed);
+                        thrower2.setVelocity(llSpeed);
 
 //                        indexno = 0;        // IMPORTANT: reset to 0
 //                        indexState = 0;     // start index routine
@@ -327,18 +348,12 @@ public class ctREDGoal extends LinearOpMode {
 
 
                 case 2:
-                    // run index routine until it returns TRUE after 3 balls
-                    if (mag1 && mag3 && !mag2) {
-                        lift.setPosition(liftUp);
-                        sleep(1000);
-                        lift.setPosition(liftDown);
-                        indexState = 0;
-                        indexno = 2;
-                    } else {
-                        indexState = 0;
-                        indexno = 1;
+                    llSpeed = ll.fetchFlywheelSpeed(limelight) *
+                            ShooterPIDConfig.TICKS_PER_REV / 60.0;
 
-                    }
+                    thrower1.setVelocity(llSpeed);
+                    thrower2.setVelocity(llSpeed);
+
                     if (updateIndex(indexer, magnet1, magnet2, magnet3, indexengage, intake)) {
 //                     follower.followPath(Paths.line1, true);
                         setPathState(-1);
@@ -353,9 +368,10 @@ public class ctREDGoal extends LinearOpMode {
             }
 
             telemetry.addData("Index Power", indexPower);
-            telemetry.addData("Auto Index", autoIndex);
             telemetry.addData("State", pathState);
             telemetry.addData("Index State", indexState);
+            telemetry.addData("indexno", indexno);
+            telemetry.addData("llSpeed", llSpeed);
             telemetry.addData("Thrower Velocity", throwervelocity);
             telemetry.update();
         }
