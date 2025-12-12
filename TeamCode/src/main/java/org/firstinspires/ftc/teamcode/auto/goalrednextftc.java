@@ -5,6 +5,7 @@ import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -18,7 +19,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.goalred;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 
-@Autonomous(name = "NextFTC Autonomous Program Java")
+import java.util.concurrent.Delayed;
+
+@Autonomous(name = "NextFTC Red Goal")
 public class goalrednextftc extends NextFTCOpMode {
 
 
@@ -33,24 +36,34 @@ public class goalrednextftc extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
+
         return new SequentialGroup(
+
                 new ParallelGroup(
 //                        subsystems.Thrower.INSTANCE.autoshootpos,
-                        new FollowPath(goalred.preload, true)
+                        new FollowPath(goalred.launch1, true)
                 ),
-                subsystems.Lift.INSTANCE.liftup
-
+                new Delay(1),
+                new FollowPath(goalred.line1, false),
+                new FollowPath(goalred.line2, true),
+                new Delay(2),
+                new FollowPath(goalred.launch2, true),
+                new Delay(1),
+                new FollowPath(goalred.offline, false)
 
 
         );
     }
 
     @Override public void onInit() {
-        goalred.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(120.000, 128.000, Math.toRadians(216.5)));
+        new ParallelGroup(
+                subsystems.Index.INSTANCE.engage
+        );
     }
     @Override
     public void onStartButtonPressed() {
+        goalred.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(120, 128, Math.toRadians(216.5)));
         autoRoutine().schedule();
     }
     @Override public void onUpdate() { }

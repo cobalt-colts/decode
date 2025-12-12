@@ -77,12 +77,13 @@ public class ctREDGoal extends LinearOpMode {
         public static PathChain line1;
         public static PathChain launch2;
         public static PathChain line2;
+        public static PathChain offline;
 
         public Paths(Follower follower) {
             launch1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(122.501, 124.975), new Pose(73.000, 83.500))
+                            new BezierLine(new Pose(122.501, 124.975), new Pose(91.000, 96.000))
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(220))
                     .build();
@@ -90,7 +91,7 @@ public class ctREDGoal extends LinearOpMode {
             line1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(73.000, 83.500), new Pose(104.000, 83.500))
+                            new BezierLine(new Pose(91.000, 96.000), new Pose(91.000, 87.500))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(220), Math.toRadians(0))
                     .build();
@@ -98,9 +99,25 @@ public class ctREDGoal extends LinearOpMode {
             line2 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(104.000, 83.500), new Pose(125.000, 83.500))
+                            new BezierLine(new Pose(91.000, 87.500), new Pose(113.500, 87.500))
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(0))
+                    .build();
+
+            launch2 = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(113.500, 87.500), new Pose(91.000, 96.000))
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(220))
+                    .build();
+
+            offline = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(91.000, 96.000), new Pose(91.000, 110.000))
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(220))
                     .build();
         }
     }
@@ -196,7 +213,7 @@ public class ctREDGoal extends LinearOpMode {
                     sleep(200);
                     lift.setPosition(liftDown);
                     indexno++;
-                    if (indexno >= 4) {
+                    if (indexno >= 5) {
                         // finished all 3 balls
                         indexPower = 0;
                         indexer.setPower(indexPower);
@@ -355,16 +372,53 @@ public class ctREDGoal extends LinearOpMode {
                     thrower2.setVelocity(llSpeed);
 
                     if (updateIndex(indexer, magnet1, magnet2, magnet3, indexengage, intake)) {
-                     follower.followPath(Paths.line1, true);
+                     follower.followPath(Paths.line1, false);
                         setPathState(3);
                     }
                     break;
 
                 case 3:
                     if (!follower.isBusy()) {
-                        setPathState(-1);
+                        intake.setPower(1);
+                        lift.setPosition(liftDown);
+                        indexengage.setPosition(indexDisengaged);
+                        follower.followPath(Paths.line2, true);
+                        setPathState(4);
                     }
                     break;
+
+                case 4:
+                    if (!follower.isBusy()) {
+                        indexengage.setPosition(indexEngaged);
+                        follower.followPath(Paths.launch1, false);
+                        setPathState(5);
+                    }
+                    break;
+                case 5:
+                    if (!follower.isBusy()) {
+                        llSpeed = ll.fetchFlywheelSpeed(limelight) *
+                                ShooterPIDConfig.TICKS_PER_REV / 60.0;
+
+                        thrower1.setVelocity(llSpeed);
+                        thrower2.setVelocity(llSpeed);
+
+                        if (updateIndex(indexer, magnet1, magnet2, magnet3, indexengage, intake)) {
+                            thrower1.setVelocity(0);
+                            thrower2.setVelocity(0);
+                            indexer.setPower(0);
+                            follower.followPath(Paths.offline, true);
+                            setPathState(6);
+                        }
+                        break;
+                    }
+                    break;
+                case 6:
+                    if (!follower.isBusy()) {
+                        setPathState(-1);
+                        break;
+                    }
+                    break;
+
             }
 
             telemetry.addData("Index Power", indexPower);

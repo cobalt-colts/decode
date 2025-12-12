@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.frontLeftPower;
 import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftDown;
 import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftUp;
 
@@ -251,6 +252,11 @@ public class clbluefar extends LinearOpMode {
         DcMotorEx thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
         DcMotor intake = hardwareMap.dcMotor.get("intake");
 
+        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
+        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeft");
+        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRight");
+        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRight");
+
         CRServo indexer = hardwareMap.crservo.get("indexer");
         Servo indexengage = hardwareMap.servo.get("indexEngage");
         indexengage.setPosition(0.825);
@@ -330,13 +336,21 @@ public class clbluefar extends LinearOpMode {
                     thrower2.setVelocity(llSpeed);
 
                     if (updateIndex(indexer, magnet1, magnet2, magnet3, indexengage, intake)) {
-                        follower.followPath(Paths.line1, true);
-                        setPathState(3);
+
                     }
                     break;
 
                 case 3:
                     if (!follower.isBusy()) {
+                        frontLeftMotor.setPower(1);
+                        frontRightMotor.setPower(1);
+                        backLeftMotor.setPower(1);
+                        backRightMotor.setPower(1);
+                        sleep(1000);
+                        frontLeftMotor.setPower(0);
+                        frontRightMotor.setPower(0);
+                        backLeftMotor.setPower(0);
+                        backRightMotor.setPower(0);
                         setPathState(-1);
                     }
                     break;

@@ -82,7 +82,7 @@ public class ctBLUEGoal extends LinearOpMode {
             launch1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(21.500, 125.000), new Pose(71.000, 83.500))
+                            new BezierLine(new Pose(21.500, 125.000), new Pose(54.000, 98.000))
                     )
                     .setConstantHeadingInterpolation(Math.toRadians(320))
                     .build();
@@ -90,9 +90,17 @@ public class ctBLUEGoal extends LinearOpMode {
             line1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(71.000, 83.500), new Pose(35.000, 83.500))
+                            new BezierLine(new Pose(54.000, 98.000), new Pose(54.000, 87.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(320), Math.toRadians(180))
+                    .build();
+
+            line2 = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(54.000, 87.000), new Pose(27.000, 87.000))
+                    )
+                    .setConstantHeadingInterpolation(Math.toRadians(180))
                     .build();
         }
     }
@@ -188,7 +196,7 @@ public class ctBLUEGoal extends LinearOpMode {
                     sleep(200);
                     lift.setPosition(liftDown);
                     indexno++;
-                    if (indexno >= 4) {
+                    if (indexno >= 6) {
                         // finished all 3 balls
                         indexPower = 0;
                         indexer.setPower(indexPower);
@@ -352,7 +360,14 @@ public class ctBLUEGoal extends LinearOpMode {
                     }
                     break;
 
-                case 3:
+               case 3:
+                    if (!follower.isBusy()) {
+                        indexer.setPower(1);
+                        lift.setPosition(liftDown);
+                        indexengage.setPosition(indexDisengaged);
+                        follower.followPath(Paths.line2, false);
+                    }
+                case 4:
                     if (!follower.isBusy()) {
                         setPathState(-1);
                     }

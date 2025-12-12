@@ -25,7 +25,7 @@ public class meet2teleop extends LinearOpMode {
 
     public static double intakePower;
     public static double intakeIn = 1;
-    public static double intakeOut = -0.67;
+    public static double intakeOut = -1;
     public static double intakeTransfer = 0.5;
 
 //    private boolean isMagnet(DigitalChannel sensor1, DigitalChannel sensor2, DigitalChannel sensor3){
@@ -42,7 +42,8 @@ public class meet2teleop extends LinearOpMode {
         SHOOT,
         HOLD,
         DISENGAGE,
-        INTAKE
+        INTAKE,
+        IGNORE
     }
     Index indexState = Index.HOLD;
     public static int indexTimer = 0;
@@ -160,6 +161,9 @@ public class meet2teleop extends LinearOpMode {
         backRightPower = (rotY + rotX - rx) / denominator;
     }
     public void index() {
+        boolean mag1 = !magnet1.getState();
+        boolean mag2 = !magnet2.getState();
+        boolean mag3 = !magnet3.getState();
         indexTimer++;
         if (gamepad1.rightBumperWasPressed()) intake();
         if (gamepad1.a) intakePower = intakeOut;
@@ -172,6 +176,27 @@ public class meet2teleop extends LinearOpMode {
         if (gamepad1.bWasPressed()) indexState = Index.FORWARD;
         if (gamepad1.xWasPressed()) indexState = Index.BACKWARD;
         if (gamepad1.bWasReleased() || gamepad1.xWasReleased()) indexState = Index.HOLD;
+
+        double oldIndexPower = 0;
+        Index oldIndexState = Index.IGNORE;
+        if (gamepad1.left_trigger > 0.2) {
+            indexEngagePos = indexEngaged;
+            oldIndexPower = indexPower;
+            oldIndexState = indexState;
+            indexPower = autoIndex;
+            indexState = Index.IGNORE;
+            if (mag1 && mag3){
+                liftUp();
+                sleep(200);
+                liftDown();
+            }
+        } else {
+            if (indexState == Index.IGNORE) {
+                indexPower = oldIndexPower;
+                indexState = oldIndexState;
+            }
+        }
+
         switch (indexState) {
 
             case AUTO:
@@ -203,6 +228,10 @@ public class meet2teleop extends LinearOpMode {
             case INTAKE:
                 disengageIndex();
                 indexPower = 0.0;
+                break;
+
+            case IGNORE:
+                // Nothing;
                 break;
         }
     }
@@ -283,9 +312,11 @@ public class meet2teleop extends LinearOpMode {
     }
     public void liftUp() {
         liftPos = liftUp;
+        lift.setPosition(liftPos);
     }
     public void liftDown() {
         liftPos = liftDown;
+        lift.setPosition(liftPos);
     }
     public void powers() {
 
@@ -304,10 +335,16 @@ public class meet2teleop extends LinearOpMode {
         indexer.setPower(indexPower);
     }
     public void telemetry() {
+        boolean mag1 = !magnet1.getState();
+        boolean mag2 = !magnet2.getState();
+        boolean mag3 = !magnet3.getState();
         telemetry.addData("thrower1velocity", thrower1.getVelocity(AngleUnit.DEGREES) * 60);
         telemetry.addData("thrower2velocity", thrower2.getVelocity(AngleUnit.DEGREES) * 60);
         telemetry.addData("thrower1power", thrower1.getPower());
         telemetry.addData("thrower2power", thrower2.getPower());
+        telemetry.addData("mag1", mag1);
+        telemetry.addData("mag2", mag2);
+        telemetry.addData("mag3", mag3);
         telemetry.addData("hood: ", hoodPos);
         telemetry.addData("target: ", targetTps);
         telemetry.update();
