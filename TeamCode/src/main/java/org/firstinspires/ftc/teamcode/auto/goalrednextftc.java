@@ -9,6 +9,7 @@ import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
@@ -29,6 +30,8 @@ public class goalrednextftc extends NextFTCOpMode {
     public goalrednextftc() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(subsystems.Lift.INSTANCE),
+                new SubsystemComponent(subsystems.Thrower.INSTANCE),
+                new SubsystemComponent(subsystems.Index.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -43,10 +46,10 @@ public class goalrednextftc extends NextFTCOpMode {
 //                        subsystems.Thrower.INSTANCE.autoshootpos,
                         new FollowPath(goalred.launch1, true)
                 ),
-                new Delay(1),
+                subsystems.Index.INSTANCE.index3,
                 new FollowPath(goalred.line1, false),
+                subsystems.Intake.INSTANCE.intakeon,
                 new FollowPath(goalred.line2, true),
-                new Delay(2),
                 new FollowPath(goalred.launch2, true),
                 new Delay(1),
                 new FollowPath(goalred.offline, false)
