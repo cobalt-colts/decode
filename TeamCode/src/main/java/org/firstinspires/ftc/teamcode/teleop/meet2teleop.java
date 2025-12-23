@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,58 +19,56 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @Configurable
-@TeleOp(name = "Meet 2.0 TeleOp")
+@TeleOp(name = "Meet 3 TeleOp")
 public class meet2teleop extends LinearOpMode {
     public static boolean redAlliance = true;
 
     public static double intakePower;
     public static double intakeIn = 1;
-    public static double intakeOut = -1;
-    public static double intakeTransfer = 0.5;
+    public static double intakeOut = -.5;
 
-//    private boolean isMagnet(DigitalChannel sensor1, DigitalChannel sensor2, DigitalChannel sensor3){
-//        if (!sensor2.getState()) { // !sensor1.getState() || !sensor2.getState() || !sensor3.getState()
-//            return true;
-//        } else {
-//            return false;
-//        }
-//    }
-    public enum Index {
-        AUTO,
-        FORWARD,
-        BACKWARD,
-        SHOOT,
-        HOLD,
-        DISENGAGE,
-        INTAKE,
-        IGNORE
-    }
-    Index indexState = Index.HOLD;
-    public static int indexTimer = 0;
-    public static boolean moveIndex = false;
-    public static double manualIndex = 0.25;
-    public static double autoIndex = -0.1;  // -0.25     // Normal index speed
-    public static double correctIndex = 0.1;    //  0.1    Fine adjust speed
-    public static double indexEngaged = 0.84; //0.825
-    public static double indexDisengaged = 0.7;
-    public static double indexEngagePos = indexEngaged;
-    public static double indexPower;
-    public static boolean indexReady = false;
-    public static boolean engageIndex = true;
+    public static char ball1 = 'b';
+    public static char ball2 = 'b';
+    public static char ball3 = 'b';
+    public static char ballWant = '0';
+    public enum Index {G, P, HOLD, U1, D1, U2, D2, U3, D3, DOWN}
+    Index index = Index.HOLD;
+    public static String indexOrder = "";
+    public static double lift1Down = 0.5;
+    public static double lift1Up = 0.5;
+    public static double lift1UpThreshold = 0.5;
+    public static double lift1DownThreshold = 0.5;
+    public static double lift2Down = 0.5;
+    public static double lift2Up = 0.5;
+    public static double lift2UpThreshold = 0.5;
+    public static double lift2DownThreshold = 0.5;
+    public static double lift3Down = 0.5;
+    public static double lift3Up = 0.5;
+    public static double lift3UpThreshold = 0.5;
+    public static double lift3DownThreshold = 0.5;
+    public static double lift1Pos = lift1Down;
+    public static double lift2Pos = lift2Down;
+    public static double lift3Pos = lift3Down;
+    public static double lift1Posi;
 
-    public static double liftUp = 0.5;
-    public static double liftDown = 0.25;
-    public  static double liftPos = liftDown;
+    public static double lift2Posi;
+    public static double lift3Posi;
+    public static double greenThreshold = 50;
+    public static double blueThreshold = 50;
 
     public static double closeSpeed = 746.67;
     public static double closeHood = 0.3; // 0.25   0.35
     public static double farSpeed = 1073.33;
     public static double farHood = 0.21; // 0.1
-    double targetTps = 0;
+    public static double targetTps = 0;
+    public static double flywheelThreshold = 0.1;
     public static double hoodPos = 0.05; // bottom is 0.35, top is 0.
 
     public static double turretManual = 0.35; // 0.25
-    public static double turretPower = 0;
+    public static int turretMax = 200;
+    public static int turretMin = -80;
+    public static double turretPos = 0;
+    public static boolean canShoot;
 
     public static int limelightSlow = 250;
     public static int limelightFast = 100;
@@ -82,9 +80,9 @@ public class meet2teleop extends LinearOpMode {
 
     DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, intake;
     DcMotorEx turret, thrower1, thrower2;
-    Servo indexEngage, hood, lift;
-    CRServo indexer;
-    DigitalChannel magnet1, magnet2, magnet3;
+    Servo hood, lift1, lift2, lift3;
+    ColorSensor color11, color12, color21, color22, color31, color32;
+    AnalogInput lift1Analog, lift2Analog, lift3Analog;
     Limelight3A limelight;
     IMU imu;
 
@@ -102,26 +100,30 @@ public class meet2teleop extends LinearOpMode {
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
 
-        indexer = hardwareMap.crservo.get("indexer");
-        indexEngage = hardwareMap.servo.get("indexEngage");
-
         intake = hardwareMap.dcMotor.get("intake");
+        color11 = hardwareMap.get(ColorSensor.class, "color11");
+        color12 = hardwareMap.get(ColorSensor.class, "color12");
+        color21 = hardwareMap.get(ColorSensor.class, "color21");
+        color22 = hardwareMap.get(ColorSensor.class, "color22");
+        color31 = hardwareMap.get(ColorSensor.class, "color31");
+        color32 = hardwareMap.get(ColorSensor.class, "color32");
+        lift1 = hardwareMap.servo.get("lift1");
+        lift2 = hardwareMap.servo.get("lift2");
+        lift3 = hardwareMap.servo.get("lift3");
+        lift1Analog = hardwareMap.get(AnalogInput.class, "lift1Analog");
+        lift2Analog = hardwareMap.get(AnalogInput.class, "lift2Analog");
+        lift3Analog = hardwareMap.get(AnalogInput.class, "lift3Analog");
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
         thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
-
-        magnet1 = hardwareMap.get(DigitalChannel.class, "mag1");
-        magnet2 = hardwareMap.get(DigitalChannel.class, "mag2");
-        magnet3 = hardwareMap.get(DigitalChannel.class, "mag3");
-
         thrower1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         thrower2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         thrower1.setVelocityPIDFCoefficients(ShooterPIDConfig.kP, ShooterPIDConfig.kI, ShooterPIDConfig.kD, ShooterPIDConfig.kF);
         thrower2.setVelocityPIDFCoefficients(ShooterPIDConfig.kP, ShooterPIDConfig.kI, ShooterPIDConfig.kD, ShooterPIDConfig.kF);
         hood = hardwareMap.servo.get("hood");
-        lift = hardwareMap.servo.get("lift");
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
         limelight.start();
@@ -140,9 +142,7 @@ public class meet2teleop extends LinearOpMode {
         limelight.stop();
     }
     public void drive() {
-        if (gamepad1.share) {
-            redAlliance = false;
-        }
+        if (gamepad1.share) redAlliance = false;
         if (gamepad1.options) {
             imu.resetYaw();
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -151,7 +151,7 @@ public class meet2teleop extends LinearOpMode {
         double x = gamepad1.left_stick_x;
         double rx = -gamepad1.right_stick_x;
         double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        botHeading = Math.toRadians(180);
+//        botHeading = Math.toRadians(180);
         double rotX = 1.1 * (x * Math.cos(-botHeading) - y * Math.sin(-botHeading));
         double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
         double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
@@ -161,137 +161,115 @@ public class meet2teleop extends LinearOpMode {
         backRightPower = (rotY + rotX - rx) / denominator;
     }
     public void index() {
-        boolean mag1 = !magnet1.getState();
-        boolean mag2 = !magnet2.getState();
-        boolean mag3 = !magnet3.getState();
-        indexTimer++;
-        if (gamepad1.rightBumperWasPressed()) intake();
-        if (gamepad1.a) intakePower = intakeOut;
-        if (gamepad1.aWasReleased()) intakePower = 0;
-//        if (gamepad1.rightBumperWasReleased() || gamepad1.aWasReleased()) intakePower = 0;
-        if (gamepad1.yWasPressed()) { // triangle on ps controller
-            indexTimer = 0;
-            indexState = Index.AUTO;
-        }
-        if (gamepad1.bWasPressed()) indexState = Index.FORWARD;
-        if (gamepad1.xWasPressed()) indexState = Index.BACKWARD;
-        if (gamepad1.bWasReleased() || gamepad1.xWasReleased()) indexState = Index.HOLD;
+        color();
 
-        double oldIndexPower = 0;
-        Index oldIndexState = Index.IGNORE;
-        if (gamepad1.left_trigger > 0.2) {
-            indexEngagePos = indexEngaged;
-            oldIndexPower = indexPower;
-            oldIndexState = indexState;
-            indexPower = autoIndex;
-            indexState = Index.IGNORE;
-            if (mag1 && mag3){
-                liftUp();
-                sleep(200);
-                liftDown();
-            }
-        } else {
-            if (indexState == Index.IGNORE) {
-                indexPower = oldIndexPower;
-                indexState = oldIndexState;
-            }
-        }
+        if (gamepad1.right_bumper) intake();
+        else outtake();
 
-        switch (indexState) {
+        if (gamepad1.yWasPressed()) ballWant = 'g';      // index = Index.G;
+        if (gamepad1.xWasPressed()) ballWant = 'p';      // index = Index.P;
+        if (gamepad1.bWasPressed()) ballWant = '0';      // index = Index.HOLD;
+        if (gamepad1.dpadLeftWasPressed()) index = Index.U1;
+        if (gamepad1.dpadUpWasPressed()) index = Index.U2;
+        if (gamepad1.dpadRightWasPressed()) index = Index.U3;
+        if (gamepad1.dpadDownWasPressed()) index = Index.DOWN;
 
-            case AUTO:
-                engageIndex();
-                autoIndex();
-                break;
-
-            case FORWARD:
-                engageIndex();
-                indexPower = correctIndex;
-                break;
-
-            case BACKWARD:
-                engageIndex();
-                indexPower = -correctIndex;
-                break;
-
-            case SHOOT:
-                engageIndex();
-                indexPower = 0.0;
-                autoShoot();
-                break;
+        switch (index) {
+//            case G:
+//                if (canShoot) {
+//                    if (ball1 == 'g') index = Index.U1;
+//                    else if (ball2 == 'g') index = Index.U2;
+//                    else if (ball3 == 'g') index = Index.U3;
+//                    else index = Index.P;
+//                }
+//                else gamepad1.rumble(100);
+//                break;
+//
+//            case P:
+//                if (canShoot) {
+//                    if (ball1 == 'p') index = Index.U1;
+//                    else if (ball2 == 'p') index = Index.U2;
+//                    else if (ball3 == 'p') index = Index.U3;
+//                    else index = Index.G;
+//                }
+//                else gamepad1.rumble(100);
+//                break;
 
             case HOLD:
-                engageIndex();
-                indexPower = 0.0;
-                break;
-
-            case INTAKE:
-                disengageIndex();
-                indexPower = 0.0;
-                break;
-
-            case IGNORE:
-                // Nothing;
-                break;
-        }
-    }
-    public void intake() {
-        if (intakePower == intakeIn) intakePower = 0;
-        else intakePower = intakeIn;
-        indexState = Index.INTAKE;
-    }
-    public void outtake() {
-        intakePower = intakeOut;
-        indexState = Index.INTAKE;
-    }
-    public void engageIndex() {
-        indexEngagePos = indexEngaged;
-    }
-    public void disengageIndex() {
-        indexEngagePos = indexDisengaged;
-    }
-    public void autoIndex() {
-        boolean mag1 = !magnet1.getState();
-        boolean mag2 = !magnet2.getState();
-        boolean mag3 = !magnet3.getState();
-//        if (mag3) {
-//            indexState = Index.SHOOT;
-//        } else if (mag2) {
-//            indexState = Index.FORWARD;
-//        } else if (mag1) {
-//            indexState = Index.BACKWARD;
-//        }
-        if (!gamepad1.y) {
-            if (mag3) {
-                if (mag2) indexPower = correctIndex;
-                else if (mag1) {
-                    gamepad1.rumble(250);
-                    indexPower = 0;
+                if (canShoot) {
+                    if (ball1 == ballWant) index = Index.U1;
+                    if (ball2 == ballWant) index = Index.U2;
+                    if (ball3 == ballWant) index = Index.U3;
                 }
-//                else indexState = Index.SHOOT;
-            }
-            else indexPower = autoIndex;
-//            else if (mag1) indexPower = -correctIndex;
+//                lift1Pos = lift1Down;
+//                lift2Pos = lift2Down;
+//                lift3Pos = lift3Down;
+                break;
+
+            case U1:
+                lift1Pos = lift1Up;
+                if (lift1Pos == lift1Up && lift1Posi <= lift1UpThreshold) index = Index.D1;
+                break;
+
+            case D1:
+                lift1Pos = lift1Down;
+                if (lift1Posi >= lift1DownThreshold) index = Index.HOLD;
+                break;
+
+            case U2:
+                lift2Pos = lift2Up;
+                if (lift2Pos == lift2Up && lift2Posi <= lift2UpThreshold) index = Index.D2;
+                break;
+
+            case D2:
+                lift2Pos = lift2Down;
+                if (lift2Posi >= lift2DownThreshold) index = Index.HOLD;
+                break;
+
+            case U3:
+                lift3Pos = lift3Up;
+                if (lift3Pos == lift3Up && lift3Posi <= lift3UpThreshold) index = Index.D3;
+                break;
+
+            case D3:
+                lift3Pos = lift3Down;
+                if (lift3Posi >= lift3DownThreshold) index = Index.HOLD;
+                break;
+
+            case DOWN:
+                lift1Pos = lift1Down;
+                lift2Pos = lift2Down;
+                lift3Pos = lift3Down;
         }
-        else indexPower = autoIndex;
     }
+    public void color() {
+        if (color11.green() >= greenThreshold || color12.green() >= greenThreshold) ball1 = 'g';
+        else if (color11.blue() >= blueThreshold || color12.blue() >= blueThreshold) ball1 = 'p';
+        else ball1 = 'b';
+        if (color21.green() >= greenThreshold || color22.green() >= greenThreshold) ball2 = 'g';
+        else if (color21.blue() >= blueThreshold || color22.blue() >= blueThreshold) ball2 = 'p';
+        else ball2 = 'b';
+        if (color31.green() >= greenThreshold || color32.green() >= greenThreshold) ball3 = 'g';
+        else if (color31.blue() >= blueThreshold || color32.blue() >= blueThreshold) ball3 = 'p';
+        else ball3 = 'b';
+        lift1Posi = (lift1Analog.getVoltage() / 3.3) * 360;
+        lift2Posi = (lift2Analog.getVoltage() / 3.3) * 360;
+        lift3Posi = (lift3Analog.getVoltage() / 3.3) * 360;
+    }
+    public void intake() {intakePower = intakeIn;}
+    public void outtake() {intakePower = intakeOut;}
     public void shoot() {
-        if (gamepad1.dpad_right) turretPower = turretManual;
-        else if (gamepad1.dpad_left) turretPower = -turretManual;
-        else turretPower = ll.fetchAlignment(limelight, redAlliance);
-        if (turretPower != 6767) {
-            if ((turretPower > 0 && turret.getCurrentPosition() < 200) || (turretPower < 0 && turret.getCurrentPosition() > -80)) {
-                turret.setPower(turretPower); // Glenn 12/4/2025
-            }
-        } else turretPower = 0;
+        canShoot = true;
+        if (gamepad1.dpad_right) turretPos += turretManual;
+        else if (gamepad1.dpad_left) turretPos -= turretManual;
+        else if (ll.fetchAlignment(limelight, redAlliance) != 6767) turretPos += ll.fetchAlignment(limelight, redAlliance);
+        else canShoot = false;
+        if (turretPos > turretMax) turretPos = turretMin;
+        if (turretPos < turretMin) turretPos = turretMax;
         hoodPos = (targetTps >= 1000 ? farHood : closeHood);
-        if (gamepad1.right_trigger >= 0.2) {
+        if (gamepad1.right_bumper) {
             telemetry.setMsTransmissionInterval(limelightFast);
             targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
-//            if (turretPower > 6766) gamepad1.rumble(200);
-//            if ((turretPower > 0 && turret.getCurrentPosition() < 200) || (turretPower < 0 && turret.getCurrentPosition() > -80)) {
-//                turret.setPower(turretPower); // Glenn 12/4/2025
-//            } else turretPower = 0;
         } else if (gamepad1.dpad_up) {
             telemetry.setMsTransmissionInterval(limelightSlow);
             targetTps = closeSpeed;
@@ -300,51 +278,35 @@ public class meet2teleop extends LinearOpMode {
             telemetry.setMsTransmissionInterval(limelightSlow);
             targetTps = farSpeed;
             hoodPos = farHood;
-        } else {
+        } else if (gamepad1.left_trigger >= 0.2) {
             telemetry.setMsTransmissionInterval(limelightSlow);
             targetTps = 0;
+        } else {
+            telemetry.setMsTransmissionInterval(limelightSlow);
+            targetTps = ll.fetchFlywheelSpeed(limelight) * ShooterPIDConfig.TICKS_PER_REV / 60.0;
         }
-        if (gamepad1.leftBumperWasPressed()) liftUp();
-        if (gamepad1.leftBumperWasReleased()) liftDown();
-    }
-    public void autoShoot() {
-        if (gamepad1.left_trigger < 0.2 && Math.abs(targetTps/thrower1.getVelocity()) <= 1.2 && Math.abs(turretPower) <= 0.05) liftUp();
-    }
-    public void liftUp() {
-        liftPos = liftUp;
-        lift.setPosition(liftPos);
-    }
-    public void liftDown() {
-        liftPos = liftDown;
-        lift.setPosition(liftPos);
+        if (thrower1.getVelocity() / targetTps >= flywheelThreshold) canShoot = false;
     }
     public void powers() {
-
         frontLeftMotor.setPower(frontLeftPower);
         backLeftMotor.setPower(backLeftPower);
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
-        thrower1.setVelocity( -1 * targetTps); // Glenn 12/4/2025
+        thrower1.setVelocity(-1 * targetTps);
         thrower2.setPower(thrower1.getPower());
-        turret.setPower(turretPower); // Glenn 12/4/2025
+        turret.setTargetPosition((int) turretPos);
         intake.setPower(intakePower);
 
         hood.setPosition(hoodPos);
-        lift.setPosition(liftPos);
-        indexEngage.setPosition(indexEngagePos);
-        indexer.setPower(indexPower);
+        lift1.setPosition(lift1Pos);
+        lift2.setPosition(lift2Pos);
+        lift3.setPosition(lift3Pos);
     }
     public void telemetry() {
-        boolean mag1 = !magnet1.getState();
-        boolean mag2 = !magnet2.getState();
-        boolean mag3 = !magnet3.getState();
         telemetry.addData("thrower1velocity", thrower1.getVelocity(AngleUnit.DEGREES) * 60);
         telemetry.addData("thrower2velocity", thrower2.getVelocity(AngleUnit.DEGREES) * 60);
         telemetry.addData("thrower1power", thrower1.getPower());
         telemetry.addData("thrower2power", thrower2.getPower());
-        telemetry.addData("mag1", mag1);
-        telemetry.addData("mag2", mag2);
-        telemetry.addData("mag3", mag3);
         telemetry.addData("hood: ", hoodPos);
         telemetry.addData("target: ", targetTps);
         telemetry.update();

@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.frontLeftPower;
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftDown;
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftUp;
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.lift1Down;
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.lift1Up;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;

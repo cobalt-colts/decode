@@ -30,53 +30,28 @@ public class ll {
         return flywheelspeed;
     }
     public static double fetchAlignment(Limelight3A limelight, boolean redAlliance) {
+        final int RED_GOAL_TAG = 24;
+        final int BLUE_GOAL_TAG = 20;
+        int targetTag = redAlliance ? RED_GOAL_TAG : BLUE_GOAL_TAG;
         LLResult result = limelight.getLatestResult();
         if(result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            double horizontalOffset = -result.getTy();
+            for (LLResultTypes.FiducialResult tag : fiducials) {
+                if (tag.getFiducialId() == targetTag) {
+                    double horizontalOffset = -result.getTy();
 //            double turnPower = 0.3; // 0.25
-            double tolerance = 1;
+                    double tolerance = 1;
 
-            if (Math.abs(horizontalOffset) > tolerance) {
-                if (horizontalOffset > 0) return ShooterPIDConfig.turnPower;
-                else return (ShooterPIDConfig.turnPower * -1);
+                    if (Math.abs(horizontalOffset) > tolerance) {
+                        if (horizontalOffset > 0) return ShooterPIDConfig.turnPower;
+                        else return (ShooterPIDConfig.turnPower * -1);
 //                return  (horizontalOffset / 10);
-            } else return 0;
+                    } else return 0;
+                }
+            }
         }
         else return 6767;
-
-
-//        final int RED_GOAL_TAG = 24;
-//        final int BLUE_GOAL_TAG = 20;
-//        int targetTag = redAlliance ? RED_GOAL_TAG : BLUE_GOAL_TAG;
-//
-//        LLResult result = limelight.getLatestResult();
-//
-//        if (result == null || !result.isValid()) {
-//            return 6767;
-//        }
-//
-//        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-//
-//        // --- Find the correct tag ---
-//        for (LLResultTypes.FiducialResult tag : fiducials) {
-//
-//            if (tag.getFiducialId() == targetTag) {
-//
-//                double horizontalOffset = -tag.getTargetYPixels();
-//                double tolerance = 5;
-//                double turnPower = 0.025 * horizontalOffset;
-//
-//                if (Math.abs(horizontalOffset) > tolerance) {
-//                    return (horizontalOffset > 0) ? turnPower : -turnPower;
-//                } else {
-//                    return 0;  // centered
-//                }
-//            }
-//        }
-//
-//        // If we reach here, no target tag seen
-//        return 6767;
+        return 6767;
     }
     public static double fetchHoodPos(Limelight3A limelight) {
         double ta = 0;

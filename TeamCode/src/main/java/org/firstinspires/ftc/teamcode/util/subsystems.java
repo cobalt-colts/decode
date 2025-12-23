@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.indexPower;
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftDown;
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.liftUp;
+//import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.indexPower;
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.lift1Down;
+import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.lift1Up;
 
 import android.service.controls.Control;
 
