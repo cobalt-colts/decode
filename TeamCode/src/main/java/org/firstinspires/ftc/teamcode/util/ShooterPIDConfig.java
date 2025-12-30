@@ -25,6 +25,6 @@ public class ShooterPIDConfig {
 
     public static double turnPower = 0.3; // 0.35
 
-    public static double hoodPos = 0.25;
+//    public static double hoodPos = 0.25;
     public static boolean autoAim = false;
 }

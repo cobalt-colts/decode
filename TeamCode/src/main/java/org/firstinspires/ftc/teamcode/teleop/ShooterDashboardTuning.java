@@ -25,6 +25,7 @@ public class ShooterDashboardTuning extends LinearOpMode {
     private DcMotorEx thrower1, thrower2, turret;
 
     public static double turretPower = 0;
+    public static double hoodPos = 0.25;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -92,7 +93,7 @@ public class ShooterDashboardTuning extends LinearOpMode {
             double v1 = thrower1.getVelocity() / ShooterPIDConfig.TICKS_PER_REV * 60.0;
             double v2 = thrower2.getVelocity() / ShooterPIDConfig.TICKS_PER_REV * 60.0;
 
-            hood.setPosition(ShooterPIDConfig.hoodPos);
+            hood.setPosition(hoodPos);
 
             TelemetryPacket p = new TelemetryPacket();
             p.put("target_tps", targetTps);

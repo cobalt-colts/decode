@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.lift1Down;
-import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.lift1Up;
+import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
@@ -209,9 +208,9 @@ public class ctREDGoal extends LinearOpMode {
                 // Just go for it. When mag3&mag1, launch. It's fast enough that mag2 won't be lit yet
                 if (mag3State && mag1State) {
 //                    indexer.setPower(indexPower);
-                    lift.setPosition(liftUp);
+//                    lift.setPosition(liftUp); Derek 12/28
                     sleep(200);
-                    lift.setPosition(liftDown);
+//                    lift.setPosition(liftDown); Derek 12/28
                     indexno++;
                     if (indexno >= 5) {
                         // finished all 3 balls
@@ -380,7 +379,7 @@ public class ctREDGoal extends LinearOpMode {
                 case 3:
                     if (!follower.isBusy()) {
                         intake.setPower(1);
-                        lift.setPosition(liftDown);
+//                        lift.setPosition(liftDown); Derek 12/28
                         indexengage.setPosition(indexDisengaged);
                         follower.followPath(Paths.line2, true);
                         setPathState(4);
