@@ -4,6 +4,11 @@ import static org.firstinspires.ftc.teamcode.util.posConstants.lift1Down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.lift2Down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.lift3Down;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
+
+@Config
+@Configurable
 public class positions {
     public static boolean redAlliance = true;
 
