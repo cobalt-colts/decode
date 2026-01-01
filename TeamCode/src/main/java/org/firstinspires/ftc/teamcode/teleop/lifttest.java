@@ -10,14 +10,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.util.posConstants;
+
 @Configurable
 @Config
 @TeleOp(name="Lift Tests")
 public class lifttest extends LinearOpMode {
 
-    public static double lift1Pos = 0.5;
-    public static double lift2Pos = 0.5;
-    public static double lift3Pos = 0.5;
+    public static double lift1Pos = posConstants.lift1Down;
+    public static double lift2Pos = posConstants.lift2Down;
+    public static double lift3Pos = posConstants.lift3Down;
 
 
     /* TURRET MAX POS:
@@ -52,6 +54,12 @@ public class lifttest extends LinearOpMode {
             lift1.setPosition(lift1Pos);
             lift2.setPosition(lift2Pos);
             lift3.setPosition(lift3Pos);
+            telemetry.addData("lift1pos", lift1.getPosition());
+            telemetry.addData("lift2pos", lift2.getPosition());
+            telemetry.addData("lift3pos", lift3.getPosition());
+
+
+
             telemetry.addData("11 green: ", f1s1.green());
             telemetry.addData("12 green: ", f1s2.green());
             telemetry.addData("21 green: ", f2s1.green());

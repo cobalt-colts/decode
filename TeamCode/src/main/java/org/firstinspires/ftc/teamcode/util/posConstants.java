@@ -28,22 +28,22 @@ public class posConstants {
     public static double intakeOut = -.5;
 
     // INDEX
-    public static double lift1Down = 0.5;
-    public static double lift1Up = 0.5;
+    public static double lift1Down = 0.65;
+    public static double lift1Up = 0.39;
     public static double lift1UpThreshold = 0.5;
     public static double lift1DownThreshold = 0.5;
-    public static double lift2Down = 0.5;
-    public static double lift2Up = 0.5;
+    public static double lift2Down = 0.375;
+    public static double lift2Up = 0.65;
     public static double lift2UpThreshold = 0.5;
     public static double lift2DownThreshold = 0.5;
-    public static double lift3Down = 0.5;
-    public static double lift3Up = 0.5;
+    public static double lift3Down = 0.375;
+    public static double lift3Up = 0.65;
     public static double lift3UpThreshold = 0.5;
     public static double lift3DownThreshold = 0.5;
     public static int liftUpTime = 60;
     public static int liftDownTime = 45;
-    public static double greenThreshold = 50;
-    public static double blueThreshold = 50;
+    public static double greenThreshold = 400;
+    public static double blueThreshold = 550;
 
     // SHOOTER
     public static double closeSpeed = 746.67;
