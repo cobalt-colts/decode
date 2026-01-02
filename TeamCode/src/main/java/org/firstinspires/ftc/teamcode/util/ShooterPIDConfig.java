@@ -5,6 +5,7 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Config
 @Configurable
+@SuppressWarnings("CannotResolve")
 public class ShooterPIDConfig {
 
 

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @Configurable
 @Config
 @TeleOp
+@SuppressWarnings("CannotResolve")
 public class wheeltest extends LinearOpMode {
     public static DcMotor currentwheel;
 

@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.util.posConstants;
 @Configurable
 @Config
 @TeleOp(name="Lift Tests")
+@SuppressWarnings("CannotResolve")
 public class lifttest extends LinearOpMode {
 
     public static double lift1Pos = posConstants.lift1Down;

@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 @Configurable
+@SuppressWarnings("CannotResolve")
 public class posConstants {
     public static DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, intake;
     public static DcMotorEx turret, thrower1, thrower2;
@@ -53,8 +54,8 @@ public class posConstants {
     public static double flywheelThreshold = 0.1;
     public static double turretThreshold = 0.1;
     public static double turretManual = 0.35; // 0.25
-    public static int turretMax = 200;
-    public static int turretMin = -80;
+    public static int turretMax = 116;
+    public static int turretMin = -156;
     public static int limelightSlow = 250;
     public static int limelightFast = 100;
 }

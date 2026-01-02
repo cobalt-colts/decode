@@ -10,12 +10,14 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.util.posConstants;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @Config
 @Configurable
 @TeleOp(name = "miles' teleop")
+@SuppressWarnings("CannotResolve")
 public class meet3teleopmiles extends LinearOpMode {
 
     public static double flick1pos = 0.5;
@@ -28,6 +30,8 @@ public class meet3teleopmiles extends LinearOpMode {
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeft");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRight");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("backRight");
+
+        DcMotor intake = hardwareMap.dcMotor.get("intake");
 
         Servo flicker1 = hardwareMap.servo.get("flicker1");
         Servo flicker2 = hardwareMap.servo.get("flicker2");
@@ -48,6 +52,10 @@ public class meet3teleopmiles extends LinearOpMode {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);
+
+        flicker1.setPosition(posConstants.lift1Down);
+        flicker2.setPosition(posConstants.lift2Down);
+        flicker3.setPosition(posConstants.lift3Down);
 
         waitForStart();
 
@@ -87,9 +95,12 @@ public class meet3teleopmiles extends LinearOpMode {
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            flicker1.setPosition(0);
-            flicker2.setPosition(0);
-            flicker3.setPosition(0 );
+            if (gamepad1.a) {
+                intake.setPower(1);
+            } else {
+                intake.setPower(0);
+            }
+
 
         }
     }

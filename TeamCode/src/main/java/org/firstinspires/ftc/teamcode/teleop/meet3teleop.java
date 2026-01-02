@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -17,6 +18,7 @@ import static org.firstinspires.ftc.teamcode.util.positions.*;
 @Config
 @Configurable
 @TeleOp(name = "Meet 3 TeleOp")
+@SuppressWarnings("CannotResolve")
 public class meet3teleop extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,6 +34,7 @@ public class meet3teleop extends LinearOpMode {
         imu.initialize(parameters);
 
         intake = hardwareMap.dcMotor.get("intake");
+        intake.setDirection(DcMotorEx.Direction.REVERSE);
         color11 = hardwareMap.colorSensor.get("f1s1");
         color12 = hardwareMap.colorSensor.get("f1s2");
         color21 = hardwareMap.colorSensor.get("f2s1");
@@ -228,6 +231,10 @@ public class meet3teleop extends LinearOpMode {
         } else if (gamepad1.left_trigger >= 0.2) {
             telemetry.setMsTransmissionInterval(limelightSlow);
             targetTps = 0;
+        } else if (gamepad2.dpad_up) {
+            targetTps = farSpeed;
+        } else if (gamepad2.dpad_down) {
+            targetTps = closeSpeed;
         } else {
             telemetry.setMsTransmissionInterval(limelightSlow);
             targetTps = ll.fetchFlywheelSpeed(limelight) * TICKS_PER_REV / 60.0;

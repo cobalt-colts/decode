@@ -9,6 +9,7 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Config
 @Configurable
+@SuppressWarnings("CannotResolve")
 public class positions {
     public static boolean redAlliance = true;
 

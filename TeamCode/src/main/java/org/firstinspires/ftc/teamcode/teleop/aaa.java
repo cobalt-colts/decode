@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.annotation.SuppressLint;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
@@ -21,8 +23,9 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.Servo;
 
 // WORKS AND I HAVE NO F**KING IDEA WHY
+@SuppressWarnings("CannotResolve")
 
-@Config
+@Config //noinspection CannotResolveSymbol
 @Configurable
 @Autonomous(name = "Far Red Auto-Time")
 public class aaa extends LinearOpMode {

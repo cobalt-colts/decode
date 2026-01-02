@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.util.ll;
 
 @Config
 @TeleOp(name = "Shooter Dashboard Tuning", group = "Tuning")
+@SuppressWarnings("CannotResolve")
 public class ShooterDashboardTuning extends LinearOpMode {
 
     private DcMotorEx thrower1, thrower2, turret;
