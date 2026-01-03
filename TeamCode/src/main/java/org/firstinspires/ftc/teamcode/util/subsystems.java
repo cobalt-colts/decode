@@ -2,10 +2,16 @@ package org.firstinspires.ftc.teamcode.util;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 //import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.indexPower;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 
+import android.graphics.Color;
 import android.service.controls.Control;
 
+import com.google.gson.internal.bind.SqlDateTypeAdapter;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
@@ -17,12 +23,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.R;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.DoubleStream;
 
 import dev.nextftc.control.ControlSystem;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.CommandManager;
+import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.ParallelGroup;
+import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.components.Component;
 import dev.nextftc.core.subsystems.Subsystem;
@@ -38,21 +48,116 @@ import kotlin.jvm.internal.Lambda;
 
 public class subsystems {
 
+    public static class ColorSensing implements Subsystem {
+
+        public static final ColorSensing INSTANCE = new ColorSensing();
+
+        private ColorSensing() {}
+
+        ColorSensor f1s1 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f1s1");
+        ColorSensor f1s2 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f1s2");
+
+        ColorSensor f2s1 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f2s1");
+        ColorSensor f2s2 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f2s2");
+        ColorSensor f3s1 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f3s1");
+        ColorSensor f3s2 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f3s2");
+
+        enum colors {
+            P,
+            G
+        }
+
+        colors flick1color = colors.P;
+        colors flick2color = colors.P;
+        colors flick3color = colors.P;
+
+        @Override
+        public void periodic(){
+
+            if (f1s1.green() > blueThreshold || f1s2.blue() > blueThreshold) {
+                flick1color = colors.P;
+            } else if (f1s1.green() > greenThreshold || f1s2.green() > greenThreshold) {
+                flick1color = colors.G;
+            } else {
+                flick1color = colors.P;
+            }
+
+            if (f2s1.blue() > blueThreshold || f2s2.blue() > blueThreshold) {
+                flick2color = colors.P;
+            } else if (f2s1.green() > greenThreshold || f2s2.green() > greenThreshold) {
+                flick2color = colors.G;
+            } else {
+                flick2color = colors.P;
+            }
+
+            if (f3s1.blue() > blueThreshold || f3s2.blue() > blueThreshold) {
+                flick3color = colors.P;
+            } else if (f3s1.green() > greenThreshold || f3s2.green() > greenThreshold) {
+                flick3color = colors.G;
+            } else {
+                flick3color = colors.P;
+            }
+        }
+
+    }
+
+    public static class Camera implements Subsystem {
+        public static final Camera INSTANCE = new Camera();
+
+        private Camera() {}
+
+        enum motifs {
+            PPG,
+            PGP,
+            GPP,
+            NONE
+        }
+
+        motifs motif = motifs.NONE;
+
+        motifs getMotif(int tag) {
+            if (tag == 21) {
+                return motifs.GPP;
+            } else if (tag == 22) {
+                return motifs.PGP;
+            } else if (tag == 23) {
+                return motifs.PPG;
+            }
+            return motifs.NONE;
+        }
+        Limelight3A limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+
+        public LambdaCommand setmotif = new LambdaCommand()
+                .setStart(() -> {
+                    limelight.setPollRateHz(100);
+                    limelight.pipelineSwitch(1);
+                    limelight.start();
+                    LLResult result = limelight.getLatestResult();
+                    if (result != null && result.isValid()) {
+                        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+                            motif = getMotif(id);
+                            ActiveOpMode.telemetry().addData("motif", motif);
+                        }
+                    }
+                })
+                .setInterruptible(false)
+                .requires(this)
+                .setIsDone(() -> motif != motifs.NONE);
+    }
+
     public static class Index implements Subsystem {
         public static final Index INSTANCE = new Index();
 
         private Index() {}
 
         // Actuators
-        private final ServoEx indexengage = new ServoEx("indexengage");
-        private final CRServoEx indexer = new CRServoEx("indexer");
-        private final MotorEx intake = new MotorEx("intake");
-        private final ServoEx lift = new ServoEx("lift");
+        private final ServoEx flicker1 = new ServoEx("flicker1");
+        private final ServoEx flicker2 = new ServoEx("flicker2");
+        private final ServoEx flicker3 = new ServoEx("flicker3");
+        // Color Sensors
 
-        // Sensors (raw hardware channels)
-        DigitalChannel magnet1 = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "mag1");
-        DigitalChannel magnet2 = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "mag2");
-        DigitalChannel magnet3 = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "mag3");
 
         // State machine
         private int indexState = 0;
@@ -69,98 +174,44 @@ public class subsystems {
         public static int targetCount = 3; // how many launches to perform
 
         // Commands to control the engage servo from other code
-        public Command engage = new SetPosition(indexengage, indexEngaged);
-        public Command disengage = new SetPosition(indexengage, indexDisengaged);
+        public SequentialGroup launch1 = new SequentialGroup(
+                new SetPosition(flicker1, lift1Up),
+                new Delay(250),
+                new SetPosition(flicker1, lift1Down)
+        );
+        public SequentialGroup launch2 = new SequentialGroup(
+                new SetPosition(flicker2, lift2Up),
+                new Delay(250),
+                new SetPosition(flicker2, lift2Down)
+        );
+        public SequentialGroup launch3 = new SequentialGroup(
+                new SetPosition(flicker3, lift3Up),
+                new Delay(250),
+                new SetPosition(flicker3, lift3Down)
+        );
 
-        // Non-blocking index routine implemented as a LambdaCommand
-        public LambdaCommand index3 = new LambdaCommand()
-                .setStart(() -> {
-                    indexState = 0;
-                    indexno = 0;
-                    indexStateTime = System.currentTimeMillis();
-                    launchingWait = false;
-                })
+        public ParallelGroup alldown = new ParallelGroup(
+                new SetPosition(flicker1, lift1Down),
+                new SetPosition(flicker2, lift2Down),
+                new SetPosition(flicker3, lift3Down)
+        );
+
+        // add launch purple command here next time
+        private int launchno = 1;
+
+        public LambdaCommand launchmotif = new LambdaCommand()
                 .setUpdate(() -> {
-                    // read current (logical) magnet states: true == magnet present on prong
-                    boolean mag1State = !magnet1.getState();
-                    boolean mag2State = !magnet2.getState();
-                    boolean mag3State = !magnet3.getState();
+                    switch(Camera.INSTANCE.motif) {
+                        case PPG:
+                            launch1.schedule();
+                            launchno++;
+                        case PGP:
 
-                    long now = System.currentTimeMillis();
-
-                    switch (indexState) {
-                        // START: engage, run intake + indexer
-                        case 0:
-                            INSTANCE.engage.schedule();
-                            new SetPower(intake, intakePower);
-                            new SetPower(indexer, autoIndex);
-
-                            // If any magnet is present at the start, immediately perform a launch
-                            if (mag1State || mag2State || mag3State) {
-                                Lift.INSTANCE.liftup.schedule();// uses static import from meet2teleop
-                                indexStateTime = now;
-                                launchingWait = true;
-                                indexState = 1; // go to indexing/launch wait state
-                                break;
-                            }
-
-                            // otherwise move to normal indexing state
-                            indexState = 1;
-                            indexStateTime = now;
-                            break;
-
-                        // INDEXING: run the indexer and trigger launches when the alignment condition is met
-                        case 1:
-                            // If we were doing an immediate launch wait, finish the wait then drop the lift
-                            if (launchingWait) {
-                                if (now - indexStateTime >= 200) {
-                                    Lift.INSTANCE.liftdown.schedule();
-                                    launchingWait = false;
-                                    indexno++;
-                                    // if we've completed targetCount launches, stop and finish
-                                    if (indexno >= targetCount) {
-                                        indexer.setPower(0);
-                                        intake.setPower(0);
-                                        indexState = 67;
-                                    }
-                                }
-                                break;
-                            }
-
-                            // Normal indexing: simple rule — when mag3 & mag1 are simultaneously present,
-                            // consider that an aligned ball for launch (mirrors ctREDGoal behavior)
-                            if (mag3State && mag1State) {
-                                // momentarily stop advancing and actuate the lift to launch
-                                new SetPower(indexer, 0);
-                                Lift.INSTANCE.liftup.schedule();
-                                // schedule a short wait using timestamping rather than blocking
-                                indexStateTime = now;
-                                launchingWait = true;
-                                // keep state 1 to process the wait and post-launch behavior
-                                break;
-                            }
-
-                            // otherwise keep the indexer moving at autoIndex
-                            new SetPower(indexer, autoIndex);
-                            break;
-
-                        // CLEANUP / finished one ball (not heavily used in this simplified flow)
-                        case 2:
-                            new SetPower(indexer, 0);
-                            new SetPower(intake, 0);
-                            if (indexno >= targetCount) {
-                                indexState = 67;
-                            } else {
-                                indexState = 0;
-                            }
-                            break;
-
-                        default:
-                            break;
                     }
                 })
-                .setIsDone(() -> indexState == 67)
-                .setInterruptible(true);
+                .requires(this, Camera.INSTANCE, launch3, launch2, launch1)
+                .setIsDone(() -> launchno > 3);
+
 
     }
     public static class Intake implements Subsystem {
@@ -170,7 +221,7 @@ public class subsystems {
 
             private MotorEx intake = new MotorEx("intake");
 
-            public Command intakeon = new SetPower(intake,-0.4).requires(this);
+            public Command intakeon = new SetPower(intake,-1).requires(this);
             public Command intakeoff = new SetPower(intake, 0).requires(this);
     }
     public static class Thrower implements Subsystem {
@@ -213,17 +264,5 @@ public class subsystems {
             thrower1.setPower(power);
             thrower2.setPower(power);
         }
-    }
-    public static class Lift implements Subsystem {
-        public static final Lift INSTANCE = new Lift();
-
-        private Lift() { }
-
-        private ServoEx lift = new ServoEx("lift");
-
-        public Command liftup = new SetPosition(lift, 0.5);
-        public Command liftdown = new SetPosition(lift, 0.25);
-
-
     }
 }
