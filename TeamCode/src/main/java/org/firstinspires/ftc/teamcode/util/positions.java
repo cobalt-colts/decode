@@ -9,7 +9,7 @@ import static org.firstinspires.ftc.teamcode.util.posConstants.pinpoint;
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 
-import org.firstinspires.ftc.teamcode.Prism.Color;
+//import org.firstinspires.ftc.teamcode.Prism.Color;
 
 @Config
 @Configurable
@@ -41,9 +41,9 @@ public class positions {
     public static Index left = Index.DOWN;
     public static Index back = Index.DOWN;
     public static Index right = Index.DOWN;
-    public static Color leftColor = Color.WHITE;
-    public static Color backColor = Color.WHITE;
-    public static Color rightColor = Color.WHITE;
+//    public static Color leftColor = Color.WHITE;
+//    public static Color backColor = Color.WHITE;
+//    public static Color rightColor = Color.WHITE;
     public static int ballNum = 0;
 
     public static double targetTps = 0;

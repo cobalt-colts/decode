@@ -14,11 +14,11 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.Artboard;
-
-import org.firstinspires.ftc.teamcode.Prism.Color;
-import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
-import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
+//import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.Artboard;
+//
+//import org.firstinspires.ftc.teamcode.Prism.Color;
+//import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+//import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
 @Config
 @Configurable
@@ -32,7 +32,7 @@ public class posConstants {;
     public static DigitalChannel turretMag;
     public static Limelight3A limelight;
     public static GoBildaPinpointDriver pinpoint;
-    public static GoBildaPrismDriver prism;
+//    public static GoBildaPrismDriver prism;
 
     // INTAKE
     public static double intakeIn = 1;
