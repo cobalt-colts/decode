@@ -111,7 +111,7 @@ public class cvtest extends LinearOpMode
                         PredominantColorProcessor.Swatch.WHITE)
                 .build();
         PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.1, 0.8, 0.1, 0.6))
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.2, 0.2, -0.15, 0.15))
                 .setSwatches(
                         PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                         PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
