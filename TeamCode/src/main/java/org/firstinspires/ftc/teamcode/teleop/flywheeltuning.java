@@ -29,7 +29,7 @@ public class flywheeltuning extends LinearOpMode {
         DcMotorEx thrower2 = hardwareMap.get(DcMotorEx.class, "thrower2");
 
         // Ensure consistent motor configuration
-        thrower1.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        thrower1.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         thrower2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         thrower1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
@@ -48,11 +48,11 @@ public class flywheeltuning extends LinearOpMode {
             pidf.f = ff;
 
 //            thrower1.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, pidf);
-//            thrower1.setVelocityPIDFCoefficients(kp, 0, kd, ff);
+            thrower1.setVelocityPIDFCoefficients(kp, 0, kd, ff);
 
             // Velocity control on both motors
-//            thrower1.setVelocity(targetRpm);
-            thrower1.setPower(0);
+            thrower1.setVelocity(targetRpm);
+//            thrower1.setPower(1);
             thrower2.setPower(thrower1.getPower());
 
             telemetry.addData("Target RPM", targetRpm);

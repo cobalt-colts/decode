@@ -40,11 +40,11 @@ public class LTTeleOp extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         intake.setDirection(DcMotorEx.Direction.REVERSE);
 
-        right1 = hardwareMap.colorSensor.get("right1");
+//        right1 = hardwareMap.colorSensor.get("right1");
 //        right2 = hardwareMap.colorSensor.get("right2");
-        back1 = hardwareMap.colorSensor.get("back1");
-        back2 = hardwareMap.colorSensor.get("back2");
-        left1 = hardwareMap.colorSensor.get("left1");
+//        back1 = hardwareMap.colorSensor.get("back1");
+//        back2 = hardwareMap.colorSensor.get("back2");
+//        left1 = hardwareMap.colorSensor.get("left1");
 //        left2 = hardwareMap.colorSensor.get("left2");
 
         rightFlicker = hardwareMap.servo.get("flicker1");
