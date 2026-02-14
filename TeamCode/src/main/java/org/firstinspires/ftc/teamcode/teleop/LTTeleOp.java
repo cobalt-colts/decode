@@ -11,8 +11,8 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
-import org.firstinspires.ftc.teamcode.Prism.*;
+//import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+//import org.firstinspires.ftc.teamcode.Prism.*;
 import org.firstinspires.ftc.teamcode.util.*;
 
 import static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
@@ -40,11 +40,11 @@ public class LTTeleOp extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         intake.setDirection(DcMotorEx.Direction.REVERSE);
 
-        right1 = hardwareMap.colorSensor.get("right1");
+//        right1 = hardwareMap.colorSensor.get("right1");
 //        right2 = hardwareMap.colorSensor.get("right2");
-        back1 = hardwareMap.colorSensor.get("back1");
-        back2 = hardwareMap.colorSensor.get("back2");
-        left1 = hardwareMap.colorSensor.get("left1");
+//        back1 = hardwareMap.colorSensor.get("back1");
+//        back2 = hardwareMap.colorSensor.get("back2");
+//        left1 = hardwareMap.colorSensor.get("left1");
 //        left2 = hardwareMap.colorSensor.get("left2");
 
         rightFlicker = hardwareMap.servo.get("flicker1");
@@ -75,7 +75,7 @@ public class LTTeleOp extends LinearOpMode {
         limelight.start();
         telemetry.setMsTransmissionInterval(limelightFast);
 
-        prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
+//        prism = hardwareMap.get(GoBildaPrismDriver.class, "prism");
 
         reset();
 
@@ -130,7 +130,7 @@ public class LTTeleOp extends LinearOpMode {
     }
 
     public void index() {
-        color();
+//        color();
         intake();
 
         if (gamepad1.yWasPressed()) ballWant[0] = 'g';
@@ -230,46 +230,46 @@ public class LTTeleOp extends LinearOpMode {
         back = Index.DOWN;
         right = Index.DOWN;
     }
-    public void color() {
-        if (leftBall == 'B') leftBall = getColor(left1, left1, 0);
-        if (backBall == 'B') backBall = getColor(back1, back2, 1);
-        if (rightBall == 'B') rightBall = getColor(right1, right1, 2);
-        corralOrder = "" + leftBall + backBall + rightBall;
-        switch (corralOrder) {
-            case ("PPP"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
-                break;
-
-            case ("PPG"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_1);
-                break;
-
-            case ("PGG"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
-                break;
-
-            case ("PGP"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_3);
-                break;
-
-            case ("GPP"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_4);
-                break;
-
-            case ("GGP"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_5);
-                break;
-
-            case ("GPG"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_6);
-                break;
-
-            case ("GGG"):
-                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_7);
-                break;
-
-        }
-    }
+//    public void color() {
+//        if (leftBall == 'B') leftBall = getColor(left1, left1, 0);
+//        if (backBall == 'B') backBall = getColor(back1, back2, 1);
+//        if (rightBall == 'B') rightBall = getColor(right1, right1, 2);
+//        corralOrder = "" + leftBall + backBall + rightBall;
+//        switch (corralOrder) {
+//            case ("PPP"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_0);
+//                break;
+//
+//            case ("PPG"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_1);
+//                break;
+//
+//            case ("PGG"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_2);
+//                break;
+//
+//            case ("PGP"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_3);
+//                break;
+//
+//            case ("GPP"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_4);
+//                break;
+//
+//            case ("GGP"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_5);
+//                break;
+//
+//            case ("GPG"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_6);
+//                break;
+//
+//            case ("GGG"):
+//                prism.loadAnimationsFromArtboard(GoBildaPrismDriver.Artboard.ARTBOARD_7);
+//                break;
+//
+//        }
+//    }
     public void intake() {
         if (gamepad1.a) intakePower = intakeOut;
         else intakePower = ((rightBall == 'b' || backBall == 'b' || leftBall == 'b') ? intakeIn : intakeOut);
