@@ -31,20 +31,20 @@ public class Constants {
             .rightRearMotorName("backRight")
             .leftRearMotorName("backLeft")
             .leftFrontMotorName("frontLeft")
-            .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(74.940)
-            .yVelocity(54.746);
+            .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .xVelocity(72.099)
+            .yVelocity(50.373);
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12)
-            .forwardZeroPowerAcceleration(-27.125)
-            .lateralZeroPowerAcceleration(-65.685)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.065, 0, 0.003, 0.025))
-            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0.01, 0.025))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.025, 0, 0.0001, 0.6, 0.025))
+            .forwardZeroPowerAcceleration(-33.441)
+            .lateralZeroPowerAcceleration(-67.407)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.045, 0, 0.002, 0.035))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.8, 0, 0.02, 0.025))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.03, 0, 0.0001, 0.6, 0.025))
             .centripetalScaling(0.0003);
 
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);

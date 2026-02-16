@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import static org.firstinspires.ftc.teamcode.util.posConstants.closeHood;
-import static org.firstinspires.ftc.teamcode.util.posConstants.rightFlickerDown;
-import static org.firstinspires.ftc.teamcode.util.posConstants.backFlickerDown;
-import static org.firstinspires.ftc.teamcode.util.posConstants.leftFlickerDown;
+import static org.firstinspires.ftc.teamcode.util.posConstants.flicker1down;
+import static org.firstinspires.ftc.teamcode.util.posConstants.flicker2down;
+import static org.firstinspires.ftc.teamcode.util.posConstants.flicker3down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.pinpoint;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -29,9 +29,9 @@ public class positions {
     public static String corralOrder = "PPP";
     public static String indexOrder = "";
     public static int liftTime = 0;
-    public static double rightFlickerPos = rightFlickerDown;
-    public static double backFlickerPos = backFlickerDown;
-    public static double leftFlickerPos = leftFlickerDown;
+    public static double rightFlickerPos = flicker1down;
+    public static double backFlickerPos = flicker2down;
+    public static double leftFlickerPos = flicker3down;
     public static double rightFlickerPosi;
     public static double backFlickerPosi;
     public static double leftFlickerPosi;
@@ -63,9 +63,9 @@ public class positions {
     public static void reset() {
         redAlliance = true;
         intakePower = 0;
-        rightFlickerPos = rightFlickerDown;
-        backFlickerPos = backFlickerDown;
-        leftFlickerPos = leftFlickerDown;
+        rightFlickerPos = flicker1down;
+        backFlickerPos = flicker2down;
+        leftFlickerPos = flicker3down;
         targetTps = 0;
         hoodPos = closeHood;
         autoTurret = false;

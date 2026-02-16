@@ -39,16 +39,22 @@ public class posConstants {;
     public static double intakeOut = -1; //-.5
 
     // INDEX
-    public static final double rightFlickerDown = 0.65;
-    public static final double rightFlickerUp = 0.39;
+
+    // flicker 1
+    public static final double flicker1down = 0.65;
+    public static final double flicker1up = 0.39;
     public static double rightFlickerDownThreshold = 1.68;
     public static double rightFlickerUpThreshold = 2.0;
-    public static double backFlickerDown = 0.35; // 0.375
-    public static final double backFlickerUp = 0.65;
+
+    //flicker 2
+    public static double flicker2down = 0.77; // 0.375
+    public static final double flicker2up = 0.38;
     public static double backFlickerDownThreshold = 1.68;
     public static double backFlickerUpThreshold = 2.0;
-    public static final double leftFlickerDown = 0.375;
-    public static final double leftFlickerUp = 0.65;
+
+    // flicker 3
+    public static final double flicker3down = 0.68;
+    public static final double flicker3up = .31;
     public static double leftFlickerDownThreshold = .5;
     public static double leftFlickerUpThreshold = 1.0;
     public static int liftUpTime = 60;

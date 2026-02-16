@@ -1,15 +1,19 @@
-package org.firstinspires.ftc.teamcode.SubSystems.ShootingSystem.ShootingSpeed;
+package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.controller.PIDController;
 import com.seattlesolvers.solverslib.controller.PIDFController;
+
+import java.io.Serializable;
 
 //import org.firstinspires.ftc.teamcode.SubSystems.DriveTrain.DriveClass;
 //import org.firstinspires.ftc.teamcode.SubSystems.IntakeSystem.IntakeClass;
@@ -18,16 +22,21 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 
 @TeleOp
 @Config
+@Configurable
 public class ShootingSpeedTuning extends LinearOpMode {
 
     public static PIDFController controller;
 
     public static double p = 0.005 ,i = 0 ,d = 0, f = 0.0004;
 
+    public static double hoodpos = .5;
+
     public static int targetVelocity = 0;
 
     private static DcMotorEx masterShootingSpeedMotor;
     private static DcMotorEx slaveShootingSpeedMotor;
+
+    private static Servo hood;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,11 +49,14 @@ public class ShootingSpeedTuning extends LinearOpMode {
 //        HoodAngleClass.init(hardwareMap);
 //        HoodAngleClass.test(gamepad1);
 
+
+
         telemetry = new MultipleTelemetry(telemetry , FtcDashboard.getInstance().getTelemetry());
 
         masterShootingSpeedMotor = hardwareMap.get(DcMotorEx.class , "thrower1");
         slaveShootingSpeedMotor = hardwareMap.get(DcMotorEx.class , "thrower2");
 
+        hood = hardwareMap.servo.get("hood");
 
         masterShootingSpeedMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slaveShootingSpeedMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -75,6 +87,8 @@ public class ShootingSpeedTuning extends LinearOpMode {
                 masterShootingSpeedMotor.setPower(power);
                 slaveShootingSpeedMotor.setPower(power);
             }
+
+            hood.setPosition(hoodpos);
 
 //            DriveClass.arcade(gamepad1.left_stick_x, -gamepad1.left_stick_y, gamepad1.right_stick_x);
 

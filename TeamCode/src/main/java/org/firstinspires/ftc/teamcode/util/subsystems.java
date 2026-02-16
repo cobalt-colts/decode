@@ -161,25 +161,25 @@ public class subsystems {
         public static int targetCount = 3; // how many launches to perform
 
         public Command launch1 = new SequentialGroup(
-                new SetPosition(flicker1, rightFlickerUp),
+                new SetPosition(flicker1, flicker1up),
                 new Delay(0.2),
-                new SetPosition(flicker1, rightFlickerDown)
+                new SetPosition(flicker1, flicker1down)
         );
         public Command launch2 = new SequentialGroup(
-                new SetPosition(flicker2, backFlickerUp),
+                new SetPosition(flicker2, flicker2up),
                 new Delay(0.2),
-                new SetPosition(flicker2, backFlickerDown)
+                new SetPosition(flicker2, flicker2down)
         );
         public Command launch3 = new SequentialGroup(
-                new SetPosition(flicker3, leftFlickerUp),
+                new SetPosition(flicker3, flicker3up),
                 new Delay(0.2),
-                new SetPosition(flicker3, leftFlickerDown)
+                new SetPosition(flicker3, flicker3down)
         );
 
         public final Command alldown = new ParallelGroup(
-                new SetPosition(flicker1, rightFlickerDown),
-                new SetPosition(flicker2, backFlickerDown),
-                new SetPosition(flicker3, leftFlickerDown)
+                new SetPosition(flicker1, flicker1down),
+                new SetPosition(flicker2, flicker2down),
+                new SetPosition(flicker3, flicker3down)
         );
 
         // add launch purple command here next time

@@ -787,6 +787,7 @@ drawable ic_launcher
 drawable ic_warning
 drawable icon_menu
 drawable icon_robotcontroller
+drawable intothedeep_background
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
