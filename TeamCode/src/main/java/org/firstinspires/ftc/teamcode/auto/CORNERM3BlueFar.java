@@ -40,7 +40,7 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
     private Command autoRoutine() {
 
         return new SequentialGroup(
-                subsystems.Thrower.INSTANCE.farshoot,
+//                subsystems.Thrower.INSTANCE.farshoot,
 
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new Delay(0.25),
@@ -80,7 +80,7 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
         subsystems.Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
         Turret.INSTANCE.blueinit.schedule();
-        Thrower.INSTANCE.farhood.schedule();
+//        Thrower.INSTANCE.farhood.schedule();
     }
     @Override
     public void onStartButtonPressed() {

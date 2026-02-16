@@ -41,7 +41,7 @@ public class SIXM3RedGoal extends NextFTCOpMode {
 
         return new SequentialGroup(
                 new ParallelGroup(
-                        Thrower.INSTANCE.goalshoot,
+//                        Thrower.INSTANCE.goalshoot,
                         new FollowPath(redgoalsix.preload, true)
                 ),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
@@ -61,7 +61,7 @@ public class SIXM3RedGoal extends NextFTCOpMode {
 
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
-        Thrower.INSTANCE.closehood.schedule();
+//        Thrower.INSTANCE.closehood.schedule();
 //        Turret.initPos = 0;
     }
     @Override

@@ -41,8 +41,8 @@ public class posConstants {;
     // INDEX
 
     // flicker 1
-    public static final double flicker1down = 0.65;
-    public static final double flicker1up = 0.39;
+    public static final double flicker1down = .22;
+    public static final double flicker1up = .6;
     public static double rightFlickerDownThreshold = 1.68;
     public static double rightFlickerUpThreshold = 2.0;
 

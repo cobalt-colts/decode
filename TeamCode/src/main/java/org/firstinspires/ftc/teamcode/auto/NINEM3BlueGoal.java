@@ -44,13 +44,13 @@ public class NINEM3BlueGoal extends NextFTCOpMode {
         return new SequentialGroup(
 //                subsystems.Turret.INSTANCE.bluegoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
-                        Thrower.INSTANCE.goalshoot,
+//                        Thrower.INSTANCE.goalshoot,
                         new FollowPath(bluegoalnine.preload, true)
                 ),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
                 new InstantCommand(() -> {Intake.negative = true;}),
-
+                new TurnTo(Angle.fromDeg(0)),
                 new FollowPath(bluegoalnine.line1, true),
 //                subsystems.Turret.INSTANCE.bluegoal,
                 new Delay(0.25),
@@ -61,19 +61,20 @@ public class NINEM3BlueGoal extends NextFTCOpMode {
                 new Delay(0.5), //0.5
                 Index.INSTANCE.closeunsortedlaunch,
                 new InstantCommand(() -> {Intake.negative = true;}),
+                new TurnTo(Angle.fromDeg(0)),
                 new FollowPath(bluegoalnine.line2, true),
                 new Delay(0.5),
                 new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(bluegoalnine.launch2, true),
                 new Delay(0.5),
                 Index.INSTANCE.closeunsortedlaunch,
-                new TurnTo(Angle.fromDeg(180))
+                new TurnTo(Angle.fromDeg(0))
         );
     }
 
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
-        Thrower.INSTANCE.closehood.schedule();
+//        Thrower.INSTANCE.closehood.schedule();
         subsystems.Turret.turretTargetPos = 0;
 //        Turret.initPos = 0;
     }

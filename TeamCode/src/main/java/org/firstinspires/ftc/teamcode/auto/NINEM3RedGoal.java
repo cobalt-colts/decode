@@ -44,27 +44,32 @@ public class NINEM3RedGoal extends NextFTCOpMode {
         return new SequentialGroup(
 //                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
-                        Thrower.INSTANCE.goalshoot,
+                        Thrower.INSTANCE.shooteron,
                         new FollowPath(redgoalnine.preload, true)
                 ),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
+//                new InstantCommand(() -> {Intake.negative = true;}),
 
                 new FollowPath(redgoalnine.line1, true),
 //                subsystems.Turret.INSTANCE.redgoal,
                 new Delay(0.25),
-                new InstantCommand(() -> {Intake.negative = false;}),
+//                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(redgoalnine.gate, true),
                 new Delay(0.5),
                 new FollowPath(redgoalnine.launch1, true),
                 new Delay(0.5), //0.5
                 Index.INSTANCE.closeunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
+//                new InstantCommand(() -> {Intake.negative = true;}),
                 new FollowPath(redgoalnine.line2, true),
                 new Delay(0.5),
-                new InstantCommand(() -> {Intake.negative = false;}),
+//                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(redgoalnine.launch2, true),
+                new Delay(0.5),
+                Index.INSTANCE.closeunsortedlaunch,
+                new FollowPath(redgoalnine.line3, true),
+                new Delay(0.5),
+                new FollowPath(redgoalnine.launch3),
                 new Delay(0.5),
                 Index.INSTANCE.closeunsortedlaunch,
                 new TurnTo(Angle.fromDeg(0))
@@ -73,7 +78,6 @@ public class NINEM3RedGoal extends NextFTCOpMode {
 
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
-        Thrower.INSTANCE.closehood.schedule();
         subsystems.Turret.turretTargetPos = 0;
     }
     @Override

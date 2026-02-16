@@ -16,10 +16,10 @@ public class ShooterPIDConfig {
     public static double TICKS_PER_REV = 28.0;
 
     // These will be tunable in Dashboard
-    public static double kP = 125; //100
+    public static double kP = 0.005; //100
     public static double kI = 0.0;
     public static double kD = 0.0;
-    public static double kF = 0.000357;
+    public static double kF = 0.0004;
 
     // Desired shooter RPM (dashboard-adjustable)
     public static double targetRpm = 0;

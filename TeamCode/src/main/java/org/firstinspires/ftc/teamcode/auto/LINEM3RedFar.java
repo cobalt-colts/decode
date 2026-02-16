@@ -41,7 +41,7 @@ public class LINEM3RedFar extends NextFTCOpMode {
     private Command autoRoutine() {
 
         return new SequentialGroup(
-                Thrower.INSTANCE.farshoot,
+//                Thrower.INSTANCE.farshoot,
 
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new Delay(0.1),
@@ -77,7 +77,7 @@ public class LINEM3RedFar extends NextFTCOpMode {
         Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.redFarInit;
         Turret.INSTANCE.redinit.schedule();
-        Thrower.INSTANCE.farhood.schedule();
+//        Thrower.INSTANCE.farhood.schedule();
     }
     @Override
     public void onStartButtonPressed() {

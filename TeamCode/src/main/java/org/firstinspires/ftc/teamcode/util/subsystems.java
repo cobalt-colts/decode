@@ -1,17 +1,24 @@
 package org.firstinspires.ftc.teamcode.util;
 
 //import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.indexPower;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 
-        import com.acmerobotics.dashboard.config.Config;
-        import com.qualcomm.hardware.limelightvision.LLResult;
+import android.provider.Settings;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import java.util.List;
 
@@ -249,7 +256,7 @@ public class subsystems {
     public static class Thrower implements Subsystem {
         public static final Thrower INSTANCE = new Thrower();
 
-        public static double targetTps = 5000;
+        public static double targetvelocity = 1300;
 
         private double velocity = 0;
 
@@ -257,37 +264,42 @@ public class subsystems {
         }
 
         public boolean atvelocity = false;
+        public boolean isshooteron = false;
 
         DcMotorEx thrower1 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
         DcMotorEx thrower2 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
         Servo hood = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
 
+        public static PIDFController controller;
+        public static Limelight3A limelight;
 
-        public Command farshoot = new InstantCommand(() -> {
-            velocity = 1950; //2150
+        public static double hoodpos = .3;
+
+        public Command shooteron = new InstantCommand(() -> {
+            isshooteron = true;
         });
-
-        public Command goalshoot = new InstantCommand(() -> {
-            velocity = 1700; //2150
-        });
-
-        public Command farhood = new InstantCommand(() -> {
-            hood.setPosition(farHood);
-        });
-
-        public Command closehood = new InstantCommand(() -> {
-            hood.setPosition(closeHood);
+        public Command shooteroff = new InstantCommand(() -> {
+            isshooteron = false;
         });
 
         public void initialize() {
             Subsystem.super.initialize();
-            targetTps = -velocity * TICKS_PER_REV / 60.0;
+            isshooteron = false;
+            controller = new PIDFController(kP, kI, kD, kF);
+
+            limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+            limelight.start();
+
             thrower1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             thrower2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            thrower1.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            thrower2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            thrower1.setVelocityPIDFCoefficients(kP, kI, kD, kF);
-            thrower2.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+
+            thrower1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            thrower2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+            thrower1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+            thrower2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+
             //thrower1.setVelocity(0);
             //thrower2.setPower(thrower1.getPower());
         }
@@ -295,30 +307,60 @@ public class subsystems {
         public void periodic() {
             Subsystem.super.periodic();
             if (start) {
-                targetTps = -velocity * TICKS_PER_REV / 60.0;
 
-                thrower1.setVelocity(targetTps);
-                thrower2.setPower(thrower1.getPower());
-                if (velocity == 1950) atvelocity = thrower1.getVelocity() <= -735; //-750
-                if (velocity == 1700) atvelocity = thrower1.getVelocity() <= -545; // -560
-//                atvelocity = (Math.abs(Math.abs(velocity) - Math.abs(thrower1.getVelocity())) <= 1400); //1400
+                isshooteron = true;
+
+                targetvelocity = 1500;
+                hoodpos = .25;
+
+//                targetvelocity = ll.fetchFlywheelSpeed(limelight);
+//                hoodpos = ll.fetchHoodPos(limelight);
+
+                atvelocity = (targetvelocity) - (thrower1.getVelocity()/28)*60 <= 10;
+
+                double currentVelocity = (thrower1.getVelocity()/28)*60;
+                double pid = controller.calculate(currentVelocity , targetvelocity);
+
+                if(targetvelocity < 100)
+                {
+                    thrower1.setMotorDisable();
+                    thrower2.setMotorDisable();
+                }
+                else {
+                    if (isshooteron) {
+                        thrower1.setPower(pid);
+                        thrower2.setPower(pid);
+                    }
+                }
+
+                hood.setPosition(hoodpos);
 
                 ActiveOpMode.telemetry().addData("num: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
                 ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
-                ActiveOpMode.telemetry().addData("target ", velocity);
-                ActiveOpMode.telemetry().addData("velocity", thrower1.getVelocity());
+                ActiveOpMode.telemetry().addData("target ", targetvelocity);
+                ActiveOpMode.telemetry().addData("velocity", (thrower1.getVelocity()/28)*60);
                 ActiveOpMode.telemetry().update();
+
+                TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
+
+                panelstel.addData("target", targetvelocity);
+                panelstel.addData("actual", (thrower1.getVelocity()/28)*60);
+                panelstel.addData("hood", hoodpos);
+                panelstel.addData("atvelocity", atvelocity);
+                panelstel.addData("error", targetvelocity - (thrower1.getVelocity()/28)*60);
+                panelstel.update();
 
 
             } else {
                 Index.INSTANCE.alldown.schedule();
                 thrower1.setPower(0);
                 thrower2.setPower(0);
-                velocity = 2500;
+                velocity = 1300;
 //                ActiveOpMode.telemetry().addLine("NOT RUNNING");
 //                ActiveOpMode.telemetry().addData("target ", targetTps);
 //                ActiveOpMode.telemetry().addData("velocity", thrower1.getVelocity());
 //                ActiveOpMode.telemetry().update();
+
             }
         }
     }
@@ -384,6 +426,7 @@ public class subsystems {
             ActiveOpMode.telemetry().addData("power:", turret.getPower());
             ActiveOpMode.telemetry().addLine("TURRET AIM");
             ActiveOpMode.telemetry().update();
+
         }
 
     }
