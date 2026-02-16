@@ -786,7 +786,6 @@ int drawable ic_launcher 0x0
 int drawable ic_warning 0x0
 int drawable icon_menu 0x0
 int drawable icon_robotcontroller 0x0
-int drawable intothedeep_background 0x0
 int drawable notification_action_background 0x0
 int drawable notification_bg 0x0
 int drawable notification_bg_low 0x0
