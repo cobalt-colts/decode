@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.seattlesolvers.solverslib.controller.PIDFController;
 
 //import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.Artboard;
 //
@@ -32,6 +33,7 @@ public class posConstants {;
     public static DigitalChannel turretMag;
     public static Limelight3A limelight;
     public static GoBildaPinpointDriver pinpoint;
+    public static PIDFController controller;
 //    public static GoBildaPrismDriver prism;
 
     // INTAKE
@@ -73,8 +75,8 @@ public class posConstants {;
     public static final double flywheelThreshold = 0.1;
     public static final double turretThreshold = 0.1;
     public static final double turretManual = 0.1; // 0.35
-    public static final int turretMax = 116;
-    public static final int turretMin = -156;
+    public static final int turretMax = 300;
+    public static final int turretMin = -100;
     public static final int limelightSlow = 250;
     public static final int limelightFast = 150; // 100
     public static double farAngleOffset = 5; // 5
@@ -84,10 +86,12 @@ public class posConstants {;
 
     // auto turret pos constants
 
+    public static int redGoalInit = 68;
     public static int redFarObelisk = 0;
     public static int redFarInit = 25;
     public static int redFarPickup = -88; //-90
-    public static int redGoalPickup = 10;
+    public static int redGoalPickup = -68; //-65
+    public static int redGoalPark = -39;
 
     public static int blueFarInit = -redFarInit;
     public static int blueFarPickup = -redFarPickup;

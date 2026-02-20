@@ -72,7 +72,7 @@ public class ShootingSpeedTuning extends LinearOpMode {
         {
             controller.setPIDF(p,i,d,f);
 
-            double currentVelocity = (masterShootingSpeedMotor.getVelocity()/28)*60;
+            double currentVelocity = masterShootingSpeedMotor.getVelocity(); // /28)*60
 
             double pid = controller.calculate(currentVelocity , targetVelocity);
 

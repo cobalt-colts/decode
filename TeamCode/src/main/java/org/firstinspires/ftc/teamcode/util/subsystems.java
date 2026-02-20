@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
+import static org.firstinspires.ftc.teamcode.util.posConstants.turret;
+import static org.firstinspires.ftc.teamcode.util.positions.turretPos;
 
 import android.provider.Settings;
 
@@ -20,6 +22,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
+import java.util.ArrayList;
 import java.util.List;
 
         import dev.nextftc.core.commands.Command;
@@ -128,8 +131,10 @@ public class subsystems {
                     LLResult result = limelight.getLatestResult();
                     if (result != null && result.isValid()) {
                         List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                        List<Integer> tags = new ArrayList<Integer>();
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId(); // The ID number of the fiducial
+                            tags.add(id);
                             motif = getMotif(id);
                             ActiveOpMode.telemetry().addData("motif", motif);
                         }
@@ -310,7 +315,7 @@ public class subsystems {
 
                 isshooteron = true;
 
-                targetvelocity = 1500;
+                targetvelocity = 1400; //1500
                 hoodpos = .25;
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
@@ -373,11 +378,15 @@ public class subsystems {
 
         private Turret() {
         }
+        public boolean atposition = false;
 
         public static DcMotorEx turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
         public static int initPos = redFarInit;
 
-        public Command redinit = new InstantCommand(() -> {
+        public Command redgoalinit = new InstantCommand(() -> {
+            turretTargetPos = redGoalInit;
+        });
+        public Command redfarinit = new InstantCommand(() -> {
             turretTargetPos = redFarInit;
         });
         public Command redfar = new InstantCommand(() -> {
@@ -385,6 +394,10 @@ public class subsystems {
         });
         public Command redgoal = new InstantCommand(() -> {
             turretTargetPos = redGoalPickup;
+        });
+
+        public Command redpark = new InstantCommand(() -> {
+            turretTargetPos = redGoalPark;
         });
 
         public Command blueinit = new InstantCommand(() -> {
@@ -395,6 +408,10 @@ public class subsystems {
         });
         public Command bluegoal = new InstantCommand(() -> {
             turretTargetPos = blueGoalPickup;
+        });
+
+        public Command home = new InstantCommand(() -> {
+            turretTargetPos = 0;
         });
 
 
@@ -408,8 +425,11 @@ public class subsystems {
             Subsystem.super.initialize();
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            turretTargetPos = initPos;
+            turret.setTargetPosition(initPos);
+            turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            turret.setPositionPIDFCoefficients(100);
+//            turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            turretTargetPos = initPos;
 //            turret.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(10, 0, 0, 0));
 //            turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
@@ -418,9 +438,13 @@ public class subsystems {
         public void periodic() {
             Subsystem.super.periodic();
 
-            if (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 1) turret.setPower(0);
-            else if (turret.getCurrentPosition() > turretTargetPos) turret.setPower(-0.075);
-            else turret.setPower(0.075);
+//            if (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 1) turret.setPower(0);
+//            else if (turret.getCurrentPosition() > turretTargetPos) turret.setPower(-0.075);
+//            else turret.setPower(0.075);
+//            atposition = (turret.getPower() == 0);
+            turret.setTargetPosition(turretTargetPos);
+            turret.setPower(1); //turnPower
+            atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
             ActiveOpMode.telemetry().addData("target:", turretTargetPos);
             ActiveOpMode.telemetry().addData("current:", turret.getCurrentPosition());
             ActiveOpMode.telemetry().addData("power:", turret.getPower());

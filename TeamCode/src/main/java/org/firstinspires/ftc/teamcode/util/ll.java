@@ -22,9 +22,9 @@ public class ll {
         LLResult result = limelight.getLatestResult();
         if (result != null && result.isValid()) {
             ta = result.getTa();
-            flywheelspeed = 323.74855 * Math.pow(0.996013, ta);
+            flywheelspeed = ((1752.97 - (211.567 * ta)) / 2); // 323.74855 * Math.pow(0.996013, ta);
         } else {
-            flywheelspeed = 1300;
+            flywheelspeed = Double.NaN;
         }
         return flywheelspeed;
     }
@@ -57,9 +57,12 @@ public class ll {
         if (result != null && result.isValid()) {
             ta = result.getTa();
             // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
-            hoodpos = 0.30707 * Math.pow(121.29199, ta);
+            hoodpos = ((.1436 * ta) /* + 0.05777 */ ); // 0.30707 * Math.pow(121.29199, ta);
+            hoodpos = Math.max(0.13, hoodpos);
+            hoodpos = Math.min(0.7, hoodpos);
         } else {
-            hoodpos = .2;
+//            hoodpos = .2;
+            hoodpos = Double.NaN;
         }
         return hoodpos;
     }

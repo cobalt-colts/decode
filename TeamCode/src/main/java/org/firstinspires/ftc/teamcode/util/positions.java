@@ -41,12 +41,15 @@ public class positions {
     public static Index left = Index.DOWN;
     public static Index back = Index.DOWN;
     public static Index right = Index.DOWN;
-//    public static Color leftColor = Color.WHITE;
+    //    public static Color leftColor = Color.WHITE;
 //    public static Color backColor = Color.WHITE;
 //    public static Color rightColor = Color.WHITE;
     public static int ballNum = 0;
 
     public static double targetTps = 0;
+    public static int targetVelocity = 0;
+    public static double power = 0;
+    public static double currentVelocity = 0;
     public static double hoodPos = 0.05; // bottom is 0.35, top is 0.
     public static boolean autoTurret = true;
     public static double turretPos = 0;

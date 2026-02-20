@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.paths.redgoalnine;
+import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
 import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
@@ -45,9 +46,11 @@ public class NINEM3RedGoal extends NextFTCOpMode {
 //                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
                         Thrower.INSTANCE.shooteron,
-                        new FollowPath(redgoalnine.preload, true)
+                        new FollowPath(redgoalnine.preload, true),
+                        subsystems.Turret.INSTANCE.redgoal
                 ),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
 //                new InstantCommand(() -> {Intake.negative = true;}),
 
@@ -56,35 +59,41 @@ public class NINEM3RedGoal extends NextFTCOpMode {
                 new Delay(0.25),
 //                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(redgoalnine.gate, true),
-                new Delay(0.5),
+//                new Delay(0.5),
                 new FollowPath(redgoalnine.launch1, true),
-                new Delay(0.5), //0.5
+                new Delay(1), //0.5
+                Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.closeunsortedlaunch,
 //                new InstantCommand(() -> {Intake.negative = true;}),
                 new FollowPath(redgoalnine.line2, true),
                 new Delay(0.5),
 //                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(redgoalnine.launch2, true),
-                new Delay(0.5),
+                new Delay(1),
                 Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                new InstantCommand(subsystems.Turret.INSTANCE.redpark),
                 new FollowPath(redgoalnine.line3, true),
                 new Delay(0.5),
                 new FollowPath(redgoalnine.launch3),
                 new Delay(0.5),
                 Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
         );
     }
 
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
-        subsystems.Turret.turretTargetPos = 0;
+        subsystems.Turret.initPos = posConstants.redGoalInit;
+        subsystems.Turret.INSTANCE.redgoalinit.schedule();
     }
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
         redgoalnine.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(117.5, 131.5, Math.toRadians(36.5)));
+        PedroComponent.Companion.follower().setStartingPose(new Pose(117.5, 131.5, Math.toRadians(-143.5)));
         autoRoutine().schedule();
     }
     @Override public void onUpdate() { }
