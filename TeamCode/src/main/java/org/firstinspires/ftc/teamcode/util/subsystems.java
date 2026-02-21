@@ -22,6 +22,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
+import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -321,7 +323,7 @@ public class subsystems {
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                atvelocity = (targetvelocity) - (thrower1.getVelocity()/28)*60 <= 10;
+                atvelocity = (targetvelocity) - (thrower1.getVelocity()/28)*60 <= 110;
 
                 double currentVelocity = (thrower1.getVelocity()/28)*60;
                 double pid = controller.calculate(currentVelocity , targetvelocity);
@@ -344,6 +346,11 @@ public class subsystems {
                 ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
                 ActiveOpMode.telemetry().addData("target ", targetvelocity);
                 ActiveOpMode.telemetry().addData("velocity", (thrower1.getVelocity()/28)*60);
+
+                // Do not remove this one unless you check with Crocker:
+                if (thrower1.getVelocity() == 0 || thrower2.getVelocity() == 0) {
+                    ActiveOpMode.telemetry().addData("ENCODER CABLE UNPLUGGED???", 0);
+                }
                 ActiveOpMode.telemetry().update();
 
                 TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
