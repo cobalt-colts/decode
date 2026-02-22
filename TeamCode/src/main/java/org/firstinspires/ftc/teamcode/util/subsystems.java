@@ -110,15 +110,6 @@ public class subsystems {
         private ColorSensing() {
         }
 
-//        enum colors {
-//            P,
-//            G
-//        }
-
-        public static char flick1color = 'p';
-        public static char flick2color = 'p';
-        public static char flick3color = 'p';
-
         @Override
         public void periodic() {
 
@@ -129,25 +120,21 @@ public class subsystems {
                     PredominantColorProcessor.Result result1 = sensor1.getAnalysis();
                     PredominantColorProcessor.Swatch color1 = result1.closestSwatch;
                     if (color1.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
-                        flick1color = 'p';
+                        indexOrder.set(0, 'p');
                     else if (color1.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
-                        flick1color = 'g';
+                        indexOrder.set(0, 'g');
                     PredominantColorProcessor.Result result2 = sensor2.getAnalysis();
                     PredominantColorProcessor.Swatch color2 = result2.closestSwatch;
                     if (color2.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
-                        flick2color = 'p';
+                        indexOrder.set(1, 'p');
                     else if (color2.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
-                        flick2color = 'g';
+                        indexOrder.set(1, 'g');
                     PredominantColorProcessor.Result result3 = sensor3.getAnalysis();
                     PredominantColorProcessor.Swatch color3 = result3.closestSwatch;
                     if (color3.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
-                        flick3color = 'p';
+                        indexOrder.set(2, 'p');
                     else if (color3.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
-                        flick3color = 'g';
-
-                    indexOrder.set(0, flick1color);
-                    indexOrder.set(1, flick2color);
-                    indexOrder.set(2, flick3color);
+                        indexOrder.set(2, 'g');
                 });
     }
     public static class Camera implements Subsystem {
