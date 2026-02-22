@@ -429,7 +429,7 @@ public class subsystems {
     public static class Thrower implements Subsystem {
         public static final Thrower INSTANCE = new Thrower();
 
-        public static double targetvelocity = 1370; // This gets overridden every loop?
+        public static double targetvelocity = 1370; // Starting value, good for near auto
 
         private double velocity = 0;    // What is this variable for?
 
@@ -446,7 +446,7 @@ public class subsystems {
         public static PIDFController controller;
         public static Limelight3A limelight;
 
-        public static double hoodpos = .3;
+        public static double hoodpos = .3;  // Initial value, somewhat reasonable for near auto
 
         public Command shooteron = new InstantCommand(() -> {
             isshooteron = true;
@@ -484,11 +484,17 @@ public class subsystems {
                 isshooteron = true;
 
                 // These two override everything done externally....
-//                targetvelocity = 1350; // This seems to be the only one used. //1500
+//                  targetvelocity = 1350; // This seems to be the only one used. //1500
 //                hoodpos = .25;
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
+                if (Double.isNaN(hoodpos)) {
+                    hoodpos = .24;  // Default in case of trouble
+                }
+                if (Double.isNaN(targetvelocity)) {
+                    targetvelocity = 1351;  //Default in case of trouble
+                }
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
 
