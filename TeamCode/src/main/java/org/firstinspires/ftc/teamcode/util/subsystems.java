@@ -219,6 +219,7 @@ public class subsystems {
                 new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);}),
                 new Delay(0.25),
                 launch1,
+                new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);}),
                 new Delay(0.25),
                 launch3,
                 new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);}),
@@ -248,7 +249,15 @@ public class subsystems {
 
         private DcMotorEx intake = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
         double intakePower = -1;
-        public static boolean negative = true;
+        public static boolean negative = true;  // What does negative MEAN?
+
+        public static void intake() {
+            negative = true; // Maybe this means intake?
+        }
+
+        public static void outtake() {
+            negative = false; // Maybe this means outtake?
+        }
 
         @Override
         public void periodic() {
@@ -263,7 +272,7 @@ public class subsystems {
     public static class Thrower implements Subsystem {
         public static final Thrower INSTANCE = new Thrower();
 
-        public static double targetvelocity = 1300;
+        public static double targetvelocity = 1380;
 
         private double velocity = 0;
 
@@ -317,13 +326,13 @@ public class subsystems {
 
                 isshooteron = true;
 
-                targetvelocity = 1400; //1500
+                targetvelocity = 1300; //1500
                 hoodpos = .25;
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                atvelocity = (targetvelocity) - (thrower1.getVelocity()/28)*60 <= 110;
+                atvelocity = (targetvelocity) - (thrower1.getVelocity()/28)*60 <= 10;
 
                 double currentVelocity = (thrower1.getVelocity()/28)*60;
                 double pid = controller.calculate(currentVelocity , targetvelocity);
