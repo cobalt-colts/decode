@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -17,17 +16,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 //import org.firstinspires.ftc.teamcode.Prism.*;
 import org.firstinspires.ftc.teamcode.util.*;
 
-import static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 import static org.firstinspires.ftc.teamcode.util.ll.fetchAlignment;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.posConstants.controller;
 import static org.firstinspires.ftc.teamcode.util.positions.*;
-import static org.firstinspires.ftc.teamcode.util.teleSubsystems.*;
 
 @Config
 @Configurable
-@TeleOp(name = "League Tournament Teleop")
-public class LTTeleOp extends LinearOpMode {
+@TeleOp(name = "STATE Teleop")
+public class STATETeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {

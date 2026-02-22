@@ -32,7 +32,7 @@ public class nextftcpidtest extends NextFTCOpMode {
         );
     }
 
-    public static PIDCoefficients coefficients = new PIDCoefficients(ShooterPIDConfig.kP, ShooterPIDConfig.kI, ShooterPIDConfig.kD);
+    public static PIDCoefficients coefficients = new PIDCoefficients(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d);
     public static BasicFeedforwardParameters ff = new BasicFeedforwardParameters(0,0,0);
     public static double goal = 1000;
 

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 //import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.indexPower;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
-import static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
+import  static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 
 import android.util.Size;
 
@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.controller.PIDFController;
+import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -313,6 +314,7 @@ public class subsystems {
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
                             new Delay(0.25);
                             new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
                             new Delay(0.25);
                             new InstantCommand(launch3);
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
@@ -324,6 +326,7 @@ public class subsystems {
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
                             new Delay(0.25);
                             new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
                             new Delay(0.25);
                             new InstantCommand(launch2);
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
@@ -335,6 +338,7 @@ public class subsystems {
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
                             new Delay(0.25);
                             new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
                             new Delay(0.25);
                             new InstantCommand(launch3);
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
@@ -346,6 +350,7 @@ public class subsystems {
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
                             new Delay(0.25);
                             new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
                             new Delay(0.25);
                             new InstantCommand(launch1);
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
@@ -357,6 +362,7 @@ public class subsystems {
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
                             new Delay(0.25);
                             new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
                             new Delay(0.25);
                             new InstantCommand(launch2);
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
@@ -368,6 +374,7 @@ public class subsystems {
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
                             new Delay(0.25);
                             new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
                             new Delay(0.25);
                             new InstantCommand(launch1);
                             new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
@@ -422,7 +429,7 @@ public class subsystems {
     public static class Thrower implements Subsystem {
         public static final Thrower INSTANCE = new Thrower();
 
-        public static double targetvelocity = 1300;
+        public static double targetvelocity = 1380;
 
         private double velocity = 0;
 
@@ -476,7 +483,7 @@ public class subsystems {
 
                 isshooteron = true;
 
-                targetvelocity = 1400; //1500
+                targetvelocity = 1300; //1500
                 hoodpos = .25;
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
@@ -503,6 +510,11 @@ public class subsystems {
                 ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
                 ActiveOpMode.telemetry().addData("target ", targetvelocity);
                 ActiveOpMode.telemetry().addData("velocity", (thrower1.getVelocity() / 28) * 60);
+
+                // Do not remove this one unless you check with Crocker:
+                if (thrower1.getVelocity() == 0 || thrower2.getVelocity() == 0) {
+                    ActiveOpMode.telemetry().addLine("ENCODER CABLE UNPLUGGED???");
+                }
                 ActiveOpMode.telemetry().update();
 
                 TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
