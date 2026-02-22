@@ -4,10 +4,8 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
-import static org.firstinspires.ftc.teamcode.util.posConstants.turret;
-import static org.firstinspires.ftc.teamcode.util.positions.turretPos;
 
-import android.provider.Settings;
+import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -15,12 +13,16 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.controller.PIDFController;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,85 +42,138 @@ import dev.nextftc.hardware.positionable.SetPosition;
 @Config
 public class subsystems {
     public static boolean start = false;
+    public static char motifOrder[] = {'b', 'b', 'b'};
+    public static ArrayList<Character> indexOrder = new ArrayList<>(3);
+    public static int count = 0;
+    public static int matchingSpot = -1;
+
+    public static enum motifs {
+        PPG,
+        PGP,
+        GPP,
+        NONE
+    }
+
+    public static motifs motif = motifs.NONE;
+
+
+    public static String flickOrder = "";
+    public static ServoEx[] flickers = new ServoEx[3];
 
     public static class ColorSensing implements Subsystem {
 
         public static final ColorSensing INSTANCE = new ColorSensing();
 
+        PredominantColorProcessor sensor1 = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.6, -0.6, -0.8))
+                .setSwatches(
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.RED,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.YELLOW,
+                        PredominantColorProcessor.Swatch.BLACK,
+                        PredominantColorProcessor.Swatch.WHITE)
+                .build();
+
+        PredominantColorProcessor sensor2 = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, -0.6, 0.8, -0.8))
+                .setSwatches(
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.RED,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.YELLOW,
+                        PredominantColorProcessor.Swatch.BLACK,
+                        PredominantColorProcessor.Swatch.WHITE)
+                .build();
+        PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.2, 0.2, -0.15, 0.15))
+                .setSwatches(
+                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                        PredominantColorProcessor.Swatch.RED,
+                        PredominantColorProcessor.Swatch.BLUE,
+                        PredominantColorProcessor.Swatch.YELLOW,
+                        PredominantColorProcessor.Swatch.BLACK,
+                        PredominantColorProcessor.Swatch.WHITE)
+                .build();
+
+        VisionPortal portal = new VisionPortal.Builder()
+                .addProcessor(sensor1)
+                .addProcessor(sensor2)
+                .addProcessor(sensor3)
+                .setCameraResolution(new Size(640, 480))
+                .setCamera(hardwareMap.get(WebcamName.class, "internalcam"))
+                .build();
+
         private ColorSensing() {
         }
 
-        ColorSensor f1s1 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f1s1");
-        ColorSensor f1s2 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f1s2");
+//        enum colors {
+//            P,
+//            G
+//        }
 
-        ColorSensor f2s1 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f2s1");
-        ColorSensor f2s2 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f2s2");
-        ColorSensor f3s1 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f3s1");
-        ColorSensor f3s2 = ActiveOpMode.hardwareMap().get(ColorSensor.class, "f3s2");
-
-        enum colors {
-            P,
-            G
-        }
-
-        colors flick1color = colors.P;
-        colors flick2color = colors.P;
-        colors flick3color = colors.P;
+        public static char flick1color = 'p';
+        public static char flick2color = 'p';
+        public static char flick3color = 'p';
 
         @Override
         public void periodic() {
 
-            if (f1s1.green() > blueThreshold || f1s2.blue() > blueThreshold) {
-                flick1color = colors.P;
-            } else if (f1s1.green() > greenThreshold || f1s2.green() > greenThreshold) {
-                flick1color = colors.G;
-            } else {
-                flick1color = colors.P;
-            }
-
-            if (f2s1.blue() > blueThreshold || f2s2.blue() > blueThreshold) {
-                flick2color = colors.P;
-            } else if (f2s1.green() > greenThreshold || f2s2.green() > greenThreshold) {
-                flick2color = colors.G;
-            } else {
-                flick2color = colors.P;
-            }
-
-            if (f3s1.blue() > blueThreshold || f3s2.blue() > blueThreshold) {
-                flick3color = colors.P;
-            } else if (f3s1.green() > greenThreshold || f3s2.green() > greenThreshold) {
-                flick3color = colors.G;
-            } else {
-                flick3color = colors.P;
-            }
         }
 
-    }
+        public Command getColors = new LambdaCommand()
+                .setStart(() -> {
+                    PredominantColorProcessor.Result result1 = sensor1.getAnalysis();
+                    PredominantColorProcessor.Swatch color1 = result1.closestSwatch;
+                    if (color1.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
+                        flick1color = 'p';
+                    else if (color1.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
+                        flick1color = 'g';
+                    PredominantColorProcessor.Result result2 = sensor2.getAnalysis();
+                    PredominantColorProcessor.Swatch color2 = result2.closestSwatch;
+                    if (color2.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
+                        flick2color = 'p';
+                    else if (color2.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
+                        flick2color = 'g';
+                    PredominantColorProcessor.Result result3 = sensor3.getAnalysis();
+                    PredominantColorProcessor.Swatch color3 = result3.closestSwatch;
+                    if (color3.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
+                        flick3color = 'p';
+                    else if (color3.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
+                        flick3color = 'g';
 
+                    indexOrder.set(0, flick1color);
+                    indexOrder.set(1, flick2color);
+                    indexOrder.set(2, flick3color);
+                });
+    }
     public static class Camera implements Subsystem {
         public static final Camera INSTANCE = new Camera();
 
         private Camera() {
         }
 
-        enum motifs {
-            PPG,
-            PGP,
-            GPP,
-            NONE
-        }
 
-        motifs motif = motifs.NONE;
-
-        motifs getMotif(int tag) {
-            if (tag == 21) {
+        motifs getMotif(List<Integer> tags) {
+            if (tags.contains(21) && tags.contains(22)) {
+                motifOrder[0] = 'g';
+                motifOrder[1] = 'p';
+                motifOrder[2] = 'p';
                 return motifs.GPP;
-            } else if (tag == 22) {
+            } else if (tags.contains(22) && tags.contains(23)) {
+                motifOrder[0] = 'p';
+                motifOrder[1] = 'g';
+                motifOrder[2] = 'p';
                 return motifs.PGP;
-            } else if (tag == 23) {
+            } else if (tags.contains(23) && tags.contains(21)) {
+                motifOrder[0] = 'p';
+                motifOrder[1] = 'p';
+                motifOrder[2] = 'g';
                 return motifs.PPG;
-            }
-            return motifs.NONE;
+            } else return motifs.NONE;
         }
 
         Limelight3A limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
@@ -135,9 +190,10 @@ public class subsystems {
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId(); // The ID number of the fiducial
                             tags.add(id);
-                            motif = getMotif(id);
-                            ActiveOpMode.telemetry().addData("motif", motif);
+//                            motif = getMotif(id);
+//                            ActiveOpMode.telemetry().addData("motif", motif);
                         }
+                        motif = getMotif(tags);
                     }
                 })
                 .setInterruptible(false)
@@ -155,22 +211,7 @@ public class subsystems {
         private final ServoEx flicker1 = new ServoEx("flicker1");
         private final ServoEx flicker2 = new ServoEx("flicker2");
         private final ServoEx flicker3 = new ServoEx("flicker3");
-        // Color Sensors
 
-
-        // State machine
-        private int indexState = 0;
-        private int indexno = 0;
-        private long indexStateTime = 0;
-        private boolean launchingWait = false;
-
-        // Config / constants (tweakable)
-        public static double autoIndex = -0.1;
-        public static double correctIndex = 0.1;
-        public static double indexEngaged = 0.84;
-        public static double indexDisengaged = 0.7;
-        public static double intakePower = 0.5;
-        public static int targetCount = 3; // how many launches to perform
 
         public Command launch1 = new SequentialGroup(
                 new SetPosition(flicker1, flicker1up),
@@ -194,35 +235,163 @@ public class subsystems {
                 new SetPosition(flicker3, flicker3down)
         );
 
-        // add launch purple command here next time
-        private int launchno = 1;
-//
-//        public LambdaCommand launchmotif = new LambdaCommand()
-//                .setUpdate(() -> {
-//                    switch(Camera.INSTANCE.motif) {
-//                        case PPG:
-//                            launch1.schedule();
-//                            launchno++;
-//                        case PGP:
-//
-//                    }
-//                })
-//                .requires(this, Camera.INSTANCE, launch3, launch2, launch1)
-//                .setIsDone(() -> launchno > 3);
-
-        private boolean isunsortedlaunchdone = false;
-
         public Command closeunsortedlaunch = new SequentialGroup(
                 launch2,
-                new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);}),
+                new InstantCommand(() -> {
+                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
+                }),
                 new Delay(0.25),
                 launch1,
                 new Delay(0.25),
                 launch3,
-                new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);}),
+                new InstantCommand(() -> {
+                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
+                }),
                 new Delay(0.25)
 
         );
+
+        private int index = 0;
+        public LambdaCommand flickerOrder = new LambdaCommand()
+                .setStart(() -> {
+                    switch (motif) {
+                        case GPP:
+                            if (indexOrder.contains('g')) {
+                                if (indexOrder.indexOf('g') == indexOrder.lastIndexOf('g')) {
+                                    flickOrder = Integer.toString(indexOrder.indexOf('g'));
+                                    flickOrder += indexOrder.indexOf('p');
+                                    flickOrder += indexOrder.lastIndexOf('p');
+                                } else if (indexOrder.contains('p')) {
+                                    flickOrder = Integer.toString(indexOrder.indexOf('g'));
+                                    flickOrder += indexOrder.lastIndexOf('g');
+                                    flickOrder += indexOrder.indexOf('p');
+                                } else {
+                                    flickOrder = "123";
+                                }
+                            } else {
+                                flickOrder = "123";
+                            }
+                            break;
+
+                        case PGP:
+                            if (indexOrder.contains('g')) {
+                                if (indexOrder.indexOf('g') == indexOrder.lastIndexOf('g')) {
+                                    flickOrder = Integer.toString(indexOrder.indexOf('p'));
+                                    flickOrder += indexOrder.indexOf('g');
+                                    flickOrder += indexOrder.lastIndexOf('p');
+                                } else if (indexOrder.contains('p')) {
+                                    flickOrder = Integer.toString(indexOrder.indexOf('g'));
+                                    flickOrder += indexOrder.lastIndexOf('g');
+                                    flickOrder += indexOrder.indexOf('p');
+                                } else {
+                                    flickOrder = "123";
+                                }
+                            } else {
+                                flickOrder = "123";
+                            }
+                            break;
+
+                        case PPG:
+                            if (indexOrder.contains('g')) {
+                                if (indexOrder.indexOf('g') == indexOrder.lastIndexOf('g')) {
+                                    flickOrder = Integer.toString(indexOrder.indexOf('p'));
+                                    flickOrder += indexOrder.lastIndexOf('p');
+                                    flickOrder += indexOrder.indexOf('g');
+                                } else if (indexOrder.contains('p')) {
+                                    flickOrder = Integer.toString(indexOrder.indexOf('p'));
+                                    flickOrder += indexOrder.lastIndexOf('g');
+                                    flickOrder += indexOrder.indexOf('g');
+                                } else {
+                                    flickOrder = "123";
+                                }
+                            } else {
+                                flickOrder = "123";
+                            }
+                            break;
+
+                        case NONE:
+                            flickOrder = "123";
+                            break;
+                    }
+
+                })
+                .setIsDone(() -> true);
+        ;
+
+        public LambdaCommand closesortedLaunch = new LambdaCommand()
+                .setStart(() -> {
+                    switch (flickOrder) {
+                        case "123":
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "132":
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "213":
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "231":
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "312":
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "321":
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+                    }
+
+                })
+                .requires(this, Camera.INSTANCE, launch3, launch2, launch1)
+                .setIsDone(() -> true);
+        ;
 
         public Command farunsortedlaunch = new SequentialGroup(
                 launch2,
@@ -235,9 +404,7 @@ public class subsystems {
 
         );
 
-
     }
-
     public static class Intake implements Subsystem {
         public static final Intake INSTANCE = new Intake();
 
@@ -321,17 +488,15 @@ public class subsystems {
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                atvelocity = (targetvelocity) - (thrower1.getVelocity()/28)*60 <= 10;
+                atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
 
-                double currentVelocity = (thrower1.getVelocity()/28)*60;
-                double pid = controller.calculate(currentVelocity , targetvelocity);
+                double currentVelocity = (thrower1.getVelocity() / 28) * 60;
+                double pid = controller.calculate(currentVelocity, targetvelocity);
 
-                if(targetvelocity < 100)
-                {
+                if (targetvelocity < 100) {
                     thrower1.setMotorDisable();
                     thrower2.setMotorDisable();
-                }
-                else {
+                } else {
                     if (isshooteron) {
                         thrower1.setPower(pid);
                         thrower2.setPower(pid);
@@ -343,16 +508,16 @@ public class subsystems {
                 ActiveOpMode.telemetry().addData("num: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
                 ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
                 ActiveOpMode.telemetry().addData("target ", targetvelocity);
-                ActiveOpMode.telemetry().addData("velocity", (thrower1.getVelocity()/28)*60);
+                ActiveOpMode.telemetry().addData("velocity", (thrower1.getVelocity() / 28) * 60);
                 ActiveOpMode.telemetry().update();
 
                 TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
 
                 panelstel.addData("target", targetvelocity);
-                panelstel.addData("actual", (thrower1.getVelocity()/28)*60);
+                panelstel.addData("actual", (thrower1.getVelocity() / 28) * 60);
                 panelstel.addData("hood", hoodpos);
                 panelstel.addData("atvelocity", atvelocity);
-                panelstel.addData("error", targetvelocity - (thrower1.getVelocity()/28)*60);
+                panelstel.addData("error", targetvelocity - (thrower1.getVelocity() / 28) * 60);
                 panelstel.update();
 
 
@@ -378,6 +543,7 @@ public class subsystems {
 
         private Turret() {
         }
+
         public boolean atposition = false;
 
         public static DcMotorEx turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
