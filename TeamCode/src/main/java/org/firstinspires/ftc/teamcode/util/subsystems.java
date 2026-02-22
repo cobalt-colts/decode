@@ -407,12 +407,12 @@ public class subsystems {
 
         private DcMotorEx intakeMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
         double intakePower = -1;
-        public static boolean negative = true;
+        public static boolean negative = false;
 
-        public Command intake = new InstantCommand(() -> {
+        public Command outtake = new InstantCommand(() -> {
             intakeMotor.setPower(0.5);
         });
-        public Command outtake = new InstantCommand(() -> {
+        public Command intake = new InstantCommand(() -> {
             intakeMotor.setPower(-1);
         });
 
@@ -429,9 +429,9 @@ public class subsystems {
     public static class Thrower implements Subsystem {
         public static final Thrower INSTANCE = new Thrower();
 
-        public static double targetvelocity = 1380;
+        public static double targetvelocity = 1370; // This gets overridden every loop?
 
-        private double velocity = 0;
+        private double velocity = 0;    // What is this variable for?
 
         private Thrower() {
         }
@@ -483,8 +483,9 @@ public class subsystems {
 
                 isshooteron = true;
 
-                targetvelocity = 1300; //1500
-                hoodpos = .25;
+                // These two override everything done externally....
+//                targetvelocity = 1350; // This seems to be the only one used. //1500
+//                hoodpos = .25;
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
@@ -506,22 +507,23 @@ public class subsystems {
 
                 hood.setPosition(hoodpos);
 
-                ActiveOpMode.telemetry().addData("num: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
+//                ActiveOpMode.telemetry().addData("thrower1vel - velocity: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
                 ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
-                ActiveOpMode.telemetry().addData("target ", targetvelocity);
-                ActiveOpMode.telemetry().addData("velocity", (thrower1.getVelocity() / 28) * 60);
+                ActiveOpMode.telemetry().addData("targetvelocity ", targetvelocity);
+                ActiveOpMode.telemetry().addData("velocity/28*60 ", (thrower1.getVelocity() / 28) * 60);
 
                 // Do not remove this one unless you check with Crocker:
                 if (thrower1.getVelocity() == 0 || thrower2.getVelocity() == 0) {
                     ActiveOpMode.telemetry().addLine("ENCODER CABLE UNPLUGGED???");
                 }
-                ActiveOpMode.telemetry().update();
+// rely on later telemetry to do the update() so it's on one screen
+//                ActiveOpMode.telemetry().update();
 
                 TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
 
-                panelstel.addData("target", targetvelocity);
-                panelstel.addData("actual", (thrower1.getVelocity() / 28) * 60);
-                panelstel.addData("hood", hoodpos);
+                panelstel.addData("targetvelocity ", targetvelocity);
+                panelstel.addData("thrower1/28*60", (thrower1.getVelocity() / 28) * 60);
+                panelstel.addData("hoodpos", hoodpos);
                 panelstel.addData("atvelocity", atvelocity);
                 panelstel.addData("error", targetvelocity - (thrower1.getVelocity() / 28) * 60);
                 panelstel.update();
@@ -531,7 +533,7 @@ public class subsystems {
                 Index.INSTANCE.alldown.schedule();
                 thrower1.setPower(0);
                 thrower2.setPower(0);
-                velocity = 1300;
+                velocity = 1300; // What is this variable for?
 //                ActiveOpMode.telemetry().addLine("NOT RUNNING");
 //                ActiveOpMode.telemetry().addData("target ", targetTps);
 //                ActiveOpMode.telemetry().addData("velocity", thrower1.getVelocity());
@@ -617,9 +619,9 @@ public class subsystems {
             turret.setTargetPosition(turretTargetPos);
             turret.setPower(1); //turnPower
             atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
-            ActiveOpMode.telemetry().addData("target:", turretTargetPos);
-            ActiveOpMode.telemetry().addData("current:", turret.getCurrentPosition());
-            ActiveOpMode.telemetry().addData("power:", turret.getPower());
+            ActiveOpMode.telemetry().addData("turretTargetPos:", turretTargetPos);
+            ActiveOpMode.telemetry().addData("turretCurrentPos:", turret.getCurrentPosition());
+            ActiveOpMode.telemetry().addData("turretPower:", turret.getPower());
             ActiveOpMode.telemetry().addLine("TURRET AIM");
             ActiveOpMode.telemetry().update();
 
