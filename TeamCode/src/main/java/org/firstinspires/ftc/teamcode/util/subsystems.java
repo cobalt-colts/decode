@@ -411,17 +411,24 @@ public class subsystems {
         private Intake() {
         }
 
-        private DcMotorEx intake = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
+        private DcMotorEx intakeMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
         double intakePower = -1;
         public static boolean negative = true;
+
+        public Command intake = new InstantCommand(() -> {
+            intakeMotor.setPower(0.5);
+        });
+        public Command outtake = new InstantCommand(() -> {
+            intakeMotor.setPower(-1);
+        });
 
         @Override
         public void periodic() {
             Subsystem.super.periodic();
-            if (start) {
-                intakePower = (negative ? -1 : 0.5);
-                intake.setPower(intakePower);
-            }
+//            if (start) {
+//                intakePower = (negative ? -1 : 0.5);
+//                intakeMotor.setPower(intakePower);
+//            }
         }
     }
 
