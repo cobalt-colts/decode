@@ -49,6 +49,7 @@ public class NINEM3RedGoal extends NextFTCOpMode {
                         new FollowPath(redgoalnine.preload, true),
                         subsystems.Turret.INSTANCE.redgoal
                 ),
+                new InstantCommand(() -> {Thrower.targetvelocity = 1370;}),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
