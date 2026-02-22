@@ -26,7 +26,7 @@ import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
-@Autonomous(name = "(NINE) RED Close-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
+@Autonomous(name = "(12) RED Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
 public class NINEM3RedGoal extends NextFTCOpMode {
 
 
@@ -52,12 +52,12 @@ public class NINEM3RedGoal extends NextFTCOpMode {
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
-//                new InstantCommand(() -> {Intake.negative = true;}),
+                new InstantCommand(() -> {Intake.intake();}),
 
                 new FollowPath(redgoalnine.line1, true),
 //                subsystems.Turret.INSTANCE.redgoal,
                 new Delay(0.25),
-//                new InstantCommand(() -> {Intake.negative = false;}),
+//                new InstantCommand(() -> {Intake.outtake();}),
                 new FollowPath(redgoalnine.gate, true),
 //                new Delay(0.5),
                 new FollowPath(redgoalnine.launch1, true),
@@ -67,10 +67,10 @@ public class NINEM3RedGoal extends NextFTCOpMode {
 //                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.closeunsortedlaunch,
-//                new InstantCommand(() -> {Intake.negative = true;}),
+                new InstantCommand(() -> {Intake.intake();}),
                 new FollowPath(redgoalnine.line2, true),
                 new Delay(0.5),
-//                new InstantCommand(() -> {Intake.negative = false;}),
+//                new InstantCommand(() -> {Intake.outtake();}),
                 new FollowPath(redgoalnine.launch2, true),
                 new Delay(1),
 //                Index.INSTANCE.flickerOrder,
@@ -79,8 +79,11 @@ public class NINEM3RedGoal extends NextFTCOpMode {
                 Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.closeunsortedlaunch,
                 new InstantCommand(subsystems.Turret.INSTANCE.redpark),
+                new InstantCommand(() -> {Intake.intake();}),
                 new FollowPath(redgoalnine.line3, true),
                 new Delay(0.5),
+//                new InstantCommand(() -> {Intake.outtake();}),
+                new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
                 new FollowPath(redgoalnine.launch3),
                 new Delay(0.5),
 //                Index.INSTANCE.flickerOrder,
