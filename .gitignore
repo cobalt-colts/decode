@@ -81,3 +81,44 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+
+# =========================
+# FTC / Team additions
+# =========================
+
+# Local machine config
+local.parameters
+
+# Roadrunner / FTC logs
+*.csv
+*.tsv
+
+# Vision / ML models
+*.tflite
+*.model
+
+# Robot logs & match recordings
+logs/
+recordings/
+
+# Python cache if using scripts
+__pycache__/
+*.pyc
+
+# Windows junk
+Thumbs.db
+
+# Linux junk
+*~
+
+# Archives (don’t commit zips of code)
+*.zip
+*.tar
+*.gz
+*.rar
+
+# Native binaries
+*.so
+*.dll
+*.exe
