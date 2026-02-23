@@ -5,32 +5,35 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.redfarcorner;
+import org.firstinspires.ftc.teamcode.util.paths.redgoalnine;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
-import org.firstinspires.ftc.teamcode.util.subsystems.*;
+import org.firstinspires.ftc.teamcode.util.subsystems.Index;
+import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.util.subsystems.Thrower;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
-import dev.nextftc.core.commands.groups.ParallelDeadlineGroup;
-import dev.nextftc.core.commands.groups.ParallelRaceGroup;
+import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
+import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
-@Autonomous(name = "CORNER RED Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Far")
+@Autonomous(name = "(12) RED Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
 public class CORNERM3RedFar extends NextFTCOpMode {
 
 
 
     public CORNERM3RedFar() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(subsystems.Thrower.INSTANCE, subsystems.Index.INSTANCE, subsystems.Intake.INSTANCE, Turret.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -40,53 +43,71 @@ public class CORNERM3RedFar extends NextFTCOpMode {
     private Command autoRoutine() {
 
         return new SequentialGroup(
-//                subsystems.Thrower.INSTANCE.farshoot,
-
-                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                new Delay(0.25),
-                subsystems.Index.INSTANCE.farunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
-                Turret.INSTANCE.redfar,
-                new WaitUntil(() -> Math.abs(Math.abs(Turret.turret.getCurrentPosition()) - Math.abs(Turret.turretTargetPos)) <= 1),
-                new FollowPath(redfarcorner.line1, true),
-                new Delay(0.25),
-                new InstantCommand(() -> {Intake.negative = false;}),
-                new FollowPath(redfarcorner.launch1, true),
-                new Delay(1), //0.5
-                Index.INSTANCE.farunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
-                new FollowPath(redfarcorner.line2, false),
-                new FollowPath(redfarcorner.bump1, false),
-                new ParallelDeadlineGroup(
-                        new Delay(2),
-                        new FollowPath(redfarcorner.bump2, true)
+                subsystems.Camera.INSTANCE.setmotif,
+//                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
+                new ParallelGroup(
+                        Thrower.INSTANCE.shooteroff,
+                        new FollowPath(redgoalnine.preload, true),
+                        subsystems.Turret.INSTANCE.redfar
                 ),
-                new Delay(0.5),
-                new FollowPath(redfarcorner.launch2, true),
+//                new InstantCommand(() -> {Thrower.targetvelocity = 0;}),
+//                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
+//                Index.INSTANCE.closeunsortedlaunch,
+//                Intake.INSTANCE.intake,
+
+                new FollowPath(redgoalnine.line1, true),
+//                subsystems.Turret.INSTANCE.redgoal,
+                new Delay(0.25),
+//                new InstantCommand(() -> {Intake.outtake();}),
+                new FollowPath(redgoalnine.gate, true),
+//                new Delay(0.5),
+                new FollowPath(redgoalnine.launch1, true),
                 new Delay(1), //0.5
-                Index.INSTANCE.farunsortedlaunch,
-                new FollowPath(redfarcorner.offline, true)
-
-
-//                new FollowPath(redfar.line2, true),
-//                new FollowPath(redfar.launch2, true),
-//                new FollowPath(redfar.offline, true)
-
-
+//                Index.INSTANCE.flickerOrder,
+//                Index.INSTANCE.closesortedLaunch,
+//                Index.INSTANCE.closesortedLaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                Intake.INSTANCE.intake,
+                new FollowPath(redgoalnine.line2, true),
+                new Delay(0.5),
+//                new InstantCommand(() -> {Intake.outtake();}),
+                new FollowPath(redgoalnine.launch2, true),
+                new Delay(1),
+//                Index.INSTANCE.flickerOrder,
+//                Index.INSTANCE.closesortedLaunch,
+//                Index.INSTANCE.closesortedLaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                new InstantCommand(subsystems.Turret.INSTANCE.redpark),
+                Intake.INSTANCE.intake,
+                new FollowPath(redgoalnine.line3, true),
+                new Delay(0.5),
+//                new InstantCommand(() -> {Intake.outtake();}),
+                new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
+                new FollowPath(redgoalnine.launch3),
+                new Delay(0.5),
+//                Index.INSTANCE.flickerOrder,
+//                Index.INSTANCE.closesortedLaunch,
+//                Index.INSTANCE.closesortedLaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
+                subsystems.Turret.INSTANCE.home,
+                new TurnTo(Angle.fromDeg(0))
         );
     }
 
     @Override public void onInit() {
-        subsystems.Index.INSTANCE.alldown.schedule();
-        Turret.initPos = posConstants.redFarInit;
-        Turret.INSTANCE.redfarinit.schedule();
-//        Thrower.INSTANCE.farhood.schedule();
+        Index.INSTANCE.alldown.schedule();
+        subsystems.Turret.initPos = posConstants.redFarInit;
+        subsystems.Turret.INSTANCE.redgoalinit.schedule();
     }
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        redfarcorner.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(84, 9, Math.toRadians(90)));
+        redgoalnine.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(117.5, 131.5, Math.toRadians(-143.5)));
         autoRoutine().schedule();
     }
     @Override public void onUpdate() { }
