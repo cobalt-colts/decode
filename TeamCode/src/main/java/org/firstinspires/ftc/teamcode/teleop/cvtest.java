@@ -88,7 +88,7 @@ public class cvtest extends LinearOpMode
          *     eg: Green may be reported as YELLOW, as this may be the "closest" match.
          */
         PredominantColorProcessor sensor1 = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.6, -0.6, -0.8))
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
                 .setSwatches(
                         PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                         PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
@@ -100,7 +100,7 @@ public class cvtest extends LinearOpMode
                 .build();
 
         PredominantColorProcessor sensor2= new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, -0.6, 0.8, -0.8))
+                .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
                 .setSwatches(
                         PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                         PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
@@ -111,7 +111,7 @@ public class cvtest extends LinearOpMode
                         PredominantColorProcessor.Swatch.WHITE)
                 .build();
         PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.2, 0.2, -0.15, 0.15))
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.4, 0.45, -0.15, 0.2))
                 .setSwatches(
                         PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                         PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,

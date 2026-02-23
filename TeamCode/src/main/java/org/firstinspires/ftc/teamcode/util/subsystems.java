@@ -161,7 +161,7 @@ public class subsystems {
                 motifOrder[1] = 'p';
                 motifOrder[2] = 'g';
                 return motifs.PPG;
-            } else return motifs.NONE;
+            } else return motifs.GPP;
         }
 
         Limelight3A limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
@@ -178,8 +178,8 @@ public class subsystems {
                         for (LLResultTypes.FiducialResult fiducial : fiducials) {
                             int id = fiducial.getFiducialId(); // The ID number of the fiducial
                             tags.add(id);
-//                            motif = getMotif(id);
-//                            ActiveOpMode.telemetry().addData("motif", motif);
+                            motif = getMotif(tags);
+                            ActiveOpMode.telemetry().addData("motif", motif);
                         }
                         motif = getMotif(tags);
                     }
@@ -473,6 +473,8 @@ public class subsystems {
             thrower1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
             thrower2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
+            hood.setPosition(0.5);
+
             //thrower1.setVelocity(0);
             //thrower2.setPower(thrower1.getPower());
         }
@@ -489,12 +491,9 @@ public class subsystems {
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
-                if (Double.isNaN(hoodpos)) {
-                    hoodpos = .24;  // Default in case of trouble
-                }
-                if (Double.isNaN(targetvelocity)) {
-                    targetvelocity = 1351;  //Default in case of trouble
-                }
+
+                if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
+                if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
 
@@ -628,6 +627,8 @@ public class subsystems {
             ActiveOpMode.telemetry().addData("turretTargetPos:", turretTargetPos);
             ActiveOpMode.telemetry().addData("turretCurrentPos:", turret.getCurrentPosition());
             ActiveOpMode.telemetry().addData("turretPower:", turret.getPower());
+            ActiveOpMode.telemetry().addData("hoodpos:", Thrower.hoodpos);
+            ActiveOpMode.telemetry().addData("motif:", motif);
             ActiveOpMode.telemetry().addLine("TURRET AIM");
             ActiveOpMode.telemetry().update();
 

@@ -33,7 +33,7 @@ public class NINEM3RedGoal extends NextFTCOpMode {
 
     public NINEM3RedGoal() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -43,6 +43,7 @@ public class NINEM3RedGoal extends NextFTCOpMode {
     private Command autoRoutine() {
 
         return new SequentialGroup(
+                subsystems.Camera.INSTANCE.setmotif,
 //                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
                         Thrower.INSTANCE.shooteron,

@@ -86,7 +86,7 @@ public class posConstants {;
 
     // auto turret pos constants
 
-    public static int redGoalInit = 68;
+    public static int redGoalInit = 90;
     public static int redFarObelisk = 0;
     public static int redFarInit = 25;
     public static int redFarPickup = -88; //-90
