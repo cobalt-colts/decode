@@ -5,6 +5,8 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import  static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 
+import static java.lang.Thread.sleep;
+
 import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -36,7 +38,7 @@ import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.commands.utility.LambdaCommand;
-        import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.ServoEx;
 import dev.nextftc.hardware.positionable.SetPosition;
@@ -91,12 +93,10 @@ public class subsystems {
 
         @Override
         public void periodic() {
+            Subsystem.super.periodic();
             result1 = sensor1.getAnalysis();
             result2 = sensor2.getAnalysis();
             result3 = sensor3.getAnalysis();
-
-            ActiveOpMode.telemetry().addData("periodic", Math.random());
-            ActiveOpMode.telemetry().update();
 
             isoccupied[0] = result1 != null && isball(result1);
             isoccupied[1] = result2 != null && isball(result2);
@@ -104,8 +104,8 @@ public class subsystems {
         }
 
         @Override
-        public void initialize() {
-
+        public void initialize()  {
+            Subsystem.super.initialize();
 
             sensor1 = new PredominantColorProcessor.Builder()
                     .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
