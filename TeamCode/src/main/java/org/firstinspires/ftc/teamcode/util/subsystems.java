@@ -83,6 +83,8 @@ public class subsystems {
 
         public static boolean[] isoccupied = new boolean[3];
 
+        // Add this:
+        // public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
 
         private static boolean isball(PredominantColorProcessor.Result result) {
             if (result == null) return false;
