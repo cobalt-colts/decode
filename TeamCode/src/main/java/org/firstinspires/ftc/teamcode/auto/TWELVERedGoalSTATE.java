@@ -27,13 +27,13 @@ import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
 @Autonomous(name = "(12) STATE RED Close", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
-public class NINEM3RedGoal extends NextFTCOpMode {
+public class TWELVERedGoalSTATE extends NextFTCOpMode {
 
 
 
-    public NINEM3RedGoal() throws InterruptedException {
+    public TWELVERedGoalSTATE() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE, subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
