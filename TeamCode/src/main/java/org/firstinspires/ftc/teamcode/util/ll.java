@@ -72,7 +72,7 @@ public class ll {
             hoodpos = ((.1436 * ta) /* + 0.05777 */ ); // 0.30707 * Math.pow(121.29199, ta);
             hoodpos = Math.max(0.13, hoodpos);
             hoodpos = Math.min(0.7, hoodpos);
-            hoodpos -= .15;  // xxx fudge factor
+            hoodpos += .13;  // xxx fudge factor // miles 2/23/26
         } else {
 //            hoodpos = .2;
             hoodpos = Double.NaN;

@@ -90,7 +90,7 @@ public class posConstants {;
     public static int redFarObelisk = 0;
     public static int redFarInit = 25;
     public static int redFarPickup = -88; //-90
-    public static int redGoalPickup = -68; //-65
+    public static int redGoalPickup = -65; //-65
     public static int redGoalPark = -39;
 
     public static int blueFarInit = -redFarInit;

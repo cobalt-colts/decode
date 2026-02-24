@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 //import static org.firstinspires.ftc.teamcode.teleop.meet2teleop.indexPower;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import  static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 
@@ -21,6 +21,7 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.auto.CORNERM3RedFar;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
@@ -39,6 +40,7 @@ import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.ServoEx;
 import dev.nextftc.hardware.positionable.SetPosition;
+import kotlin.ParameterName;
 
 @Config
 public class subsystems {
@@ -65,78 +67,89 @@ public class subsystems {
 
         public static final ColorSensing INSTANCE = new ColorSensing();
 
-        PredominantColorProcessor sensor1 = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.6, -0.6, -0.8))
-                .setSwatches(
-                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
-                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
-                        PredominantColorProcessor.Swatch.RED,
-                        PredominantColorProcessor.Swatch.BLUE,
-                        PredominantColorProcessor.Swatch.YELLOW,
-                        PredominantColorProcessor.Swatch.BLACK,
-                        PredominantColorProcessor.Swatch.WHITE)
-                .build();
-
-        PredominantColorProcessor sensor2 = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, -0.6, 0.8, -0.8))
-                .setSwatches(
-                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
-                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
-                        PredominantColorProcessor.Swatch.RED,
-                        PredominantColorProcessor.Swatch.BLUE,
-                        PredominantColorProcessor.Swatch.YELLOW,
-                        PredominantColorProcessor.Swatch.BLACK,
-                        PredominantColorProcessor.Swatch.WHITE)
-                .build();
-        PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.2, 0.2, -0.15, 0.15))
-                .setSwatches(
-                        PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
-                        PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
-                        PredominantColorProcessor.Swatch.RED,
-                        PredominantColorProcessor.Swatch.BLUE,
-                        PredominantColorProcessor.Swatch.YELLOW,
-                        PredominantColorProcessor.Swatch.BLACK,
-                        PredominantColorProcessor.Swatch.WHITE)
-                .build();
-
-        VisionPortal portal = new VisionPortal.Builder()
-                .addProcessor(sensor1)
-                .addProcessor(sensor2)
-                .addProcessor(sensor3)
-                .setCameraResolution(new Size(640, 480))
-                .setCamera(hardwareMap.get(WebcamName.class, "internalcam"))
-                .build();
-
         private ColorSensing() {
+        }
+
+        public PredominantColorProcessor sensor1;
+        public PredominantColorProcessor sensor2;
+        public PredominantColorProcessor sensor3;
+        public VisionPortal portal;
+
+        public static PredominantColorProcessor.Result result1;
+        public static PredominantColorProcessor.Result result2;
+        public static PredominantColorProcessor.Result result3;
+
+        public static boolean[] isoccupied = new boolean[3];
+
+
+        private static boolean isball(PredominantColorProcessor.Result result) {
+            if (result == null) return false;
+            PredominantColorProcessor.Swatch resultswatch = result.closestSwatch;
+            return resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN
+                    || resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE;
         }
 
         @Override
         public void periodic() {
+            result1 = sensor1.getAnalysis();
+            result2 = sensor2.getAnalysis();
+            result3 = sensor3.getAnalysis();
 
+            ActiveOpMode.telemetry().addData("periodic", Math.random());
+            ActiveOpMode.telemetry().update();
+
+            isoccupied[0] = result1 != null && isball(result1);
+            isoccupied[1] = result2 != null && isball(result2);
+            isoccupied[2] = result3 != null && isball(result3);
         }
 
-        public Command getColors = new LambdaCommand()
-                .setStart(() -> {
-                    PredominantColorProcessor.Result result1 = sensor1.getAnalysis();
-                    PredominantColorProcessor.Swatch color1 = result1.closestSwatch;
-                    if (color1.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
-                        indexOrder.set(0, 'p');
-                    else if (color1.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
-                        indexOrder.set(0, 'g');
-                    PredominantColorProcessor.Result result2 = sensor2.getAnalysis();
-                    PredominantColorProcessor.Swatch color2 = result2.closestSwatch;
-                    if (color2.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
-                        indexOrder.set(1, 'p');
-                    else if (color2.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
-                        indexOrder.set(1, 'g');
-                    PredominantColorProcessor.Result result3 = sensor3.getAnalysis();
-                    PredominantColorProcessor.Swatch color3 = result3.closestSwatch;
-                    if (color3.equals(PredominantColorProcessor.Swatch.ARTIFACT_PURPLE))
-                        indexOrder.set(2, 'p');
-                    else if (color3.equals(PredominantColorProcessor.Swatch.ARTIFACT_GREEN))
-                        indexOrder.set(2, 'g');
-                });
+        @Override
+        public void initialize() {
+
+
+            sensor1 = new PredominantColorProcessor.Builder()
+                    .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
+                    .setSwatches(
+                            PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                            PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                            PredominantColorProcessor.Swatch.RED,
+                            PredominantColorProcessor.Swatch.BLUE,
+                            PredominantColorProcessor.Swatch.YELLOW,
+                            PredominantColorProcessor.Swatch.BLACK,
+                            PredominantColorProcessor.Swatch.WHITE)
+                    .build();
+
+            sensor2= new PredominantColorProcessor.Builder()
+                    .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
+                    .setSwatches(
+                            PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                            PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                            PredominantColorProcessor.Swatch.RED,
+                            PredominantColorProcessor.Swatch.BLUE,
+                            PredominantColorProcessor.Swatch.YELLOW,
+                            PredominantColorProcessor.Swatch.BLACK,
+                            PredominantColorProcessor.Swatch.WHITE)
+                    .build();
+            sensor3 = new PredominantColorProcessor.Builder()
+                    .setRoi(ImageRegion.asUnityCenterCoordinates(-0.4, 0.45, -0.15, 0.2))
+                    .setSwatches(
+                            PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
+                            PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
+                            PredominantColorProcessor.Swatch.RED,
+                            PredominantColorProcessor.Swatch.BLUE,
+                            PredominantColorProcessor.Swatch.YELLOW,
+                            PredominantColorProcessor.Swatch.BLACK,
+                            PredominantColorProcessor.Swatch.WHITE)
+                    .build();
+            portal = new VisionPortal.Builder()
+                    .addProcessor(sensor1)
+                    .addProcessor(sensor2)
+                    .addProcessor(sensor3)
+                    .setCameraResolution(new Size(640, 480))
+                    .setCamera(ActiveOpMode.hardwareMap().get(WebcamName.class, "internalcam"))
+                    .build();
+        }
+
     }
     public static class Camera implements Subsystem {
         public static final Camera INSTANCE = new Camera();
@@ -616,23 +629,27 @@ public class subsystems {
 
         public void periodic() {
             Subsystem.super.periodic();
-
-//            if (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 1) turret.setPower(0);
-//            else if (turret.getCurrentPosition() > turretTargetPos) turret.setPower(-0.075);
-//            else turret.setPower(0.075);
-//            atposition = (turret.getPower() == 0);
             turret.setTargetPosition(turretTargetPos);
-            turret.setPower(1); //turnPower
+            turret.setPower(1);
             atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
-            ActiveOpMode.telemetry().addData("turretTargetPos:", turretTargetPos);
-            ActiveOpMode.telemetry().addData("turretCurrentPos:", turret.getCurrentPosition());
-            ActiveOpMode.telemetry().addData("turretPower:", turret.getPower());
-            ActiveOpMode.telemetry().addData("hoodpos:", Thrower.hoodpos);
-            ActiveOpMode.telemetry().addData("motif:", motif);
-            ActiveOpMode.telemetry().addLine("TURRET AIM");
-            ActiveOpMode.telemetry().update();
 
+            ActiveOpMode.telemetry().addData("turretTargetPos", turretTargetPos);
+            ActiveOpMode.telemetry().addData("turretCurrentPos", turret.getCurrentPosition());
+            ActiveOpMode.telemetry().addData("turretError", turretTargetPos - turret.getCurrentPosition());
+            ActiveOpMode.telemetry().addData("turretPower", turret.getPower());
+            ActiveOpMode.telemetry().addData("turretAtPosition", atposition);
+            ActiveOpMode.telemetry().addData("hoodpos", Thrower.hoodpos);
+            ActiveOpMode.telemetry().addData("motif", motif);
+            ActiveOpMode.telemetry().addLine("--- COLOR SENSING ---");
+            ActiveOpMode.telemetry().addData("isOccupied[0]", ColorSensing.isoccupied[0]);
+            ActiveOpMode.telemetry().addData("isOccupied[1]", ColorSensing.isoccupied[1]);
+            ActiveOpMode.telemetry().addData("isOccupied[2]", ColorSensing.isoccupied[2]);
+            ActiveOpMode.telemetry().addData("swatch[0]", ColorSensing.result1 != null ? ColorSensing.result1.closestSwatch : "null");
+            ActiveOpMode.telemetry().addData("swatch[1]", ColorSensing.result2 != null ? ColorSensing.result2.closestSwatch : "null");
+            ActiveOpMode.telemetry().addData("swatch[2]", ColorSensing.result3 != null ? ColorSensing.result3.closestSwatch : "null");
+            ActiveOpMode.telemetry().update();
         }
 
     }
 }
+
