@@ -32,7 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 
         import dev.nextftc.core.commands.Command;
-        import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.conditionals.IfElseCommand;
+import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
@@ -51,6 +52,7 @@ public class subsystems {
     public static ArrayList<Character> indexOrder = new ArrayList<>(3);
     public static int count = 0;
     public static int matchingSpot = -1;
+    public static boolean hasAnyBalls = false;
 
     public static enum motifs {
         PPG,
@@ -84,7 +86,7 @@ public class subsystems {
         public static boolean[] isoccupied = new boolean[3];
 
         // Add this:
-        // public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
+//        public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
 
         private static boolean isball(PredominantColorProcessor.Result result) {
             if (result == null) return false;
@@ -103,6 +105,8 @@ public class subsystems {
             isoccupied[0] = result1 != null && isball(result1);
             isoccupied[1] = result2 != null && isball(result2);
             isoccupied[2] = result3 != null && isball(result3);
+
+            hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
         }
 
         @Override
@@ -253,6 +257,26 @@ public class subsystems {
                 new Delay(0.25)
 
         );
+        // Merge these two launches to have one with ifelse
+//        public Command secondcloseunsortedlaunch = new SequentialGroup(
+//                new IfElseCommand(
+//                        () -> ColorSensing.hasAnyBalls(),
+//                        new SequentialGroup(
+//                                launch2,
+//                                new InstantCommand(() -> {
+//                                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
+//                                }),
+//                                new Delay(0.25),
+//                                launch1,
+//                                new Delay(0.25),
+//                                launch3,
+//                                new InstantCommand(() -> {
+//                                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
+//                                }),
+//                                new Delay(0.25)
+//                        )
+//                )
+//        );
 
         private int index = 0;
         public LambdaCommand flickerOrder = new LambdaCommand()

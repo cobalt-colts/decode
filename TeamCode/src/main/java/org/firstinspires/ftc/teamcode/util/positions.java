@@ -38,13 +38,15 @@ public class positions {
     public static boolean allDown;
     public enum Index {G, P, HOLD, U1, D1, U2, D2, U3, D3, DOWN, UP}
     public static Index index = Index.HOLD;
-    public static Index left = Index.DOWN;
-    public static Index back = Index.DOWN;
-    public static Index right = Index.DOWN;
+    public static Index left = Index.HOLD;
+    public static Index back = Index.HOLD;
+    public static Index right = Index.HOLD;
     //    public static Color leftColor = Color.WHITE;
 //    public static Color backColor = Color.WHITE;
 //    public static Color rightColor = Color.WHITE;
     public static int ballNum = 0;
+
+    public static int count = 0;
 
     public static double targetTps = 0;
     public static int targetVelocity = 0;

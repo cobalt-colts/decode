@@ -43,22 +43,22 @@ public class posConstants {;
     // INDEX
 
     // flicker 1
-    public static final double flicker1down = .22;
+    public static final double flicker1down = .24; //.22
     public static final double flicker1up = .6;
-    public static double rightFlickerDownThreshold = 1.68;
-    public static double rightFlickerUpThreshold = 2.0;
+    public static double rightFlickerDownThreshold = 0.92;
+    public static double rightFlickerUpThreshold = 1.8;
 
     //flicker 2
     public static double flicker2down = 0.77; // 0.375
     public static final double flicker2up = 0.38;
-    public static double backFlickerDownThreshold = 1.68;
-    public static double backFlickerUpThreshold = 2.0;
+    public static double backFlickerDownThreshold = 2.15;
+    public static double backFlickerUpThreshold = 1.5;
 
     // flicker 3
     public static final double flicker3down = 0.68;
     public static final double flicker3up = .31;
-    public static double leftFlickerDownThreshold = .5;
-    public static double leftFlickerUpThreshold = 1.0;
+    public static double leftFlickerDownThreshold = 1.8; //2.1
+    public static double leftFlickerUpThreshold = 1.4; // 1.19
     public static int liftUpTime = 60;
     public static int liftDownTime = 45;
     public static final double greenThreshold = 450; //500
@@ -68,7 +68,7 @@ public class posConstants {;
     public static final double closeSpeed = 746.67;
     public static final double closeHood = 0.25; // 0.28
     public static final double farSpeed = 2000;
-    public static final double farHood = 0.19; // 0.21
+    public static final double farHood = 0.19; // 0.19
     public static double hoodAdjust = 0.03;
     public static double hoodAdjustClose = 0.02;
     public static double hoodAdjustFar = 0.04;

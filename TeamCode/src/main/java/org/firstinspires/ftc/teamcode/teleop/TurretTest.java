@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -37,7 +39,7 @@ public class TurretTest extends LinearOpMode {
         Servo leftFlicker = hardwareMap.servo.get("flicker3");
         AnalogInput rightAnalog = hardwareMap.get(AnalogInput.class, "rightAnalog");
         AnalogInput backAnalog = hardwareMap.get(AnalogInput.class, "backAnalog");
-        AnalogInput leftFlickerAnalog = hardwareMap.get(AnalogInput.class, "leftFlickerAnalog");
+        AnalogInput leftAnalog = hardwareMap.get(AnalogInput.class, "leftAnalog");
         DcMotorEx turret = hardwareMap.get(DcMotorEx.class, "turret");
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -55,9 +57,23 @@ public class TurretTest extends LinearOpMode {
             telemetry.addData("leftFlickerpos", leftFlicker.getPosition());
             telemetry.addData("rightFlicker: ", rightAnalog.getVoltage());
             telemetry.addData("backFlicker: ", backAnalog.getVoltage());
-            telemetry.addData("leftFlicker: ", leftFlickerAnalog.getVoltage());
+            telemetry.addData("leftFlicker: ", leftAnalog.getVoltage());
             telemetry.addData("turret", turret.getCurrentPosition());
             telemetry.update();
+
+            TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
+
+            panelstel.addData("rightFlickerpos", rightFlicker.getPosition());
+            panelstel.addData("rightFlicker: ", rightAnalog.getVoltage());
+            panelstel.addLine();
+            panelstel.addData("backFlickerpos", backFlicker.getPosition());
+            panelstel.addData("backFlicker: ", backAnalog.getVoltage());
+            panelstel.addLine();
+            panelstel.addData("leftFlickerpos", leftFlicker.getPosition());
+            panelstel.addData("leftFlicker: ", leftAnalog.getVoltage());
+            panelstel.addLine();
+            panelstel.addData("turret", turret.getCurrentPosition());
+            panelstel.update();
         }
     }
 }

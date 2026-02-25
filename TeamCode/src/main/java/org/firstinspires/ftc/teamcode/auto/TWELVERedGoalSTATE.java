@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.subsystems.Thrower;
 
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.conditionals.IfElseCommand;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
@@ -54,6 +55,12 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
+//                new IfElseCommand(
+//                        () -> subsystems.hasAnyBalls,
+//                        Index.INSTANCE.closesortedLaunch
+//                ),
+                Index.INSTANCE.closeunsortedlaunch,
+//                Index.INSTANCE.secondcloseunsortedlaunch,
                 Intake.INSTANCE.intake,
 
                 new FollowPath(redgoalnine.line1, true),
@@ -68,7 +75,12 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
+//                new IfElseCommand(
+//                        () -> subsystems.hasAnyBalls,
+//                        Index.INSTANCE.closesortedLaunch
+//                ),
                 Index.INSTANCE.closeunsortedlaunch,
+//                Index.INSTANCE.secondcloseunsortedlaunch,
                 Intake.INSTANCE.intake,
                 new FollowPath(redgoalnine.line2, true),
                 new Delay(0.5),
@@ -79,7 +91,12 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
+//                new IfElseCommand(
+//                        () -> subsystems.hasAnyBalls,
+//                        Index.INSTANCE.closesortedLaunch
+//                ),
                 Index.INSTANCE.closeunsortedlaunch,
+//                Index.INSTANCE.secondcloseunsortedlaunch,
                 new InstantCommand(subsystems.Turret.INSTANCE.redpark),
                 Intake.INSTANCE.intake,
                 new FollowPath(redgoalnine.line3, true),
@@ -92,7 +109,12 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
+//                new IfElseCommand(
+//                        () -> subsystems.hasAnyBalls,
+//                        Index.INSTANCE.closesortedLaunch
+//                ),
                 Index.INSTANCE.closeunsortedlaunch,
+//                Index.INSTANCE.secondcloseunsortedlaunch,
                 subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
         );

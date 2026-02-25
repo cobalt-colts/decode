@@ -46,7 +46,10 @@ public class STATETeleOp extends LinearOpMode {
         backFlicker = hardwareMap.servo.get("flicker2");
         backAnalog = hardwareMap.analogInput.get("backAnalog");
         leftFlicker = hardwareMap.servo.get("flicker3");
-//        leftAnalog = hardwareMap.analogInput.get("leftAnalog");
+        leftAnalog = hardwareMap.analogInput.get("leftAnalog");
+        rightFlickerPos = flicker1down;
+        backFlickerPos = flicker2down;
+        leftFlickerPos = flicker3down;
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -79,11 +82,13 @@ public class STATETeleOp extends LinearOpMode {
         while(!isStarted() && !isStopRequested() && !startReady) {
             if (gamepad1.optionsWasPressed()) {
                 redAlliance = true;
+                limelight.pipelineSwitch(2); // red pipeline
                 gamepad1.setLedColor(1, 0, 0, 1000);
                 startReady = true;
             }
             else if (gamepad1.shareWasPressed()) {
                 redAlliance = false;
+                limelight.pipelineSwitch(3); // blue pipeline
                 gamepad1.setLedColor(0, 0, 1, 1000);
                 startReady = true;
             }
@@ -139,6 +144,8 @@ public class STATETeleOp extends LinearOpMode {
         }
         else ballWant[1] = ballWant[0];
 
+        if (gamepad1.dpadUpWasPressed()) back = Index.UP;
+
         if (gamepad1.aWasPressed()) ballNum = 0;
 
         if (gamepad1.dpad_down) down();
@@ -150,8 +157,8 @@ public class STATETeleOp extends LinearOpMode {
 //        allDown = ((rightFlickerPos == rightFlickerDown && rightAnalog.getVoltage() > rightFlickerDownThreshold) && (backFlickerPos == backFlickerDown && backAnalog.getVoltage() < backFlickerDownThreshold) && (leftFlickerPos == leftFlickerDown && leftAnalog.getVoltage() < leftFlickerDownThreshold));
 //        allDown = true;
         allDown = (leftFlickerPos == flicker1down && rightFlickerPos == flicker3down && backFlickerPos == flicker2down && backAnalog.getVoltage() < backFlickerDownThreshold && rightAnalog.getVoltage() > rightFlickerDownThreshold);
-//        switch (back) {
-//            case HOLD:
+        switch (back) {
+            case HOLD:
 //                if (allDown) {
 //                    if (gamepad1.dpadUpWasPressed()) {
 //                        ballWant[0] = ' ';
@@ -160,42 +167,50 @@ public class STATETeleOp extends LinearOpMode {
 //                        ballNum++;
 //                    }
 //                }
-//                break;
-//
-//            case DOWN:
-//                backFlickerPos = flicker2down;
+//                left = Index.UP;
+                break;
+
+            case DOWN:
+                backFlickerPos = flicker2down;
 //                back = Index.HOLD;
-////                if (backAnalog.getVoltage() < backFlickerDownThreshold) back = Index.HOLD;
-//                break;
-//
-//            case UP:
-//                backFlickerPos = flicker2up;
-////                if (gamepad1.dpadUpWasReleased()) back = Index.DOWN;
-//                if (backAnalog.getVoltage() > backFlickerUpThreshold && !gamepad1.dpad_up) back = Index.DOWN;
+                if (backAnalog.getVoltage() > backFlickerDownThreshold) {
+                    back = Index.HOLD;
+                    left = Index.UP;
+                }
+                break;
+
+            case UP:
+                backFlickerPos = flicker2up;
+//                if (gamepad1.dpadUpWasReleased()) back = Index.DOWN;
+                if (backAnalog.getVoltage() < backFlickerUpThreshold && !gamepad1.dpad_up) back = Index.DOWN;
 //                balls[1] = 'b';
-//                break;
-//        }
-//        switch (left) {
-//            case HOLD:
+                break;
+        }
+        switch (left) {
+            case HOLD:
 //                if (allDown) {
 //                    if (gamepad1.dpadLeftWasPressed()) left = Index.UP;
 //                }
-//                break;
-//
-//            case DOWN:
-//                leftFlickerPos = flicker1down;
+//                right = Index.UP;
+                break;
+
+            case DOWN:
+                leftFlickerPos = flicker3down;
 //                left = Index.HOLD;
-////                if (leftAnalog.getVoltage() < leftFlickerDownThreshold) left = Index.HOLD;
-//                break;
-//
-//            case UP:
-//                leftFlickerPos = flicker1up;
+                if (leftAnalog.getVoltage() > leftFlickerDownThreshold) {
+                    left = Index.HOLD;
+                    right = Index.UP;
+                }
+                break;
+
+            case UP:
+                leftFlickerPos = flicker3up;
 //                if (gamepad1.dpadLeftWasReleased()) left = Index.DOWN;
-////                if (leftAnalog.getVoltage() > leftFlickerUpThreshold) left = Index.DOWN;
-//                break;
-//        }
-//        switch (right) {
-//            case HOLD:
+                if (leftAnalog.getVoltage() < leftFlickerUpThreshold) left = Index.DOWN;
+                break;
+        }
+        switch (right) {
+            case HOLD:
 //                if (allDown) {
 //                    if (gamepad1.dpadRightWasPressed()) {
 //                        ballWant[0] = ' ';
@@ -204,22 +219,23 @@ public class STATETeleOp extends LinearOpMode {
 //                        ballNum++;
 //                    }
 //                }
-//                break;
-//
-//            case DOWN:
-//                rightFlickerPos = flicker3down;
-//                right = Index.HOLD;
-////                if (rightAnalog.getVoltage() > rightFlickerDownThreshold) right = Index.HOLD;
-//                break;
-//
-//            case UP:
-//                rightFlickerPos = flicker3up;
-//                if (rightAnalog.getVoltage() < rightFlickerUpThreshold && !gamepad1.dpad_right) right = Index.DOWN;
-//                balls[2] = 'b';
-//                break;
-//        }
-    }
+                break;
 
+            case DOWN:
+                rightFlickerPos = flicker1down;
+//                right = Index.HOLD;
+                if (rightAnalog.getVoltage() < rightFlickerDownThreshold) {
+                    right = Index.HOLD;
+                }
+                break;
+
+            case UP:
+                rightFlickerPos = flicker1up;
+                if (rightAnalog.getVoltage() > rightFlickerUpThreshold && !gamepad1.dpad_right) right = Index.DOWN;
+//                balls[2] = 'b';
+                break;
+        }
+    }
     public void down() {
         left = Index.DOWN;
         back = Index.DOWN;
@@ -239,11 +255,10 @@ public class STATETeleOp extends LinearOpMode {
             turretPos = 0;
         }
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turret.setPower(0);
 
-        if (gamepad1.right_bumper) turretPos = turretMax;
-        else if (gamepad1.left_bumper) turretPos = turretMin;
-        else if (Double.isNaN(fetchAlignment(limelight, redAlliance))){
+//        if (gamepad1.right_bumper) turretPos = turretMax;
+//        else if (gamepad1.left_bumper) turretPos = turretMin;
+        if (Double.isNaN(fetchAlignment(limelight, redAlliance))){
             gamepad1.rumble(0.25, 0.25, 250);
 //            if (turret.getCurrentPosition() > 0) turretPos = turretMax;
 //            else turretPos = turretMin;
@@ -253,12 +268,12 @@ public class STATETeleOp extends LinearOpMode {
         turretPos = Math.max((int) turretPos, turretMin);
 
         controller.setPIDF(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d, ShootingSpeedTuning.f);
-        if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) targetTps = ll.fetchFlywheelSpeed(limelight); //  * TICKS_PER_REV / 60.0
+        if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) targetTps = (ll.fetchFlywheelSpeed(limelight)); //  * TICKS_PER_REV / 60.0
         targetVelocity = (int) targetTps;
 //        targetVelocity = 800;
 
 
-        currentVelocity = thrower1.getVelocity(); // /28)*60
+        currentVelocity = (thrower1.getVelocity() / 28 * 60); // /28)*60
 
         power = controller.calculate(currentVelocity, targetVelocity);
 
@@ -274,9 +289,17 @@ public class STATETeleOp extends LinearOpMode {
 //        hoodPos = (targetTps >= 1000 ? farHood : (closeHood));
 //        hoodPos = farHood;
         if (!Double.isNaN(ll.fetchHoodPos(limelight))) hoodPos = ll.fetchHoodPos(limelight);
+        if (Double.isNaN(hoodPos)) hoodPos = closeHood;
+//        if (count > 2) count = 0;
+//        if (hoodPos > closeHood) {
+//            if (count == 1) hoodPos += 0.4;
+//            else if (count == 2) hoodPos += 0.3;
+//        }
+        hoodPos = Math.max(hoodPos, 0.19);
+        hoodPos = Math.min(hoodPos, 0.4);
 
 //        canShoot = ((thrower1.getVelocity() / targetTps <= flywheelThreshold) && (turret.getVelocity() <= turretThreshold));
-        if (hoodPos == farHood) canShoot = thrower1.getVelocity() <= -800;
+        if (hoodPos == farHood) canShoot = (targetTps) - (thrower1.getVelocity() / 28) * 60 <= 10;
         else canShoot = true;
     }
     public void powers() {
@@ -292,15 +315,24 @@ public class STATETeleOp extends LinearOpMode {
 
         intake.setPower(intakePower);
         hood.setPosition(hoodPos);
-//        rightFlickerPos = flicker1down;
-        if (gamepad1.dpad_right) rightFlicker.setPosition(flicker1up);
-        else rightFlicker.setPosition(flicker1down);
-        if (gamepad1.dpad_up) backFlicker.setPosition(flicker2up);
-        else backFlicker.setPosition(flicker2down);
-        if (gamepad1.dpad_left) leftFlicker.setPosition(flicker3up);
-        else leftFlicker.setPosition(flicker3down);
-//        backFlicker.setPosition(backFlickerPos);
-//        leftFlicker.setPosition(leftFlickerPos);
+//        if (gamepad1.dpad_right) {
+//            rightFlicker.setPosition(flicker1up);
+//            count++;
+//        }
+//        else rightFlicker.setPosition(flicker1down);
+//        if (gamepad1.dpad_up) {
+//            backFlicker.setPosition(flicker2up);
+//            count++;
+//        }
+//        else backFlicker.setPosition(flicker2down);
+//        if (gamepad1.dpad_left) {
+//            leftFlicker.setPosition(flicker3up);
+//            count++;
+//        }
+//        else leftFlicker.setPosition(flicker3down);
+        rightFlicker.setPosition(rightFlickerPos);
+        backFlicker.setPosition(backFlickerPos);
+        leftFlicker.setPosition(leftFlickerPos);
     }
     public void telemetry() {
         telemetry.addData("fetch: ", targetTps);
@@ -319,6 +351,9 @@ public class STATETeleOp extends LinearOpMode {
         telemetry.addData("hood: ", hoodPos);
         telemetry.addData("target turret pos: ", turretPos);
         telemetry.addData("turret:", turret.getCurrentPosition());
+        telemetry.addData("Back state", (back.equals(Index.HOLD)));
+        telemetry.addData("Left state", (left.equals(Index.HOLD)));
+        telemetry.addData("Right state", (right.equals(Index.HOLD)));
         telemetry.update();
     }
 }
