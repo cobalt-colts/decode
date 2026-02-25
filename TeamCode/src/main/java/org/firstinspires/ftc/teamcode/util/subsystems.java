@@ -85,6 +85,10 @@ public class subsystems {
 
         public static boolean[] isoccupied = new boolean[3];
 
+        private long lastToggleTime = 0;
+        private boolean lightsOn = false;
+        private static final long BLINK_INTERVAL_MS = 500;
+
         // Add this:
 //        public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
 
@@ -107,7 +111,25 @@ public class subsystems {
             isoccupied[2] = result3 != null && isball(result3);
 
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
-                // Set the RGB lights based on what colors are seen
+
+            // Set the RGB lights based on what colors are seen:
+            // No Artifact = red = 0.277
+            // Artifact = purple=0.7 or green=0.5, specific to the position represented
+            // Shooter up to speed Thrower.INSTANCE.atvelocity and aimed at goal Turret.INSTANCE.atposition = blinking. Set the light to 0.0 in the shooter's periodic() and hope there's enough lag to "blink"
+            long now = System.nanoTime() / 1_000_000;
+            if (now - lastToggleTime >= BLINK_INTERVAL_MS) {
+                lightOn = !lightOn;
+                lastToggleTime = now;
+
+                if (lightOn) {
+                        // Turn on the 3 lights.
+                } else {
+                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
+                                // We are at speed, so we want to blink. Turn off the lights (set all 3 to 0)
+                        } 
+                }
+                led.setState(lightOn);  // whatever your LED control is
+            }
         }
 
         @Override
