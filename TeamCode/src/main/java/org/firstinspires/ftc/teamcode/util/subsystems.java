@@ -107,6 +107,7 @@ public class subsystems {
             isoccupied[2] = result3 != null && isball(result3);
 
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
+                // Set the RGB lights based on what colors are seen
         }
 
         @Override
