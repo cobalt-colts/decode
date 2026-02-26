@@ -6,6 +6,9 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+
 import java.util.List;
 
 import dev.nextftc.ftc.ActiveOpMode;
@@ -31,8 +34,9 @@ public class ll {
                     ActiveOpMode.telemetry().addData("ta: ", ta);
                     ActiveOpMode.telemetry().addData("fiducial ID", id);
 
-                            // Removed /2 This returns speed in rpm. Convert to ticks per second outside this code
-                    if (ta > 0.4) flywheelspeed = ((1752.97 - (211.567 * ta))); // 323.74855 * Math.pow(0.996013, ta);
+                    // Removed /2 This returns speed in rpm. Convert to ticks per second outside this code
+                    if (ta > 6) flywheelspeed = 700;
+                    else if (ta > 0.4) flywheelspeed = ((1752.97 - (211.567 * ta))); // 323.74855 * Math.pow(0.996013, ta);
                     else flywheelspeed = 1900; // 1800 constant far zone speed
                     flywheelspeed *= .89;
                     ActiveOpMode.telemetry().addData("flywheelspeed (in ll): ", flywheelspeed);
@@ -51,7 +55,13 @@ public class ll {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             for (LLResultTypes.FiducialResult tag : fiducials) {
                 if (tag.getFiducialId() == targetTag) {
+                    Pose3D pose = tag.getTargetPoseCameraSpace();
+                    YawPitchRollAngles ypr = pose.getOrientation();
+                    double yaw = ypr.getYaw(); // Degrees off from being head on to the apriltag, different than horizontal offset degrees
+                    yaw *= (result.getTa() * yawConstant);
+
                     double horizontalOffset = result.getTy(); //angle
+                    horizontalOffset *= yaw;
 //                    if (result.getTa() < 0.5) horizontalOffset += far * posConstants.farAngleOffset;
                     if (Math.abs(horizontalOffset) > tolerance) {
                         return (horizontalOffset * ticksPerDegree);

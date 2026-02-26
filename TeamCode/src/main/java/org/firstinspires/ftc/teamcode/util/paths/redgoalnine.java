@@ -24,7 +24,7 @@ public class redgoalnine {
                         new BezierCurve(
                                 new Pose(122.000, 126.000),
                                 new Pose(89.378, 110.565),
-                                new Pose(85.000, 88.000)
+                                new Pose(81.000, 98.000)
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(-143.5), Math.toRadians(0))
@@ -33,9 +33,9 @@ public class redgoalnine {
         line1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(85.000, 88.000),
+                                new Pose(81.000, 98.000),
                                 new Pose(90.313, 87.339),
-                                new Pose(120.000, 88.000)
+                                new Pose(120.000, 98.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -44,9 +44,9 @@ public class redgoalnine {
         gate = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(120.000, 88.000),
+                                new Pose(120.000, 98.000),
                                 new Pose(106.470, 83.320),
-                                new Pose(120.000, 80.000)
+                                new Pose(120.000, 85.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -55,8 +55,8 @@ public class redgoalnine {
         launch1 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(124.000, 80.000),
-                                new Pose(85.000, 88.000)
+                                new Pose(124.000, 85.000),
+                                new Pose(81.000, 98.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -65,7 +65,7 @@ public class redgoalnine {
         line2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(85.000, 88.000),
+                                new Pose(81.000, 98.000),
                                 new Pose(94.326, 58.372),
                                 new Pose(101.491, 65.693),
                                 new Pose(120.000, 64.500)
@@ -79,7 +79,7 @@ public class redgoalnine {
                         new BezierCurve(
                                 new Pose(120.000, 64.500),
                                 new Pose(97.104, 67.724),
-                                new Pose(85.000, 88.000)
+                                new Pose(81.000, 98.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))
@@ -88,7 +88,7 @@ public class redgoalnine {
         line3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(85.000, 88.000),
+                                new Pose(81.000, 98.000),
                                 new Pose(90.430, 31.433),
                                 new Pose(97.352, 38.763),
                                 new Pose(120.000, 40.500)
@@ -101,7 +101,7 @@ public class redgoalnine {
                 .addPath(
                         new BezierLine(
                                 new Pose(120.000, 40.500),
-                                new Pose(85.000, 110.000)
+                                new Pose(81.000, 110.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(0))

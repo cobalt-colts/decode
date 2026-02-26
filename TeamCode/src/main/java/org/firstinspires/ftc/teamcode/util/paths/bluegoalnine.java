@@ -12,6 +12,8 @@ public class bluegoalnine {
     public static PathChain line1;
     public static PathChain launch2;
     public static PathChain line2;
+    public static PathChain launch3;
+    public static PathChain line3;
     public static PathChain preload;
     public static PathChain gate;
 
@@ -77,5 +79,29 @@ public class bluegoalnine {
                 ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(148))
 
                 .build();
+
+        line3 = follower.pathBuilder().addPath(
+                        new BezierCurve(
+                                new Pose(57.000, 110.000),
+                                new Pose(55.117, 79.993),
+                                new Pose(58.696, 62.452),
+                                new Pose(22.000, 65.000)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(148), Math.toRadians(180))
+
+                .build();
+
+        launch3 = follower.pathBuilder().addPath(
+                        new BezierLine(
+                                new Pose(22.000, 65.000),
+
+                                new Pose(59.000, 114.000)
+                        )
+                ).setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(148))
+
+                .build();
+
+
+        )
     }
 }

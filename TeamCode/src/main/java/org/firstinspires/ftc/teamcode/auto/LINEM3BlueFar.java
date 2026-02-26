@@ -76,7 +76,7 @@ public class LINEM3BlueFar extends NextFTCOpMode {
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
-        Turret.INSTANCE.blueinit.schedule();
+        Turret.INSTANCE.bluefarinit.schedule();
 //        Thrower.INSTANCE.farhood.schedule();
     }
     @Override

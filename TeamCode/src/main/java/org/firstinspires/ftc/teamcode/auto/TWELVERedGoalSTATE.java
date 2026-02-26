@@ -55,12 +55,8 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
+//                Index.INSTANCE.cameracloseunsortedlaunch,
                 Intake.INSTANCE.intake,
 
                 new FollowPath(redgoalnine.line1, true),
@@ -71,32 +67,20 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                new Delay(0.5),
                 new FollowPath(redgoalnine.launch1, true),
                 new Delay(1), //0.5
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
+//                Index.INSTANCE.cameracloseunsortedlaunch,
+//                Index.INSTANCE.cameraclosesortedLaunch,
                 Intake.INSTANCE.intake,
                 new FollowPath(redgoalnine.line2, true),
                 new Delay(0.5),
 //                new InstantCommand(() -> {Intake.outtake();}),
                 new FollowPath(redgoalnine.launch2, true),
                 new Delay(1),
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
+//                Index.INSTANCE.cameracloseunsortedlaunch,
+//                Index.INSTANCE.cameraclosesortedLaunch,
                 new InstantCommand(subsystems.Turret.INSTANCE.redpark),
                 Intake.INSTANCE.intake,
                 new FollowPath(redgoalnine.line3, true),
@@ -105,16 +89,10 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
                 new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
                 new FollowPath(redgoalnine.launch3),
                 new Delay(0.5),
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
+//                Index.INSTANCE.cameracloseunsortedlaunch,
+//                Index.INSTANCE.cameraclosesortedLaunch,
                 subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
         );
