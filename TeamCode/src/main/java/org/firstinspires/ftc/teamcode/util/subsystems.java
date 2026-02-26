@@ -117,19 +117,19 @@ public class subsystems {
             // Artifact = purple=0.7 or green=0.5, specific to the position represented
             // Shooter up to speed Thrower.INSTANCE.atvelocity and aimed at goal Turret.INSTANCE.atposition = blinking. Set the light to 0.0 in the shooter's periodic() and hope there's enough lag to "blink"
             long now = System.nanoTime() / 1_000_000;
-            if (now - lastToggleTime >= BLINK_INTERVAL_MS) {
-                lightOn = !lightOn;
-                lastToggleTime = now;
-
-                if (lightOn) {
-                        // Turn on the 3 lights.
-                } else {
-                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
-                                // We are at speed, so we want to blink. Turn off the lights (set all 3 to 0)
-                        } 
-                }
-                led.setState(lightOn);  // whatever your LED control is
-            }
+//            if (now - lastToggleTime >= BLINK_INTERVAL_MS) { // build error, miles, 2/25/26, 7:18:32 PM
+//                lightOn = !lightOn;
+//                lastToggleTime = now;
+//
+//                if (lightOn) {
+//                        // Turn on the 3 lights.
+//                } else {
+//                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
+//                                // We are at speed, so we want to blink. Turn off the lights (set all 3 to 0)
+//                        }
+//                }
+//                led.setState(lightOn);  // whatever your LED control is
+//            }
         }
 
         @Override
