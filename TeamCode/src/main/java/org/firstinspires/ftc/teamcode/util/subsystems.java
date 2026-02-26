@@ -67,6 +67,8 @@ public class subsystems {
     public static String flickOrder = "";
     public static ServoEx[] flickers = new ServoEx[3];
 
+    public static boolean[] isoccupied = new boolean[3];
+
     public static class ColorSensing implements Subsystem {
 
         public static final ColorSensing INSTANCE = new ColorSensing();
@@ -116,20 +118,20 @@ public class subsystems {
             // No Artifact = red = 0.277
             // Artifact = purple=0.7 or green=0.5, specific to the position represented
             // Shooter up to speed Thrower.INSTANCE.atvelocity and aimed at goal Turret.INSTANCE.atposition = blinking. Set the light to 0.0 in the shooter's periodic() and hope there's enough lag to "blink"
-            long now = System.nanoTime() / 1_000_000;
-            if (now - lastToggleTime >= BLINK_INTERVAL_MS) {
-                lightOn = !lightOn;
-                lastToggleTime = now;
-
-                if (lightOn) {
-                        // Turn on the 3 lights.
-                } else {
-                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
-                                // We are at speed, so we want to blink. Turn off the lights (set all 3 to 0)
-                        } 
-                }
-                led.setState(lightOn);  // whatever your LED control is
-            }
+//            long now = System.nanoTime() / 1_000_000;
+//            if (now - lastToggleTime >= BLINK_INTERVAL_MS) {
+//                lightsOn = !lightsOn;
+//                lastToggleTime = now;
+//
+//                if (lightsOn) {
+//                        // Turn on the 3 lights.
+//                } else {
+//                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
+//                                // We are at speed, so we want to blink. Turn off the lights (set all 3 to 0)
+//                        }
+//                }
+//                led.setState(lightsOn);  // whatever your LED control is
+//            }
         }
 
         @Override
@@ -281,25 +283,61 @@ public class subsystems {
 
         );
         // Merge these two launches to have one with ifelse
-//        public Command secondcloseunsortedlaunch = new SequentialGroup(
-//                new IfElseCommand(
-//                        () -> ColorSensing.hasAnyBalls(),
-//                        new SequentialGroup(
-//                                launch2,
-//                                new InstantCommand(() -> {
-//                                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-//                                }),
-//                                new Delay(0.25),
-//                                launch1,
-//                                new Delay(0.25),
-//                                launch3,
-//                                new InstantCommand(() -> {
-//                                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-//                                }),
-//                                new Delay(0.25)
-//                        )
-//                )
-//        );
+        int count = 0;
+        boolean done = false;
+        String balls = "full";
+        public LambdaCommand colorsensecloseunsortedlaunch = new LambdaCommand()
+                .setStart(() -> {
+                    done = false;
+                    new SequentialGroup(
+                            launch2,
+                            new InstantCommand(() -> {
+                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
+                            }),
+                            new Delay(0.25),
+                            launch1,
+                            new Delay(0.25),
+                            launch3,
+                            new InstantCommand(() -> {
+                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
+                            }),
+                            new Delay(0.25)
+                    );
+                })
+                .setUpdate(() -> {
+                    if (isoccupied[0]) {
+                        new InstantCommand(launch1);
+                        count++;
+                    }
+                    else if (isoccupied[1]) {
+                        new InstantCommand(launch2);
+                        count++;
+                    }
+                    else if (isoccupied[2]) {
+                        new InstantCommand(launch3);
+                        count++;
+                    }
+                    else done = true;
+                    new Delay(0.25);
+                })
+                .setIsDone(() -> (done || (count > 3)));
+        public Command secondcloseunsortedlaunch = new IfElseCommand(
+                () -> hasAnyBalls,
+                new SequentialGroup(
+                        launch2,
+                        new InstantCommand(() -> {
+                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
+                        }),
+                        new Delay(0.25),
+                        launch1,
+                        new Delay(0.25),
+                        launch3,
+                        new InstantCommand(() -> {
+                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
+                        }),
+                        new Delay(0.25)
+                )
+        );
 
         private int index = 0;
         public LambdaCommand flickerOrder = new LambdaCommand()
