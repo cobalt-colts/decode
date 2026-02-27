@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.paths.bluegoalnine;
-import org.firstinspires.ftc.teamcode.util.paths.bluegoalnine;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
 import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
@@ -33,7 +32,7 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 
     public TWELVEBlueGoalSTATE() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE, subsystems.ColorSensing.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -43,85 +42,32 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
     private Command autoRoutine() {
 
         return new SequentialGroup(
-////                subsystems.Turret.INSTANCE.bluegoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
-//                new ParallelGroup(
-////                        Thrower.INSTANCE.goalshoot,
-//                        new FollowPath(bluegoalnine.preload, true)
-//                ),
-//                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-//                Index.INSTANCE.closeunsortedlaunch,
-//                new InstantCommand(() -> {Intake.negative = true;}),
-//                new TurnTo(Angle.fromDeg(0)),
-//                new FollowPath(bluegoalnine.line1, true),
-////                subsystems.Turret.INSTANCE.bluegoal,
-//                new Delay(0.25),
-//                new InstantCommand(() -> {Intake.negative = false;}),
-//                new FollowPath(bluegoalnine.gate, true),
-//                new Delay(0.5),
-//                new FollowPath(bluegoalnine.launch1, true),
-//                new Delay(0.5), //0.5
-//                Index.INSTANCE.closeunsortedlaunch,
-//                new InstantCommand(() -> {Intake.negative = true;}),
-//                new TurnTo(Angle.fromDeg(0)),
-//                new FollowPath(bluegoalnine.line2, true),
-//                new Delay(0.5),
-//                new InstantCommand(() -> {Intake.negative = false;}),
-//                new FollowPath(bluegoalnine.launch2, true),
-//                new Delay(0.5),
-//                Index.INSTANCE.closeunsortedlaunch,
-//                new TurnTo(Angle.fromDeg(0))
-
-
-                subsystems.Camera.INSTANCE.setmotif,
 //                subsystems.Turret.INSTANCE.bluegoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
-                        Thrower.INSTANCE.shooteron,
-                        new FollowPath(bluegoalnine.preload, true),
-                        subsystems.Turret.INSTANCE.bluegoal
+//                        Thrower.INSTANCE.goalshoot,
+                        new FollowPath(bluegoalnine.preload, true)
                 ),
-                new InstantCommand(() -> {Thrower.targetvelocity = 1370;}),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
-//                Index.INSTANCE.cameracloseunsortedlaunch,
-                Intake.INSTANCE.intake,
-
+                new InstantCommand(() -> {Intake.negative = true;}),
+                new TurnTo(Angle.fromDeg(0)),
                 new FollowPath(bluegoalnine.line1, true),
 //                subsystems.Turret.INSTANCE.bluegoal,
                 new Delay(0.25),
-//                new InstantCommand(() -> {Intake.outtake();}),
+                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(bluegoalnine.gate, true),
-//                new Delay(0.5),
+                new Delay(0.5),
                 new FollowPath(bluegoalnine.launch1, true),
-                new Delay(1), //0.5
+                new Delay(0.5), //0.5
                 Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
-//                Index.INSTANCE.cameracloseunsortedlaunch,
-//                Index.INSTANCE.cameraclosesortedLaunch,
-                Intake.INSTANCE.intake,
+                new InstantCommand(() -> {Intake.negative = true;}),
+                new TurnTo(Angle.fromDeg(0)),
                 new FollowPath(bluegoalnine.line2, true),
                 new Delay(0.5),
-//                new InstantCommand(() -> {Intake.outtake();}),
+                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(bluegoalnine.launch2, true),
-                new Delay(1),
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
-//                Index.INSTANCE.cameracloseunsortedlaunch,
-//                Index.INSTANCE.cameraclosesortedLaunch,
-                new InstantCommand(subsystems.Turret.INSTANCE.bluepark),
-                Intake.INSTANCE.intake,
-                new FollowPath(bluegoalnine.line3, true),
-                new Delay(0.5),
-//                new InstantCommand(() -> {Intake.outtake();}),
-                new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
-                new FollowPath(bluegoalnine.launch3),
                 new Delay(0.5),
                 Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch, // MAYBE REPLACE BOTH LAUNCHES WITH THE ONE CAMERA
-//                Index.INSTANCE.cameracloseunsortedlaunch,
-//                Index.INSTANCE.cameraclosesortedLaunch,
-                subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
         );
     }

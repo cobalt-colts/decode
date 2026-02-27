@@ -286,9 +286,8 @@ public class subsystems {
         int count = 0;
         boolean done = false;
         String balls = "full";
-        public LambdaCommand cameracloseunsortedlaunch = new LambdaCommand()
+        public LambdaCommand colorsensecloseunsortedlaunch = new LambdaCommand()
                 .setStart(() -> {
-                    count = 0;
                     done = false;
                     new SequentialGroup(
                             launch2,
@@ -322,6 +321,25 @@ public class subsystems {
                     new Delay(0.25);
                 })
                 .setIsDone(() -> (done || (count > 3)));
+        public Command secondcloseunsortedlaunch = new IfElseCommand(
+                () -> hasAnyBalls,
+                new SequentialGroup(
+                        launch2,
+                        new InstantCommand(() -> {
+                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
+                        }),
+                        new Delay(0.25),
+                        launch1,
+                        new Delay(0.25),
+                        launch3,
+                        new InstantCommand(() -> {
+                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
+                        }),
+                        new Delay(0.25)
+                )
+        );
+
+        private int index = 0;
         public LambdaCommand flickerOrder = new LambdaCommand()
                 .setStart(() -> {
                     switch (motif) {
@@ -388,117 +406,86 @@ public class subsystems {
                 .setIsDone(() -> true);
         ;
 
-        int ballorder = 0;
-        public LambdaCommand cameraclosesortedlaunch = new LambdaCommand()
+        public LambdaCommand closesortedLaunch = new LambdaCommand()
                 .setStart(() -> {
-                    count = 0;
-                    new InstantCommand(flickerOrder);
-                })
-                .setUpdate(() -> {
-                    ballorder = 0;
-                    if (!isoccupied[0]) ballorder++;
-                    if (!isoccupied[1]) ballorder++;
-                    if (!isoccupied[2]) ballorder++;
+                    switch (flickOrder) {
+                        case "123":
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
 
-                    if (flickOrder.charAt(ballorder) == '1') {
-                        new InstantCommand(launch1);
-                        new Delay(0.25);
-                        count++;
-                    }
-                    else if (flickOrder.charAt(ballorder) == '2') {
-                        new InstantCommand(launch2);
-                        new Delay(0.25);
-                        count++;
-                    }
-                    else if (flickOrder.charAt(ballorder) == '3') {
-                        new InstantCommand(launch3);
-                        new Delay(0.25);
-                        count++;
-                    }
-                    ballorder++;
-                })
-                .setIsDone(() -> (ballorder > 3 || count > 6));
+                        case "132":
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
 
-//        public LambdaCommand closesortedLaunch = new LambdaCommand()
-//                .setStart(() -> {
-//                    switch (flickOrder) {
-//                        case "123":
-//                            new InstantCommand(launch1);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch2);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch3);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
-//                            new Delay(0.25);
-//                            break;
-//
-//                        case "132":
-//                            new InstantCommand(launch1);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch3);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch2);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
-//                            new Delay(0.25);
-//                            break;
-//
-//                        case "213":
-//                            new InstantCommand(launch2);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch1);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch3);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
-//                            new Delay(0.25);
-//                            break;
-//
-//                        case "231":
-//                            new InstantCommand(launch2);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch3);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch1);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
-//                            new Delay(0.25);
-//                            break;
-//
-//                        case "312":
-//                            new InstantCommand(launch3);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch1);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch2);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
-//                            new Delay(0.25);
-//                            break;
-//
-//                        case "321":
-//                            new InstantCommand(launch3);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch2);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
-//                            new Delay(0.25);
-//                            new InstantCommand(launch1);
-//                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
-//                            new Delay(0.25);
-//                            break;
-//                    }
-//
-//                })
-//                .requires(this, Camera.INSTANCE, launch3, launch2, launch1)
-//                .setIsDone(() -> true);
-//        ;
+                        case "213":
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "231":
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "312":
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+
+                        case "321":
+                            new InstantCommand(launch3);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);});
+                            new Delay(0.25);
+                            new InstantCommand(launch2);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);});
+                            new Delay(0.25);
+                            new InstantCommand(launch1);
+                            new InstantCommand(() -> {Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);});
+                            new Delay(0.25);
+                            break;
+                    }
+
+                })
+                .requires(this, Camera.INSTANCE, launch3, launch2, launch1)
+                .setIsDone(() -> true);
+        ;
 
         public Command farunsortedlaunch = new SequentialGroup(
                 launch2,
@@ -510,36 +497,6 @@ public class subsystems {
                 launch3
 
         );
-
-        public LambdaCommand camerafarsortedlaunch = new LambdaCommand()
-                .setStart(() -> {
-                    count = 0;
-                    new InstantCommand(flickerOrder);
-                })
-                .setUpdate(() -> {
-                    ballorder = 0;
-                    if (!isoccupied[0]) ballorder++;
-                    if (!isoccupied[1]) ballorder++;
-                    if (!isoccupied[2]) ballorder++;
-
-                    if (flickOrder.charAt(ballorder) == '1') {
-                        new WaitUntil(() -> Thrower.INSTANCE.atvelocity);
-                        new InstantCommand(launch1);
-                        count++;
-                    }
-                    else if (flickOrder.charAt(ballorder) == '2') {
-                        new WaitUntil(() -> Thrower.INSTANCE.atvelocity);
-                        new InstantCommand(launch2);
-                        count++;
-                    }
-                    else if (flickOrder.charAt(ballorder) == '3') {
-                        new WaitUntil(() -> Thrower.INSTANCE.atvelocity);
-                        new InstantCommand(launch3);
-                        count++;
-                    }
-                    ballorder++;
-                })
-                .setIsDone(() -> (ballorder > 2 || count > 6));
 
     }
     public static class Intake implements Subsystem {
@@ -717,14 +674,12 @@ public class subsystems {
         public Command redgoal = new InstantCommand(() -> {
             turretTargetPos = redGoalPickup;
         });
+
         public Command redpark = new InstantCommand(() -> {
             turretTargetPos = redGoalPark;
         });
 
-        public Command bluegoalinit = new InstantCommand(() -> {
-            turretTargetPos = blueGoalInit;
-        });
-        public Command bluefarinit = new InstantCommand(() -> {
+        public Command blueinit = new InstantCommand(() -> {
             turretTargetPos = blueFarInit;
         });
         public Command bluefar = new InstantCommand(() -> {
@@ -732,9 +687,6 @@ public class subsystems {
         });
         public Command bluegoal = new InstantCommand(() -> {
             turretTargetPos = blueGoalPickup;
-        });
-        public Command bluepark = new InstantCommand(() -> {
-            turretTargetPos = redGoalPark;
         });
 
         public Command home = new InstantCommand(() -> {

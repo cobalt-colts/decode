@@ -79,7 +79,7 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
     @Override public void onInit() {
         subsystems.Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
-        Turret.INSTANCE.bluefarinit.schedule();
+        Turret.INSTANCE.blueinit.schedule();
 //        Thrower.INSTANCE.farhood.schedule();
     }
     @Override
