@@ -129,7 +129,7 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
     public void onStartButtonPressed() {
         subsystems.start = true;
         redgoalnine.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(117.5, 131.5, Math.toRadians(-143.5)));
+        PedroComponent.Companion.follower().setStartingPose(new Pose(122, 126, Math.toRadians(-143.5)));
         autoRoutine().schedule();
     }
     @Override public void onUpdate() { }

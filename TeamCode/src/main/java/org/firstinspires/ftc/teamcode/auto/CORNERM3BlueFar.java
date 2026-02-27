@@ -44,17 +44,17 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
 
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new Delay(0.25),
-                subsystems.Index.INSTANCE.farunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
+                Index.INSTANCE.farunsortedlaunch,
+                Intake.INSTANCE.intake,
                 Turret.INSTANCE.bluefar,
-                new WaitUntil(() -> Math.abs(Math.abs(Turret.turret.getCurrentPosition()) - Math.abs(Turret.turretTargetPos)) <= 1),
                 new FollowPath(bluefarcorner.line1, true),
                 new Delay(0.25),
-                new InstantCommand(() -> {Intake.negative = false;}),
                 new FollowPath(bluefarcorner.launch1, true),
+                Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
+                new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
+                Intake.INSTANCE.intake,
                 new FollowPath(bluefarcorner.line2, false),
                 new FollowPath(bluefarcorner.bump1, false),
                 new ParallelDeadlineGroup(
@@ -63,7 +63,9 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
                 ),
                 new Delay(0.5),
                 new FollowPath(bluefarcorner.launch2, true),
+                Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
+                new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
                 new FollowPath(bluefarcorner.offline, true)
 
@@ -79,7 +81,8 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
     @Override public void onInit() {
         subsystems.Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
-        Turret.INSTANCE.blueinit.schedule();
+        Turret.INSTANCE.bluefarinit.schedule();
+        subsystems.far = true;
 //        Thrower.INSTANCE.farhood.schedule();
     }
     @Override

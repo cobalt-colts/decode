@@ -53,6 +53,7 @@ public class subsystems {
     public static int count = 0;
     public static int matchingSpot = -1;
     public static boolean hasAnyBalls = false;
+    public static boolean far = false;
 
     public static enum motifs {
         PPG,
@@ -321,23 +322,23 @@ public class subsystems {
                     new Delay(0.25);
                 })
                 .setIsDone(() -> (done || (count > 3)));
-        public Command secondcloseunsortedlaunch = new IfElseCommand(
-                () -> hasAnyBalls,
-                new SequentialGroup(
-                        launch2,
-                        new InstantCommand(() -> {
-                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                        }),
-                        new Delay(0.25),
-                        launch1,
-                        new Delay(0.25),
-                        launch3,
-                        new InstantCommand(() -> {
-                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                        }),
-                        new Delay(0.25)
-                )
-        );
+//        public Command secondcloseunsortedlaunch = new IfElseCommand(
+//                () -> hasAnyBalls,
+//                new SequentialGroup(
+//                        launch2,
+//                        new InstantCommand(() -> {
+//                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
+//                        }),
+//                        new Delay(0.25),
+//                        launch1,
+//                        new Delay(0.25),
+//                        launch3,
+//                        new InstantCommand(() -> {
+//                            Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
+//                        }),
+//                        new Delay(0.25)
+//                )
+//        );
 
         private int index = 0;
         public LambdaCommand flickerOrder = new LambdaCommand()
@@ -592,7 +593,8 @@ public class subsystems {
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
+                if (far) targetvelocity = 1600;
+                else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
                 if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
@@ -679,7 +681,10 @@ public class subsystems {
             turretTargetPos = redGoalPark;
         });
 
-        public Command blueinit = new InstantCommand(() -> {
+        public Command bluegoalinit = new InstantCommand(() -> {
+            turretTargetPos = blueGoalInit;
+        });
+        public Command bluefarinit = new InstantCommand(() -> {
             turretTargetPos = blueFarInit;
         });
         public Command bluefar = new InstantCommand(() -> {

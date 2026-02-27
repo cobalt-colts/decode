@@ -31,7 +31,7 @@ public class LINEM3BlueFar extends NextFTCOpMode {
 
     public LINEM3BlueFar() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, Turret.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE, subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -76,7 +76,7 @@ public class LINEM3BlueFar extends NextFTCOpMode {
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
-        Turret.INSTANCE.blueinit.schedule();
+        Turret.INSTANCE.bluefarinit.schedule();
 //        Thrower.INSTANCE.farhood.schedule();
     }
     @Override

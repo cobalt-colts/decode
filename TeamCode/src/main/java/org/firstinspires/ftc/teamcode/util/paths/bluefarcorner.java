@@ -41,11 +41,11 @@ public class bluefarcorner {
         line2 = follower.pathBuilder().addPath(
                         new BezierCurve(
                                 new Pose(54.000, 15.000),
-                                new Pose(44.887, 12.043),
+                                new Pose(44.887, 12.043, Math.toRadians(135)),
                                 new Pose(26.991, 9.139),
                                 new Pose(12.000, 8.000)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                )
 
                 .build();
 
@@ -55,7 +55,7 @@ public class bluefarcorner {
 
                                 new Pose(19.000, 8.000)
                         )
-                ).setConstantHeadingInterpolation(Math.toRadians(180))
+                ).setLinearHeadingInterpolation(Math.toRadians(135), Math.toRadians(180))
 
                 .build();
 

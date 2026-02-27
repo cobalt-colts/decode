@@ -68,7 +68,7 @@ public class posConstants {;
     public static final double closeSpeed = 746.67;
     public static final double closeHood = 0.25; // 0.28
     public static final double farSpeed = 2000;
-    public static final double farHood = 0.19; // 0.19
+    public static final double farHood = 0.08; // 0.19
     public static double hoodAdjust = 0.03;
     public static double hoodAdjustClose = 0.02;
     public static double hoodAdjustFar = 0.04;
@@ -88,14 +88,15 @@ public class posConstants {;
 
     public static int redGoalInit = 90; // Was 68
     public static int redFarObelisk = 0;
-    public static int redFarInit = 25;
-    public static int redFarPickup = -88; //-90
+    public static int redFarInit = 32; //25
+    public static int redFarPickup = -96; //-88
     public static int redGoalPickup = -65; //-65
     public static int redGoalPark = -39;
 
     public static int blueFarInit = -redFarInit;
     public static int blueFarPickup = -redFarPickup;
     public static int blueGoalPickup = -redGoalPickup;
+    public static int blueGoalInit = -redGoalInit;
 
 
 }
