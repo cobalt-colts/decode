@@ -10,16 +10,20 @@ import static java.lang.Thread.sleep;
 import android.util.Size;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.telemetry.PanelsTelemetry;
-import com.bylazar.telemetry.TelemetryManager;
+//import com.bylazar.telemetry.PanelsTelemetry;
+//import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.controller.PIDFController;
+
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorDigitalTouch;
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorTouch;
 import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -74,6 +78,10 @@ public class subsystems {
 
         public static final ColorSensing INSTANCE = new ColorSensing();
 
+        private Servo light1;
+        private Servo light2;
+        private Servo light3;
+
         private ColorSensing() {
         }
 
@@ -90,7 +98,7 @@ public class subsystems {
 
         private long lastToggleTime = 0;
         private boolean lightsOn = false;
-        private static final long BLINK_INTERVAL_MS = 500;
+        private static final long BLINK_INTERVAL_MS = 250;
 
         // Add this:
 //        public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
@@ -100,6 +108,16 @@ public class subsystems {
             PredominantColorProcessor.Swatch resultswatch = result.closestSwatch;
             return resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN
                     || resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE;
+        }
+
+        private double colorToRGBServo(PredominantColorProcessor.Result color) {
+            if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
+                return 0.7;
+            }
+            if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
+                return 0.5;
+            }
+            return 0.3;   // Return red if there's nothing present
         }
 
         @Override
@@ -119,25 +137,36 @@ public class subsystems {
             // No Artifact = red = 0.277
             // Artifact = purple=0.7 or green=0.5, specific to the position represented
             // Shooter up to speed Thrower.INSTANCE.atvelocity and aimed at goal Turret.INSTANCE.atposition = blinking. Set the light to 0.0 in the shooter's periodic() and hope there's enough lag to "blink"
-//            long now = System.nanoTime() / 1_000_000;
-//            if (now - lastToggleTime >= BLINK_INTERVAL_MS) {
-//                lightsOn = !lightsOn;
-//                lastToggleTime = now;
-//
-//                if (lightsOn) {
-//                        // Turn on the 3 lights.
-//                } else {
-//                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
-//                                // We are at speed, so we want to blink. Turn off the lights (set all 3 to 0)
-//                        }
-//                }
+            long now = System.nanoTime() / 1000000;
+            if (now - lastToggleTime >= BLINK_INTERVAL_MS) {
+                lightsOn = !lightsOn;
+                lastToggleTime = now;
+
+                if (lightsOn) {
+                    // Turn on the 3 lights.
+                    light1.setPosition(colorToRGBServo(ColorSensing.result1));
+                    light2.setPosition(colorToRGBServo(ColorSensing.result2));
+                    light3.setPosition(colorToRGBServo(ColorSensing.result3));
+                } else {
+//                    light1.setPosition(1);
+//                    light2.setPosition(1);
+//                    light3.setPosition(1);
+                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
+                            // We are at speed, so we want to blink.
+                            // Turn off the lights (set all 3 to 0)
+                        }
+                }
 //                led.setState(lightsOn);  // whatever your LED control is
-//            }
+            }
         }
 
         @Override
         public void initialize()  {
             Subsystem.super.initialize();
+
+            light1 = ActiveOpMode.hardwareMap().get(Servo.class, "light1");
+            light2 = ActiveOpMode.hardwareMap().get(Servo.class, "light2");
+            light3 = ActiveOpMode.hardwareMap().get(Servo.class, "light3");
 
             sensor1 = new PredominantColorProcessor.Builder()
                     .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
@@ -209,7 +238,15 @@ public class subsystems {
             } else return motifs.GPP;
         }
 
-        Limelight3A limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+        Limelight3A limelight; // = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
+
+        @Override
+        public void initialize() {
+            Subsystem.super.initialize();
+
+            limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");;
+
+        }
 
         public LambdaCommand setmotif = new LambdaCommand()
                 .setStart(() -> {
@@ -506,9 +543,15 @@ public class subsystems {
         private Intake() {
         }
 
-        private DcMotorEx intakeMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
+        private DcMotorEx intakeMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
         double intakePower = -1;
         public static boolean negative = false;
+
+        @Override
+        public void initialize() {
+            Subsystem.super.initialize();
+            intakeMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
+        }
 
         public Command outtake = new InstantCommand(() -> {
             intakeMotor.setPower(0.5);
@@ -540,9 +583,9 @@ public class subsystems {
         public boolean atvelocity = false;
         public boolean isshooteron = false;
 
-        DcMotorEx thrower1 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
-        DcMotorEx thrower2 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
-        Servo hood = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
+        DcMotorEx thrower1; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
+        DcMotorEx thrower2; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
+        Servo hood; // = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
 
         public static PIDFController controller;
         public static Limelight3A limelight;
@@ -563,6 +606,10 @@ public class subsystems {
 
             limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
             limelight.start();
+
+            thrower1 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
+            thrower2 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
+            hood = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
 
             thrower1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             thrower2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -626,14 +673,14 @@ public class subsystems {
 // rely on later telemetry to do the update() so it's on one screen
 //                ActiveOpMode.telemetry().update();
 
-                TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
-
-                panelstel.addData("targetvelocity ", targetvelocity);
-                panelstel.addData("thrower1/28*60", (thrower1.getVelocity() / 28) * 60);
-                panelstel.addData("hoodpos", hoodpos);
-                panelstel.addData("atvelocity", atvelocity);
-                panelstel.addData("error", targetvelocity - (thrower1.getVelocity() / 28) * 60);
-                panelstel.update();
+//                TelemetryManager.TelemetryWrapper panelstel = PanelsTelemetry.INSTANCE.getFtcTelemetry();
+//
+//                panelstel.addData("targetvelocity ", targetvelocity);
+//                panelstel.addData("thrower1/28*60", (thrower1.getVelocity() / 28) * 60);
+//                panelstel.addData("hoodpos", hoodpos);
+//                panelstel.addData("atvelocity", atvelocity);
+//                panelstel.addData("error", targetvelocity - (thrower1.getVelocity() / 28) * 60);
+//                panelstel.update();
 
 
             } else {
@@ -656,12 +703,14 @@ public class subsystems {
         public static final Turret INSTANCE = new Turret();
         public static int turretTargetPos = 0;
 
+        private DigitalChannel magnet;
+
         private Turret() {
         }
 
         public boolean atposition = false;
 
-        public static DcMotorEx turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
+        public static DcMotorEx turret; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
         public static int initPos = redFarInit;
 
         public Command redgoalinit = new InstantCommand(() -> {
@@ -694,6 +743,10 @@ public class subsystems {
             turretTargetPos = blueGoalPickup;
         });
 
+        public Command bluepark = new InstantCommand(() -> {
+            turretTargetPos = blueGoalPark;
+        });
+
         public Command home = new InstantCommand(() -> {
             turretTargetPos = 0;
         });
@@ -707,11 +760,39 @@ public class subsystems {
 
         public void initialize() {
             Subsystem.super.initialize();
+            magnet = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "magnet");
+            magnet.setMode(DigitalChannel.Mode.INPUT);
+            turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            turret.setPositionPIDFCoefficients(100);
+
+            if (magnet.getState()) {
+                // MAGNET IS NOT SENSED (true=not sensed, oddly) -> WE ARE NOT IN THE RIGHT POSITION!
+                // Try to rotate slowly until magnet is sensed, but with a limit?
+                // Try to rotate slowly until magnet is sensed, but with a limit?
+                turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                turret.setPower(-.6);   // Hope that this is the correct direction
+                while (ActiveOpMode.opModeInInit() && magnet.getState()) {
+                    //
+                }
+                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                // We actually need to go a BIT further so we're "home" but unclear how to
+                turret.setTargetPosition(10);
+                while (ActiveOpMode.opModeInInit() && turret.getCurrentPosition() <= 10) {
+                    //
+                }
+                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+
+            // Magnet is on. Safe to rotate to starting position:
             turret.setTargetPosition(initPos);
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            turret.setPositionPIDFCoefficients(100);
+
+
+
+            // Center the turret so the magnet turns on....
+
 //            turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //            turretTargetPos = initPos;
 //            turret.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(10, 0, 0, 0));
@@ -739,6 +820,11 @@ public class subsystems {
             ActiveOpMode.telemetry().addData("swatch[0]", ColorSensing.result1 != null ? ColorSensing.result1.closestSwatch : "null");
             ActiveOpMode.telemetry().addData("swatch[1]", ColorSensing.result2 != null ? ColorSensing.result2.closestSwatch : "null");
             ActiveOpMode.telemetry().addData("swatch[2]", ColorSensing.result3 != null ? ColorSensing.result3.closestSwatch : "null");
+            if (magnet.getState()) {
+                ActiveOpMode.telemetry().addData("magnet not sensed", 0);
+            } else {
+                ActiveOpMode.telemetry().addData("magnet sensed", 1);
+            }
             ActiveOpMode.telemetry().update();
         }
 
