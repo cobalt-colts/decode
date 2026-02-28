@@ -39,6 +39,7 @@ public class LINEM3RedFar extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
+        subsystems.far = true;
 
         return new SequentialGroup(
 //                Thrower.INSTANCE.farshoot,
@@ -47,20 +48,22 @@ public class LINEM3RedFar extends NextFTCOpMode {
                 new Delay(0.1),
                 Index.INSTANCE.farunsortedlaunch,
                 Index.INSTANCE.farunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
+                Intake.INSTANCE.intake,
                 Turret.INSTANCE.redfar,
                 new WaitUntil(() -> Math.abs(Math.abs(Turret.turret.getCurrentPosition()) - Math.abs(Turret.turretTargetPos)) <= 1),
                 new FollowPath(redfarline.line1, true),
                 new Delay(1), //0.5
-                new InstantCommand(() -> {Intake.negative = false;}),
+                Intake.INSTANCE.intake,
                 new FollowPath(redfarline.launch1, true),
                 new Delay(0.75),
                 Index.INSTANCE.farunsortedlaunch,
-                new InstantCommand(() -> {Intake.negative = true;}),
+                Index.INSTANCE.farunsortedlaunch,
+                Intake.INSTANCE.intake,
                 new FollowPath(redfarline.line2, false),
                 new Delay(1), //0.5
                 new FollowPath(redfarline.launch2, true),
                 new Delay(1), //0.5
+                Index.INSTANCE.farunsortedlaunch,
                 Index.INSTANCE.farunsortedlaunch,
                 new FollowPath(redfarline.offline, true)
 
