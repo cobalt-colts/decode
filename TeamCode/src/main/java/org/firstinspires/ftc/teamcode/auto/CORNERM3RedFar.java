@@ -43,6 +43,7 @@ public class CORNERM3RedFar extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
+        subsystems.far = true;
 
         return new SequentialGroup(
                 subsystems.Camera.INSTANCE.setmotif,
