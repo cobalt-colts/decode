@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
+//import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -22,7 +22,7 @@ import static org.firstinspires.ftc.teamcode.util.posConstants.controller;
 import static org.firstinspires.ftc.teamcode.util.positions.*;
 
 @Config
-@Configurable
+//@Configurable
 @TeleOp(name = "STATE Teleop")
 public class STATETeleOp extends LinearOpMode {
 

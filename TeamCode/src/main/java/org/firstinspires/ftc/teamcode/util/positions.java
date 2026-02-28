@@ -7,12 +7,12 @@ import static org.firstinspires.ftc.teamcode.util.posConstants.flicker3down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.pinpoint;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
+//import com.bylazar.configurables.annotations.Configurable;
 
 //import org.firstinspires.ftc.teamcode.Prism.Color;
 
 @Config
-@Configurable
+//@Configurable
 @SuppressWarnings("CannotResolve")
 public class positions {
     public static boolean redAlliance = true;

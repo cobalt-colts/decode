@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
-
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.bylazar.configurables.annotations.Configurable;
+//
+//import com.acmerobotics.dashboard.FtcDashboard;
+//import com.acmerobotics.dashboard.config.Config;
+//import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+//import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -21,16 +21,16 @@ import java.io.Serializable;
 //import org.firstinspires.ftc.teamcode.SubSystems.ShootingSystem.TransferWheel.TransferWheelClass;
 
 @TeleOp
-@Config
-@Configurable
+//@Config
+//@Configurable
 public class ShootingSpeedTuning extends LinearOpMode {
-
+//
     public static PIDFController controller;
-
+//
     public static double p = 0.005 ,i = 0 ,d = 0, f = 0.0004;
-
+//
     public static double hoodpos = .5;
-
+//
     public static int targetVelocity = 0;
 
     private static DcMotorEx masterShootingSpeedMotor;
@@ -51,7 +51,7 @@ public class ShootingSpeedTuning extends LinearOpMode {
 
 
 
-        telemetry = new MultipleTelemetry(telemetry , FtcDashboard.getInstance().getTelemetry());
+//        telemetry = new MultipleTelemetry(telemetry , FtcDashboard.getInstance().getTelemetry());
 
         masterShootingSpeedMotor = hardwareMap.get(DcMotorEx.class , "thrower1");
         slaveShootingSpeedMotor = hardwareMap.get(DcMotorEx.class , "thrower2");
