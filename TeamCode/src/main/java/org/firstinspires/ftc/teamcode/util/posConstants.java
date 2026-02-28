@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.bylazar.configurables.annotations.Configurable;
+//import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -22,7 +22,7 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 //import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
 @Config
-@Configurable
+//@Configurable
 @SuppressWarnings("CannotResolve")
 public class posConstants {;
     public static DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, intake;
@@ -97,6 +97,8 @@ public class posConstants {;
     public static int blueFarPickup = -redFarPickup;
     public static int blueGoalPickup = -redGoalPickup;
     public static int blueGoalInit = -redGoalInit;
+
+    public static int blueGoalPark = -redGoalPark;
 
 
 }
