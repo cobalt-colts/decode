@@ -30,7 +30,7 @@ public class posConstants {;
     public static Servo hood, leftFlicker, backFlicker, rightFlicker;
     public static ColorSensor right1, right2, back1, back2, left1, left2;
     public static AnalogInput rightAnalog, backAnalog, leftAnalog;
-    public static DigitalChannel turretMag;
+    public static DigitalChannel magnet;
     public static Limelight3A limelight;
     public static GoBildaPinpointDriver pinpoint;
     public static PIDFController controller;
@@ -52,13 +52,13 @@ public class posConstants {;
     public static double flicker2down = 0.77; // 0.375
     public static final double flicker2up = 0.38;
     public static double backFlickerDownThreshold = 2.15;
-    public static double backFlickerUpThreshold = 1.5;
+    public static double backFlickerUpThreshold = 1.8;
 
     // flicker 3
     public static final double flicker3down = 0.68;
     public static final double flicker3up = .31;
     public static double leftFlickerDownThreshold = 1.8; //2.1
-    public static double leftFlickerUpThreshold = 1.4; // 1.19
+    public static double leftFlickerUpThreshold = 1.1; // 1.19
     public static int liftUpTime = 60;
     public static int liftDownTime = 45;
     public static final double greenThreshold = 450; //500
@@ -89,7 +89,7 @@ public class posConstants {;
     public static int redGoalInit = 90; // Was 68
     public static int redFarObelisk = 0;
     public static int redFarInit = 32; //25
-    public static int redFarPickup = -96; //-88
+    public static int redFarPickup = -92; //-88   -96
     public static int redGoalPickup = -65; //-65
     public static int redGoalPark = -39;
 

@@ -5,32 +5,40 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.bluefarcorner;
+import org.firstinspires.ftc.teamcode.util.paths.twelvebluefarcorner;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
-import org.firstinspires.ftc.teamcode.util.subsystems.*;
+import org.firstinspires.ftc.teamcode.util.subsystems.Camera;
+import org.firstinspires.ftc.teamcode.util.subsystems.ColorSensing;
+import org.firstinspires.ftc.teamcode.util.subsystems.Index;
+import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.util.subsystems.Thrower;
+import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelDeadlineGroup;
-import dev.nextftc.core.commands.groups.ParallelRaceGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
-import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
-@Autonomous(name = "CORNER blue Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Far")
-public class CORNERM3BlueFar extends NextFTCOpMode {
+@Autonomous(name = "TWELVE CORNER blue Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Far")
+public class TWELVECornerBlueFarSTATE extends NextFTCOpMode {
 
 
 
-    public CORNERM3BlueFar() throws InterruptedException {
+    public TWELVECornerBlueFarSTATE() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(subsystems.Thrower.INSTANCE, subsystems.Index.INSTANCE, subsystems.Intake.INSTANCE, Turret.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE,
+                        Index.INSTANCE,
+                        Intake.INSTANCE,
+                        Turret.INSTANCE,
+                        Camera.INSTANCE,
+                        ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -48,27 +56,34 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
                 Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
                 Turret.INSTANCE.bluefar,
-                new FollowPath(bluefarcorner.line1, true),
+                new FollowPath(twelvebluefarcorner.line1, true),
                 new Delay(0.25),
-                new FollowPath(bluefarcorner.launch1, true),
+                new FollowPath(twelvebluefarcorner.launch1, true),
                 Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
-                new FollowPath(bluefarcorner.line2, false),
-                new FollowPath(bluefarcorner.bump1, false),
-                new ParallelDeadlineGroup(
-                        new Delay(2),
-                        new FollowPath(bluefarcorner.bump2, true)
-                ),
+                new FollowPath(twelvebluefarcorner.corner1, false),
+                new Delay(0.1),
+                new FollowPath(twelvebluefarcorner.bump1, false),
                 new Delay(0.5),
-                new FollowPath(bluefarcorner.launch2, true),
-                Intake.INSTANCE.outtake,
+                new FollowPath(twelvebluefarcorner.launch2, true),
                 new Delay(1), //0.5
+                Intake.INSTANCE.outtake,
                 new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
-                new FollowPath(bluefarcorner.offline, true)
+                Intake.INSTANCE.intake,
+                new FollowPath(twelvebluefarcorner.corner1, false),
+                new Delay(0.1),
+                new FollowPath(twelvebluefarcorner.bump1, false),
+                new Delay(0.5),
+                new FollowPath(twelvebluefarcorner.launch2, true),
+                new Delay(1), //0.5
+                Intake.INSTANCE.outtake,
+                new WaitUntil(() -> Turret.INSTANCE.atposition),
+                Index.INSTANCE.farunsortedlaunch,
+                new FollowPath(twelvebluefarcorner.offline, true)
 
 
 //                new FollowPath(bluefar.line2, true),
@@ -80,7 +95,7 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
     }
 
     @Override public void onInit() {
-        subsystems.Index.INSTANCE.alldown.schedule();
+        Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
         Turret.INSTANCE.bluefarinit.schedule();
         subsystems.far = true;
@@ -89,7 +104,7 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        bluefarcorner.BuildTrajectories(PedroComponent.Companion.follower());
+        twelvebluefarcorner.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(60, 9, Math.toRadians(90)));
         autoRoutine().schedule();
     }

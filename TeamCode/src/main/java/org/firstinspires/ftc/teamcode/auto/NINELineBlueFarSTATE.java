@@ -17,7 +17,6 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.SequentialGroup;
-import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
@@ -25,13 +24,18 @@ import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
 @Autonomous(name = "LINE blue Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Blue Far")
-public class LINEM3BlueFar extends NextFTCOpMode {
+public class NINELineBlueFarSTATE extends NextFTCOpMode {
 
 
 
-    public LINEM3BlueFar() throws InterruptedException {
+    public NINELineBlueFarSTATE() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE, subsystems.ColorSensing.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE,
+                        Index.INSTANCE,
+                        Intake.INSTANCE,
+                        subsystems.Turret.INSTANCE,
+                        subsystems.Camera.INSTANCE,
+                        subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -47,7 +51,7 @@ public class LINEM3BlueFar extends NextFTCOpMode {
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new Delay(0.1),
                 Index.INSTANCE.farunsortedlaunch,
-                Index.INSTANCE.farunsortedlaunch,
+//                Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
                 Turret.INSTANCE.bluefar,
                 new WaitUntil(() -> Math.abs(Math.abs(Turret.turret.getCurrentPosition()) - Math.abs(Turret.turretTargetPos)) <= 1),
@@ -57,11 +61,13 @@ public class LINEM3BlueFar extends NextFTCOpMode {
                 new FollowPath(bluefarline.launch1, true),
                 new Delay(1), //0.75
                 Index.INSTANCE.farunsortedlaunch,
+                Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
                 new FollowPath(bluefarline.line2, false),
                 new Delay(0.5),
                 new FollowPath(bluefarline.launch2, true),
                 new Delay(1), //0.5
+                Index.INSTANCE.farunsortedlaunch,
                 Index.INSTANCE.farunsortedlaunch,
                 new FollowPath(bluefarline.offline, true)
 

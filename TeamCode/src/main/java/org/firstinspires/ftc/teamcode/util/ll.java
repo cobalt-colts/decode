@@ -25,7 +25,7 @@ public class ll {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             for (LLResultTypes.FiducialResult fiducial : fiducials) {
                 int id = fiducial.getFiducialId();
-                if (id == 24) {
+                if (id == 24 || id == 20) {
                     ta = result.getTa();
 
                     ActiveOpMode.telemetry().addData("ta: ", ta);
@@ -33,6 +33,7 @@ public class ll {
 
                             // Removed /2 This returns speed in rpm. Convert to ticks per second outside this code
                     if (ta > 0.4) flywheelspeed = ((1752.97 - (211.567 * ta))); // 323.74855 * Math.pow(0.996013, ta);
+                    else if (ta < 0.1) flywheelspeed = Double.NaN;
                     else flywheelspeed = 1900; // 1800 constant far zone speed
                     flywheelspeed *= .89;
                     ActiveOpMode.telemetry().addData("flywheelspeed (in ll): ", flywheelspeed);

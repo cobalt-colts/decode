@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -20,6 +21,8 @@ import static org.firstinspires.ftc.teamcode.util.ll.fetchAlignment;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.posConstants.controller;
 import static org.firstinspires.ftc.teamcode.util.positions.*;
+
+import dev.nextftc.ftc.ActiveOpMode;
 
 @Config
 //@Configurable
@@ -50,13 +53,19 @@ public class STATETeleOp extends LinearOpMode {
         rightFlickerPos = flicker1down;
         backFlickerPos = flicker2down;
         leftFlickerPos = flicker3down;
+        left = Index.HOLD;
+        back = Index.HOLD;
+        right = Index.HOLD;
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setTargetPosition(0);
+        turretPos = 0;
         turret.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         turret.setPositionPIDFCoefficients(turretP);
+        magnet = hardwareMap.get(DigitalChannel.class, "magnet");
+        magnet.setMode(DigitalChannel.Mode.INPUT);
 
         controller = new PIDFController(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d, ShootingSpeedTuning.f);
         thrower1 = hardwareMap.get(DcMotorEx.class, "thrower1");
@@ -67,6 +76,8 @@ public class STATETeleOp extends LinearOpMode {
         thrower2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         thrower1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
         thrower2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+        targetTps = 1100;
+        targetVelocity = 1100;
 
         hood = hardwareMap.servo.get("hood");
 
@@ -168,6 +179,7 @@ public class STATETeleOp extends LinearOpMode {
 //                    }
 //                }
 //                left = Index.UP;
+                backFlickerPos = flicker2down;
                 break;
 
             case DOWN:
@@ -192,6 +204,7 @@ public class STATETeleOp extends LinearOpMode {
 //                    if (gamepad1.dpadLeftWasPressed()) left = Index.UP;
 //                }
 //                right = Index.UP;
+                leftFlickerPos = flicker3down;
                 break;
 
             case DOWN:
@@ -219,6 +232,7 @@ public class STATETeleOp extends LinearOpMode {
 //                        ballNum++;
 //                    }
 //                }
+                rightFlickerPos = flicker1down;
                 break;
 
             case DOWN:
@@ -237,9 +251,9 @@ public class STATETeleOp extends LinearOpMode {
         }
     }
     public void down() {
-        left = Index.DOWN;
-        back = Index.DOWN;
-        right = Index.DOWN;
+        left = Index.HOLD;
+        back = Index.HOLD;
+        right = Index.HOLD;
     }
     public void intake() {
         if (gamepad1.left_bumper) intakePower = intakeOut;
@@ -250,10 +264,11 @@ public class STATETeleOp extends LinearOpMode {
     public void shoot() {
         if (gamepad1.touchpadWasPressed()) flyWheelCorrect = 100;
         if (gamepad1.leftStickButtonWasPressed()) flyWheelCorrect = 0;
-        if (gamepad1.psWasPressed()) {
-            turret.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            turretPos = 0;
-        }
+//        if (gamepad1.psWasPressed()) {
+//            turret.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+//            turretPos = 0;
+//        }
+        if (!magnet.getState()) turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 //        if (gamepad1.right_bumper) turretPos = turretMax;
@@ -269,6 +284,9 @@ public class STATETeleOp extends LinearOpMode {
 
         controller.setPIDF(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d, ShootingSpeedTuning.f);
         if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) targetTps = (ll.fetchFlywheelSpeed(limelight)); //  * TICKS_PER_REV / 60.0
+        if (targetTps != 1691) targetTps /= 0.95;
+        else targetTps -= 50;
+        if (gamepad1.right_stick_button) targetTps = -2000;
         targetVelocity = (int) targetTps;
 //        targetVelocity = 800;
 

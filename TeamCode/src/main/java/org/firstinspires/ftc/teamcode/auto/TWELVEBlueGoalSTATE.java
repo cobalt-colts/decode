@@ -34,7 +34,12 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 
     public TWELVEBlueGoalSTATE() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, subsystems.Turret.INSTANCE, subsystems.Camera.INSTANCE, subsystems.ColorSensing.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE,
+                        Index.INSTANCE,
+                        Intake.INSTANCE,
+                        subsystems.Turret.INSTANCE,
+                        subsystems.Camera.INSTANCE,
+                        subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -56,8 +61,8 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 new Delay(0.25),
 
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch(),
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -78,8 +83,8 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch(),
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -96,8 +101,8 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch(),
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -115,13 +120,14 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch(),
+
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch(),
 //                Index.INSTANCE.secondcloseunsortedlaunch,
                 subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))

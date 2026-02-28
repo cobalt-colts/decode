@@ -55,7 +55,7 @@ public class bluegoalnine {
                 .addPath(
                         new BezierLine(
                                 new Pose(11.043, 68.417),
-                                new Pose(53.522, 81.896)
+                                new Pose(53.522, 78.896) //81.896
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -78,7 +78,7 @@ public class bluegoalnine {
                         new BezierCurve(
                                 new Pose(24.313, 54.483),
                                 new Pose(46.896, 67.724),
-                                new Pose(53.522, 81.896)
+                                new Pose(53.522, 78.896) //81.896
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))

@@ -17,7 +17,6 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.SequentialGroup;
-import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
@@ -25,13 +24,18 @@ import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
 @Autonomous(name = "LINE RED Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Far")
-public class LINEM3RedFar extends NextFTCOpMode {
+public class NINELineRedFarSTATE extends NextFTCOpMode {
 
 
 
-    public LINEM3RedFar() throws InterruptedException {
+    public NINELineRedFarSTATE() throws InterruptedException {
         addComponents(
-                new SubsystemComponent(Thrower.INSTANCE, Index.INSTANCE, Intake.INSTANCE, Turret.INSTANCE),
+                new SubsystemComponent(Thrower.INSTANCE,
+                        Index.INSTANCE,
+                        Intake.INSTANCE,
+                        subsystems.Turret.INSTANCE,
+                        subsystems.Camera.INSTANCE,
+                        subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE

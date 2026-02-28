@@ -4,10 +4,9 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 
-public class bluefarcorner {
+public class ninebluefarcorner {
 
     public static PathChain launch1;
     public static PathChain line1;
