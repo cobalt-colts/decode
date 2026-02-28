@@ -38,6 +38,7 @@ public class CORNERM3BlueFar extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
+        subsystems.far = true;
 
         return new SequentialGroup(
 //                subsystems.Thrower.INSTANCE.farshoot,
