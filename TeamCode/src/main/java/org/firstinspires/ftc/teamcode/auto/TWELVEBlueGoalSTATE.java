@@ -27,7 +27,7 @@ import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
-@Autonomous(name = "(NINE) BLUE Close-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Goal")
+@Autonomous(name = "(12) BLUE Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Goal")
 public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 
 
@@ -54,6 +54,9 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                 new InstantCommand(() -> {Thrower.targetvelocity = 1370;}),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
+                new Delay(0.25),
+
+                Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
@@ -71,10 +74,11 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                new Delay(0.5),
                 new FollowPath(bluegoalnine.launch1, true),
                 new Delay(1), //0.5
-                Intake.INSTANCE.outtake,
+//                Intake.INSTANCE.outtake,
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
+                Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
@@ -85,7 +89,7 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                 Intake.INSTANCE.intake,
                 new FollowPath(bluegoalnine.line2, true),
                 new Delay(0.5),
-                Intake.INSTANCE.outtake,
+//                Intake.INSTANCE.outtake,
 //                new InstantCommand(() -> {Intake.outtake();}),
                 new FollowPath(bluegoalnine.launch2, true),
                 new Delay(1),
@@ -93,17 +97,17 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
                 Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch,
 //                Index.INSTANCE.secondcloseunsortedlaunch,
-                new InstantCommand(subsystems.Turret.INSTANCE.redpark),
+                new InstantCommand(subsystems.Turret.INSTANCE.bluepark),
                 Intake.INSTANCE.intake,
                 new FollowPath(bluegoalnine.line3, true),
                 new Delay(0.5),
-                Intake.INSTANCE.outtake,
+//                Intake.INSTANCE.outtake,
 //                new InstantCommand(() -> {Intake.outtake();}),
                 new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
                 new FollowPath(bluegoalnine.launch3),
@@ -111,6 +115,7 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
+                Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
