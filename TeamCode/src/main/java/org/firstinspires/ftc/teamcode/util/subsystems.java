@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
         import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.conditionals.IfElseCommand;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
@@ -287,6 +288,27 @@ public class subsystems {
         private final ServoEx flicker2 = new ServoEx("flicker2");
         private final ServoEx flicker3 = new ServoEx("flicker3");
 
+        public Command launch1fn() {
+            return new SequentialGroup(
+                    new SetPosition(flicker1, flicker1up),
+                    new Delay(0.2),
+                    new SetPosition(flicker1, flicker1down)
+            );
+        }
+        public Command launch2fn() {
+            return new SequentialGroup(
+                    new SetPosition(flicker2, flicker2up),
+                    new Delay(0.2),
+                    new SetPosition(flicker2, flicker2down)
+            );
+        }
+        public Command launch3fn() {
+            return new SequentialGroup(
+                    new SetPosition(flicker3, flicker3up),
+                    new Delay(0.2),
+                    new SetPosition(flicker3, flicker3down)
+            );
+        }
 
         public Command launch1 = new SequentialGroup(
                 new SetPosition(flicker1, flicker1up),
@@ -326,32 +348,24 @@ public class subsystems {
 //
 //        );
 
-        public Command launchIfBall(int index, Command launchCmd, double delaySec) {
-//            return new DeferredCommand( () -> {
-//                if (isoccupied != null &&
-//                index < isoccupied.length &&
-//                isoccupied[index]) {
-//                    return new SequentialGroup(
-//                            launchCmd,
-//                            new Delay(delaySec)
-//                    );
-//                }
-//            });
-//            return new IfElseCommand(
-//                    () ->  isoccupied[index] ,
-//                    new SequentialGroup(
-//                            launchCmd,
-//                            new Delay(delaySec)
-//                    ),
-//                    new InstantCommand( () -> {} )   // do nothing
-//            );
-            // This works
-            return new SequentialGroup(
-                    launchCmd,
-                    new Delay(delaySec)
+        public Command emptyCommand() {
+            return new SequentialGroup (
+                new Delay(0)
             );
         }
-//        public Command closeunsortedlaunch;
+        public Command launchIfBall(int index, Command launchCmd, double delaySec) {
+            return new IfElseCommand(
+                    () -> true ,
+                    launchCmd
+            );
+            // This works
+//            return new SequentialGroup(
+//                    launchCmd,
+//                    new Delay(delaySec)
+//            );
+        }
+
+        //        public Command closeunsortedlaunch;
 
         // Merge these two launches to have one with ifelse
         int count = 0;
@@ -413,9 +427,9 @@ public class subsystems {
 //        );
         public Command closeunsortedlaunch() {
             return new SequentialGroup(
-                    launchIfBall(1, launch2, 0.25),
-                    launchIfBall(0, launch1, 0.25),
-                    launchIfBall(2, launch3, 0.25),
+                    launchIfBall(1, launch2fn(), 0.25),
+                    launchIfBall(0, launch1fn(), 0.25),
+                    launchIfBall(2, launch3fn(), 0.25),
                     new Delay(0.25)
             );
         }
