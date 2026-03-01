@@ -52,6 +52,7 @@ public class CAMERATEST extends NextFTCOpMode {
 //                subsystems.Turret.INSTANCE.home,
                 Thrower.INSTANCE.shooteron,
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                new InstantCommand(() -> ActiveOpMode.telemetry().addLine("launching")),
                 Index.INSTANCE.colorsensecloseunsortedlaunch,
                 new InstantCommand(() -> ActiveOpMode.telemetry().addData("start: ", subsystems.start)),
                 new InstantCommand(() -> ActiveOpMode.telemetry().addLine("ALL DONE")),

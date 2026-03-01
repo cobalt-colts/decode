@@ -24,7 +24,10 @@ import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.extensions.pedro.TurnTo;
+import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
+
+import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
 @Autonomous(name = "(12) RED Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
@@ -48,23 +51,35 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 
     private Command autoRoutine() {
 
-        return new SequentialGroup(
+        return new SequentialGroupFixed(
                 subsystems.Camera.INSTANCE.setmotif,
 //                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
+                        new InstantCommand(() -> {
+                            ActiveOpMode.telemetry().addLine("movin");
+                            ActiveOpMode.telemetry().update();
+                        }),
                         Thrower.INSTANCE.shooteron,
                         new FollowPath(redgoalnine.preload, true),
                         subsystems.Turret.INSTANCE.redgoal
                 ),
+                new InstantCommand(() -> {
+                    ActiveOpMode.telemetry().addLine("testin67");
+                    ActiveOpMode.telemetry().update();
+                }),
                 new InstantCommand(() -> {Thrower.targetvelocity = 1370;}),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
-                Index.INSTANCE.closeunsortedlaunch(),
+                new InstantCommand(() -> {
+                    ActiveOpMode.telemetry().addLine("flickin 3");
+                    ActiveOpMode.telemetry().update();
+                }),
+                Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch,
 //                Index.INSTANCE.secondcloseunsortedlaunch,
                 Intake.INSTANCE.intake,
 
@@ -79,8 +94,8 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch(),
-                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -95,8 +110,8 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch(),
-                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -113,12 +128,12 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch(),
+                Index.INSTANCE.closeunsortedlaunch,
 //                Index.INSTANCE.secondcloseunsortedlaunch,
                 subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
