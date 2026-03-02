@@ -17,7 +17,6 @@ import org.firstinspires.ftc.teamcode.util.posConstants;
 //@Configurable
 @Config
 @TeleOp(name="Lift Tests")
-@SuppressWarnings("CannotResolve")
 public class TurretTest extends LinearOpMode {
 
     public static double rightFlickerPos = posConstants.flicker1down;

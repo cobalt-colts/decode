@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import android.util.Size;
+
 import com.acmerobotics.dashboard.config.Config;
 //import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -15,11 +17,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
-//import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.Artboard;
-//
-//import org.firstinspires.ftc.teamcode.Prism.Color;
-//import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
-//import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
+
+import dev.nextftc.ftc.ActiveOpMode;
 
 @Config
 //@Configurable
@@ -27,10 +30,22 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 public class posConstants {;
     public static DcMotor frontLeftMotor, backLeftMotor, frontRightMotor, backRightMotor, intake;
     public static DcMotorEx turret, thrower1, thrower2;
-    public static Servo hood, leftFlicker, backFlicker, rightFlicker;
-    public static ColorSensor right1, right2, back1, back2, left1, left2;
+    public static Servo hood, flicker3, flicker2, flicker1, light1, light2, light3;
     public static AnalogInput rightAnalog, backAnalog, leftAnalog;
     public static DigitalChannel magnet;
+    public static PredominantColorProcessor sensor2 = new PredominantColorProcessor.Builder()
+            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
+            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+            .build();
+    public static PredominantColorProcessor sensor1= new PredominantColorProcessor.Builder()
+            .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
+            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+            .build();
+    public static PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
+            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, -0.2, 0.2))
+            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+            .build();
+    public static VisionPortal portal;
     public static Limelight3A limelight;
     public static GoBildaPinpointDriver pinpoint;
     public static PIDFController controller;
@@ -45,20 +60,20 @@ public class posConstants {;
     // flicker 1
     public static final double flicker1down = .24; //.22
     public static final double flicker1up = .6;
-    public static double rightFlickerDownThreshold = 0.92;
-    public static double rightFlickerUpThreshold = 1.8;
+    public static double flicker1DownThreshold = 0.92;
+    public static double flicker1UpThreshold = 1.8;
 
     //flicker 2
     public static double flicker2down = 0.77; // 0.375
     public static final double flicker2up = 0.38;
-    public static double backFlickerDownThreshold = 2.15;
-    public static double backFlickerUpThreshold = 1.8;
+    public static double flicker2DownThreshold = 2.15;
+    public static double flicker2UpThreshold = 1.8;
 
     // flicker 3
     public static final double flicker3down = 0.68;
     public static final double flicker3up = .31;
-    public static double leftFlickerDownThreshold = 1.8; //2.1
-    public static double leftFlickerUpThreshold = 1.1; // 1.19
+    public static double flicker3DownThreshold = 1.8; //2.1
+    public static double flicker3UpThreshold = 1.1; // 1.19
     public static int liftUpTime = 60;
     public static int liftDownTime = 45;
     public static final double greenThreshold = 450; //500
@@ -79,7 +94,6 @@ public class posConstants {;
     public static final int turretMin = -100;
     public static final int limelightSlow = 250;
     public static final int limelightFast = 150; // 100
-    public static double farAngleOffset = 5; // 5
     public static double tolerance = 1;
     public static double ticksPerDegree = .75;
     public static double turretP = 100;
