@@ -9,18 +9,24 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 //import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
 //import org.firstinspires.ftc.teamcode.Prism.*;
 import org.firstinspires.ftc.teamcode.util.*;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
 import static org.firstinspires.ftc.teamcode.util.ll.fetchAlignment;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.posConstants.controller;
 import static org.firstinspires.ftc.teamcode.util.positions.*;
+
+import android.util.Size;
 
 import dev.nextftc.ftc.ActiveOpMode;
 
@@ -44,18 +50,22 @@ public class STATETeleOp extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         intake.setDirection(DcMotorEx.Direction.REVERSE);
 
-        rightFlicker = hardwareMap.servo.get("flicker1");
+        flicker1 = hardwareMap.servo.get("flicker1");
         rightAnalog = hardwareMap.analogInput.get("rightAnalog");
-        backFlicker = hardwareMap.servo.get("flicker2");
+        flicker2 = hardwareMap.servo.get("flicker2");
         backAnalog = hardwareMap.analogInput.get("backAnalog");
-        leftFlicker = hardwareMap.servo.get("flicker3");
+        flicker3 = hardwareMap.servo.get("flicker3");
         leftAnalog = hardwareMap.analogInput.get("leftAnalog");
-        rightFlickerPos = flicker1down;
-        backFlickerPos = flicker2down;
-        leftFlickerPos = flicker3down;
-        left = Index.HOLD;
-        back = Index.HOLD;
-        right = Index.HOLD;
+        flicker1Pos = flicker1down;
+        flicker2Pos = flicker2down;
+        flicker3Pos = flicker3down;
+        flick3 = Index.HOLD;
+        flick2 = Index.HOLD;
+        flick1 = Index.HOLD;
+        light1 = hardwareMap.servo.get("light1");
+        light2 = hardwareMap.servo.get("light2");
+        light3 = hardwareMap.servo.get("light3");
+        portal = new VisionPortal.Builder().addProcessor(sensor1).addProcessor(sensor2).addProcessor(sensor3).setCameraResolution(new Size(640, 480)).setCamera(hardwareMap.get(WebcamName.class, "internalcam")).build();
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -143,123 +153,209 @@ public class STATETeleOp extends LinearOpMode {
     }
 
     public void index() {
-//        color();
+        color();
         intake();
 
-        if (gamepad1.yWasPressed()) ballWant[0] = 'g';
-        if (gamepad1.xWasPressed()) ballWant[0] = 'p';
-//        if (gamepad1.aWasPressed()) ballWant[0] = ' ';
-        if (gamepad1.b) {
-            ballWant[0] = 'g';
-            ballWant[1] = 'p';
-        }
-        else ballWant[1] = ballWant[0];
+        if (gamepad1.xWasPressed()) greenPos = 1;
+        if (gamepad1.yWasPressed()) greenPos = 2;
+        if (gamepad1.bWasPressed()) greenPos = 3;
+        if (gamepad1.aWasPressed() || gamepad1.right_trigger >= 0.2) greenPos = 4;
+        if (greenPos < 1) greenPos = 3;
 
-        if (gamepad1.dpadUpWasPressed()) back = Index.UP;
+        if (gamepad1.dpadRightWasPressed()) flick1 = Index.UP;
+        if (gamepad1.dpadRightWasReleased()) flick1 = Index.DOWN;
+        if (gamepad1.dpadUpWasPressed()) flick2 = Index.UP;
+        if (gamepad1.dpadUpWasReleased()) flick2 = Index.DOWN;
+        if (gamepad1.dpadLeftWasPressed()) flick3 = Index.UP;
+        if (gamepad1.dpadLeftWasReleased()) flick3 = Index.DOWN;
+        if (gamepad1.dpad_down || gamepad1.left_trigger >= 0.2 || gamepad1.aWasReleased()) greenPos = 5;
 
-        if (gamepad1.aWasPressed()) ballNum = 0;
 
-        if (gamepad1.dpad_down) down();
-
-//        rightFlickerPos = (gamepad1.dpad_right ? flicker1up : flicker1down);
-//        backFlickerPos = (gamepad1.dpad_up ? flicker2up : flicker2down);
-//        leftFlickerPos = (gamepad1.dpad_left ? flicker3up : flicker3down);
-
-//        allDown = ((rightFlickerPos == rightFlickerDown && rightAnalog.getVoltage() > rightFlickerDownThreshold) && (backFlickerPos == backFlickerDown && backAnalog.getVoltage() < backFlickerDownThreshold) && (leftFlickerPos == leftFlickerDown && leftAnalog.getVoltage() < leftFlickerDownThreshold));
-//        allDown = true;
-        allDown = (leftFlickerPos == flicker1down && rightFlickerPos == flicker3down && backFlickerPos == flicker2down && backAnalog.getVoltage() < backFlickerDownThreshold && rightAnalog.getVoltage() > rightFlickerDownThreshold);
-        switch (back) {
-            case HOLD:
-//                if (allDown) {
-//                    if (gamepad1.dpadUpWasPressed()) {
-//                        ballWant[0] = ' ';
-//                        ballWant[1] = ' ';
-//                        back = Index.UP;
-//                        ballNum++;
-//                    }
-//                }
-//                left = Index.UP;
-                backFlickerPos = flicker2down;
-                break;
-
-            case DOWN:
-                backFlickerPos = flicker2down;
-//                back = Index.HOLD;
-                if (backAnalog.getVoltage() > backFlickerDownThreshold) {
-                    back = Index.HOLD;
-                    left = Index.UP;
+        switch (greenPos) {
+            case 1:
+                if (allDown) {
+                    if (ball1 == 'g') {
+                        flick1 = Index.AUTOUP;
+                        greenPos--;
+                    }
+                    else if (ball2 == 'g') {
+                        flick2 = Index.AUTOUP;
+                        greenPos--;
+                    }
+                    else if (ball3 == 'g') {
+                        flick3 = Index.AUTOUP;
+                        greenPos--;
+                    }
+                    else {
+                        gamepad1.rumble(200);
+                    }
                 }
                 break;
 
-            case UP:
-                backFlickerPos = flicker2up;
-//                if (gamepad1.dpadUpWasReleased()) back = Index.DOWN;
-                if (backAnalog.getVoltage() < backFlickerUpThreshold && !gamepad1.dpad_up) back = Index.DOWN;
-//                balls[1] = 'b';
-                break;
-        }
-        switch (left) {
-            case HOLD:
-//                if (allDown) {
-//                    if (gamepad1.dpadLeftWasPressed()) left = Index.UP;
-//                }
-//                right = Index.UP;
-                leftFlickerPos = flicker3down;
-                break;
-
-            case DOWN:
-                leftFlickerPos = flicker3down;
-//                left = Index.HOLD;
-                if (leftAnalog.getVoltage() > leftFlickerDownThreshold) {
-                    left = Index.HOLD;
-                    right = Index.UP;
+            default:
+                if (allDown) {
+                    if (ball1 == 'p') {
+                        flick1 = Index.AUTOUP;
+                        greenPos--;
+                    }
+                    else if (ball2 == 'p') {
+                        flick2 = Index.AUTOUP;
+                        greenPos--;
+                    }
+                    else if (ball3 == 'p') {
+                        flick3 = Index.AUTOUP;
+                        greenPos--;
+                    }
+                    else {
+                        gamepad1.rumble(200);
+                    }
                 }
                 break;
 
-            case UP:
-                leftFlickerPos = flicker3up;
-//                if (gamepad1.dpadLeftWasReleased()) left = Index.DOWN;
-                if (leftAnalog.getVoltage() < leftFlickerUpThreshold) left = Index.DOWN;
-                break;
-        }
-        switch (right) {
-            case HOLD:
-//                if (allDown) {
-//                    if (gamepad1.dpadRightWasPressed()) {
-//                        ballWant[0] = ' ';
-//                        ballWant[1] = ' ';
-//                        right = Index.UP;
-//                        ballNum++;
-//                    }
-//                }
-                rightFlickerPos = flicker1down;
-                break;
-
-            case DOWN:
-                rightFlickerPos = flicker1down;
-//                right = Index.HOLD;
-                if (rightAnalog.getVoltage() < rightFlickerDownThreshold) {
-                    right = Index.HOLD;
+            case 4:
+                if (allDown) {
+                    if (ball1 != 'b') flick1 = Index.AUTOUP;
+                    else if (ball2 != 'b') flick2 = Index.AUTOUP;
+                    else if (ball3 != 'b') flick3 = Index.AUTOUP;
+                    else gamepad1.rumble(200);
                 }
                 break;
 
+            case 5:
+//                down();
+                break;
+        }
+
+        switch (flick2) {
+            case HOLD:
+                flicker2Pos = flicker2down;
+                break;
+
+            case DOWN:
+                flicker2Pos = flicker2down;
+                break;
+
             case UP:
-                rightFlickerPos = flicker1up;
-                if (rightAnalog.getVoltage() > rightFlickerUpThreshold && !gamepad1.dpad_right) right = Index.DOWN;
-//                balls[2] = 'b';
+                flicker2Pos = flicker2up;
+                break;
+
+            case AUTODOWN:
+                flicker2Pos = flicker2down;
+                if (backAnalog.getVoltage() > flicker2DownThreshold) {
+                    flick2 = Index.HOLD;
+//                    flick3 = Index.AUTOUP;
+                }
+                break;
+
+            case AUTOUP:
+                flicker2Pos = flicker2up;
+                if (backAnalog.getVoltage() < flicker2UpThreshold && !gamepad1.dpad_up) flick2 = Index.AUTODOWN;
+                break;
+        }
+        switch (flick3) {
+            case HOLD:
+                flicker3Pos = flicker3down;
+                break;
+
+            case DOWN:
+                flicker3Pos = flicker3down;
+                break;
+
+            case UP:
+                flicker3Pos = flicker3up;
+                break;
+
+            case AUTODOWN:
+                flicker3Pos = flicker3down;
+                if (leftAnalog.getVoltage() > flicker3DownThreshold) {
+                    flick3 = Index.HOLD;
+//                    flick1 = Index.AUTOUP;
+                }
+                break;
+
+            case AUTOUP:
+                flicker3Pos = flicker3up;
+                if (leftAnalog.getVoltage() < flicker3UpThreshold) flick3 = Index.AUTODOWN;
+                break;
+        }
+        switch (flick1) {
+            case HOLD:
+                flicker1Pos = flicker1down;
+                break;
+
+            case DOWN:
+                flicker1Pos = flicker1down;
+                break;
+
+            case UP:
+                flicker1Pos = flicker1up;
+                break;
+
+            case AUTODOWN:
+                flicker1Pos = flicker1down;
+                if (rightAnalog.getVoltage() < flicker1DownThreshold) {
+                    flick1 = Index.HOLD;
+                }
+                break;
+
+            case AUTOUP:
+                flicker1Pos = flicker1up;
+                if (rightAnalog.getVoltage() > flicker1UpThreshold && !gamepad1.dpad_right) flick1 = Index.AUTODOWN;
                 break;
         }
     }
+    public void color() {
+        allDown = (flicker1Pos == flicker1down && flicker3Pos == flicker3down && flicker2Pos == flicker2down && backAnalog.getVoltage() < flicker2DownThreshold && rightAnalog.getVoltage() > flicker1DownThreshold && leftAnalog.getVoltage() > flicker3DownThreshold);
+
+        if (sensor1.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
+            ball1 = 'p';
+            light1.setPosition(0.722);
+        }
+        else if (sensor1.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
+            ball1 = 'g';
+            light1.setPosition(0.5);
+        }
+        else {
+            ball1 = 'b';
+            light1.setPosition(0.277);
+        }
+
+        if (sensor2.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
+            ball2 = 'p';
+            light2.setPosition(0.722);
+        }
+        else if (sensor2.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
+            ball2 = 'g';
+            light2.setPosition(0.5);
+        }
+        else {
+            ball2 = 'b';
+            light2.setPosition(0.277);
+        }
+
+        if (sensor3.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
+            ball3 = 'p';
+            light3.setPosition(0.722);
+        }
+        else if (sensor3.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
+            ball3 = 'g';
+            light1.setPosition(0.5);
+        }
+        else {
+            ball3 = 'b';
+            light3.setPosition(0.277);
+        }
+    }
     public void down() {
-        left = Index.HOLD;
-        back = Index.HOLD;
-        right = Index.HOLD;
+        flick3 = Index.DOWN;
+        flick2 = Index.DOWN;
+        flick1 = Index.DOWN;
     }
     public void intake() {
         if (gamepad1.left_bumper) intakePower = intakeOut;
         else if (gamepad1.right_bumper) intakePower = intakeIn;
-        else intakePower = ((rightBall == 'b' || backBall == 'b' || leftBall == 'b') ? intakeIn : intakeOut);
-        if (rightFlickerPos == flicker3up || backFlickerPos == flicker2up || leftFlickerPos == flicker1up) intakePower = intakeOut;
+        else intakePower = ((ball1 == 'b' || ball2 == 'b' || ball3 == 'b') ? intakeIn : intakeOut);
+        if (flicker1Pos == flicker3up || flicker2Pos == flicker2up || flicker3Pos == flicker1up) intakePower = intakeOut;
     }
     public void shoot() {
         if (gamepad1.touchpadWasPressed()) flyWheelCorrect = 100;
@@ -334,33 +430,33 @@ public class STATETeleOp extends LinearOpMode {
         intake.setPower(intakePower);
         hood.setPosition(hoodPos);
 //        if (gamepad1.dpad_right) {
-//            rightFlicker.setPosition(flicker1up);
+//            flicker1.setPosition(flicker1up);
 //            count++;
 //        }
-//        else rightFlicker.setPosition(flicker1down);
+//        else flicker1.setPosition(flicker1down);
 //        if (gamepad1.dpad_up) {
-//            backFlicker.setPosition(flicker2up);
+//            flicker2.setPosition(flicker2up);
 //            count++;
 //        }
-//        else backFlicker.setPosition(flicker2down);
+//        else flicker2.setPosition(flicker2down);
 //        if (gamepad1.dpad_left) {
-//            leftFlicker.setPosition(flicker3up);
+//            flicker3.setPosition(flicker3up);
 //            count++;
 //        }
-//        else leftFlicker.setPosition(flicker3down);
-        rightFlicker.setPosition(rightFlickerPos);
-        backFlicker.setPosition(backFlickerPos);
-        leftFlicker.setPosition(leftFlickerPos);
+//        else flicker3.setPosition(flicker3down);
+        flicker1.setPosition(flicker1Pos);
+        flicker2.setPosition(flicker2Pos);
+        flicker3.setPosition(flicker3Pos);
     }
     public void telemetry() {
         telemetry.addData("fetch: ", targetTps);
         telemetry.addData("thrower1Velocity", currentVelocity);
         telemetry.addData("diff: ", targetTps + thrower1.getVelocity());
         telemetry.addData("pid: ", power);
-        telemetry.addData("left: ", leftBall);
-        telemetry.addData("back: ", backBall);
-        telemetry.addData("right: ", rightBall);
-        telemetry.addData("back: ", backAnalog.getVoltage());
+        telemetry.addData("left: ", ball3);
+        telemetry.addData("flick2: ", ball2);
+        telemetry.addData("flick1: ", ball1);
+        telemetry.addData("flick2: ", backAnalog.getVoltage());
         telemetry.addData("red: ", redAlliance);
         telemetry.addData("pinpoint: ", pinpoint.getHeading(AngleUnit.RADIANS));
         telemetry.addData("thrower1velocity", thrower1.getVelocity());
@@ -369,9 +465,9 @@ public class STATETeleOp extends LinearOpMode {
         telemetry.addData("hood: ", hoodPos);
         telemetry.addData("target turret pos: ", turretPos);
         telemetry.addData("turret:", turret.getCurrentPosition());
-        telemetry.addData("Back state", (back.equals(Index.HOLD)));
-        telemetry.addData("Left state", (left.equals(Index.HOLD)));
-        telemetry.addData("Right state", (right.equals(Index.HOLD)));
+        telemetry.addData("Back state", (flick2.equals(Index.HOLD)));
+        telemetry.addData("Left state", (flick3.equals(Index.HOLD)));
+        telemetry.addData("Right state", (flick1.equals(Index.HOLD)));
         telemetry.update();
     }
 }

@@ -18,35 +18,20 @@ public class positions {
     public static boolean redAlliance = true;
 
     public static double intakePower;
-    public enum Intake {IN, AUTO, OUT, HOLD}
-    public static Intake intakeState = Intake.HOLD;
 
-    public static char rightBall = 'b';
-    public static char backBall = 'b';
-    public static char leftBall = 'b';
-    public static char[] ballWant = new char[2];
-    public static char[] balls = {'b', 'b', 'b'};
-    public static String corralOrder = "PPP";
-    public static String indexOrder = "";
-    public static int liftTime = 0;
-    public static double rightFlickerPos = flicker1down;
-    public static double backFlickerPos = flicker2down;
-    public static double leftFlickerPos = flicker3down;
-    public static double rightFlickerPosi;
-    public static double backFlickerPosi;
-    public static double leftFlickerPosi;
+    public static char ball1 = 'b';
+    public static char ball2 = 'b';
+    public static char ball3 = 'b';
+    public static int greenPos = 3;
+    public static double flicker1Pos = flicker1down;
+    public static double flicker2Pos = flicker2down;
+    public static double flicker3Pos = flicker3down;
     public static boolean allDown;
-    public enum Index {G, P, HOLD, U1, D1, U2, D2, U3, D3, DOWN, UP}
+    public enum Index { HOLD, DOWN, UP, AUTODOWN, AUTOUP}
     public static Index index = Index.HOLD;
-    public static Index left = Index.HOLD;
-    public static Index back = Index.HOLD;
-    public static Index right = Index.HOLD;
-    //    public static Color leftColor = Color.WHITE;
-//    public static Color backColor = Color.WHITE;
-//    public static Color rightColor = Color.WHITE;
-    public static int ballNum = 0;
-
-    public static int count = 0;
+    public static Index flick3 = Index.HOLD;
+    public static Index flick2 = Index.HOLD;
+    public static Index flick1 = Index.HOLD;
 
     public static double targetTps = 0;
     public static int targetVelocity = 0;
@@ -68,9 +53,9 @@ public class positions {
     public static void reset() {
         redAlliance = true;
         intakePower = 0;
-        rightFlickerPos = flicker1down;
-        backFlickerPos = flicker2down;
-        leftFlickerPos = flicker3down;
+        flicker1Pos = flicker1down;
+        flicker2Pos = flicker2down;
+        flicker3Pos = flicker3down;
         targetTps = 0;
         hoodPos = closeHood;
         autoTurret = false;
