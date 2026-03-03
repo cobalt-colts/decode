@@ -67,11 +67,10 @@ public class subsystems {
     public static motifs motif = motifs.NONE;
 
 
-    public static String flickOrder = "";
+    public static String flickOrder = "321";
     public static ServoEx[] flickers = new ServoEx[3];
 
     public static boolean[] isoccupied = new boolean[3];
-
 
 
     public static class ColorSensing implements Subsystem {
@@ -94,19 +93,23 @@ public class subsystems {
         public static PredominantColorProcessor.Result result2;
         public static PredominantColorProcessor.Result result3;
 
-        public static boolean[] isoccupied = new boolean[3];
-
         private long lastToggleTime = 0;
         private boolean lightsOn = false;
         private static final long BLINK_INTERVAL_MS = 250;
+        private static final long GREY_SATURATION1 = 90; // Below this value for position 1 = low saturation = grey
+        private static final long GREY_SATURATION2 = 110; // Below this value for position 2 = low saturation = grey
+        private static final long GREY_SATURATION3 = 112; // Below this value for position 3 = low saturation = grey
+
+        private static final int THRESHOLD = 8; // tune this. higher = more stable & slower to respond to change
+        private int[] positiveCount = new int[3];
+        private int[] negativeCount = new int[3];
 
         // Add this:
         public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
 
-        private static boolean isball(PredominantColorProcessor.Result result) {
+        private static boolean isball(PredominantColorProcessor.Result result, long satCutoff) {
             if (result == null) return false;
-            if (result.HSV[1] < 90) {
-                // It's grey
+            if (result.HSV[1] < satCutoff) {   // Saturation lower than this means it's grey
                 return false;
             }
             PredominantColorProcessor.Swatch resultswatch = result.closestSwatch;
@@ -114,12 +117,12 @@ public class subsystems {
                     || resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE;
         }
 
-        private static double colorToRGBServo(PredominantColorProcessor.Result color) {
+        private static double colorToRGBServo(PredominantColorProcessor.Result color, long satCutoff) {
             float hue = color.HSV[0];
             float sat = color.HSV[1];
             float val = color.HSV[2];
 
-            if (sat < 90) {
+            if (sat < satCutoff) {
                 // It's grey
                 return 0.3;
             }
@@ -132,6 +135,19 @@ public class subsystems {
             return 0.3;   // Return red if there's nothing present
         }
 
+        private void updateOccupied(int i, PredominantColorProcessor.Result result, long satCutoff) {
+            if (isball(result, satCutoff)) {
+                positiveCount[i]++;
+                negativeCount[i] = 0;
+            } else {
+                negativeCount[i]++;
+                positiveCount[i] = 0;
+            }
+
+            if (positiveCount[i] >= THRESHOLD) isoccupied[i] = true;
+            if (negativeCount[i] >= THRESHOLD) isoccupied[i] = false;
+        }
+
         @Override
         public void periodic() {
             Subsystem.super.periodic();
@@ -139,9 +155,12 @@ public class subsystems {
             result2 = sensor2.getAnalysis();
             result3 = sensor3.getAnalysis();
 
-            isoccupied[0] = result1 != null && isball(result1);
-            isoccupied[1] = result2 != null && isball(result2);
-            isoccupied[2] = result3 != null && isball(result3);
+            updateOccupied(0, result1, GREY_SATURATION1);
+            updateOccupied(1, result2, GREY_SATURATION2);
+            updateOccupied(2, result3, GREY_SATURATION3);
+//            ActiveOpMode.telemetry().addData("sat1", result1.HSV[1]);
+//            ActiveOpMode.telemetry().addData("sat2", result2.HSV[1]);
+//            ActiveOpMode.telemetry().addData("sat3", result3.HSV[1]);
 
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
 
@@ -156,19 +175,11 @@ public class subsystems {
 
                 if (lightsOn) {
                     // Turn on the 3 lights.
-                    light1.setPosition(colorToRGBServo(ColorSensing.result1));
-                    light2.setPosition(colorToRGBServo(ColorSensing.result2));
-                    light3.setPosition(colorToRGBServo(ColorSensing.result3));
+                    light1.setPosition(colorToRGBServo(ColorSensing.result1, GREY_SATURATION1));
+                    light2.setPosition(colorToRGBServo(ColorSensing.result2, GREY_SATURATION2));
+                    light3.setPosition(colorToRGBServo(ColorSensing.result3, GREY_SATURATION3));
                 } else {
-//                    light1.setPosition(1);
-//                    light2.setPosition(1);
-//                    light3.setPosition(1);
-                        if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
-                            // We are at speed, so we want to blink.
-                            // Turn off the lights (set all 3 to 0)
-                        }
                 }
-//                led.setState(lightsOn);  // whatever your LED control is
             }
         }
 
@@ -185,32 +196,23 @@ public class subsystems {
                     .setSwatches(
                             PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                             PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
-//                            PredominantColorProcessor.Swatch.RED,
-//                            PredominantColorProcessor.Swatch.CYAN,
-//                            PredominantColorProcessor.Swatch.BLUE,
                             PredominantColorProcessor.Swatch.BLACK,
                             PredominantColorProcessor.Swatch.WHITE)
                     .build();
 
             sensor1= new PredominantColorProcessor.Builder()
-                    .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
+                    .setRoi(ImageRegion.asUnityCenterCoordinates(0.4, .3, 0.9, -0.3))
                     .setSwatches(
                             PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                             PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
-//                            PredominantColorProcessor.Swatch.RED,
-//                            PredominantColorProcessor.Swatch.BLUE,
                             PredominantColorProcessor.Swatch.BLACK,
                             PredominantColorProcessor.Swatch.WHITE)
                     .build();
             sensor3 = new PredominantColorProcessor.Builder()
-//                    .setRoi(ImageRegion.asUnityCenterCoordinates(-0.4, 0.45, -0.15, 0.2))
                     .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, -0.2, 0.2))
                     .setSwatches(
                             PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                             PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
-//                            PredominantColorProcessor.Swatch.RED,
-//                            PredominantColorProcessor.Swatch.BLUE,
-//                            PredominantColorProcessor.Swatch.YELLOW,
                             PredominantColorProcessor.Swatch.BLACK,
                             PredominantColorProcessor.Swatch.WHITE)
                     .build();
@@ -290,48 +292,37 @@ public class subsystems {
         }
 
         // Actuators
-        private final ServoEx flicker1 = new ServoEx("flicker1");
-        private final ServoEx flicker2 = new ServoEx("flicker2");
-        private final ServoEx flicker3 = new ServoEx("flicker3");
+        public final ServoEx flicker1 = new ServoEx("flicker1");
+        public final ServoEx flicker2 = new ServoEx("flicker2");
+        public final ServoEx flicker3 = new ServoEx("flicker3");
 
-        public Command launch1fn() {
-            return new SequentialGroupFixed(
-                    new SetPosition(flicker1, flicker1up),
-                    new Delay(0.2),
-                    new SetPosition(flicker1, flicker1down)
-            );
+        public ServoEx getFlicker1() {
+            return flicker1;
         }
-
-        public Command launch2fn() {
-            return new SequentialGroupFixed(
-                    new SetPosition(flicker2, flicker2up),
-                    new Delay(0.2),
-                    new SetPosition(flicker2, flicker2down)
-            );
+        public ServoEx getFlicker2() {
+            return flicker2;
         }
-
-        public Command launch3fn() {
-            return new SequentialGroupFixed(
-                    new SetPosition(flicker3, flicker3up),
-                    new Delay(0.2),
-                    new SetPosition(flicker3, flicker3down)
-            );
+        public ServoEx getFlicker3() {
+            return flicker3;
         }
-
         public Command launch1 = new SequentialGroupFixed(
                 new SetPosition(flicker1, flicker1up),
                 new Delay(0.2),
-                new SetPosition(flicker1, flicker1down)
+                new SetPosition(flicker1, flicker1down),
+                new Delay(0.12)
         );
+
         public Command launch2 = new SequentialGroupFixed(
                 new SetPosition(flicker2, flicker2up),
                 new Delay(0.2),
-                new SetPosition(flicker2, flicker2down)
+                new SetPosition(flicker2, flicker2down),
+                new Delay(0.12)
         );
         public Command launch3 = new SequentialGroupFixed(
                 new SetPosition(flicker3, flicker3up),
                 new Delay(0.2),
-                new SetPosition(flicker3, flicker3down)
+                new SetPosition(flicker3, flicker3down),
+                new Delay(0.12)
         );
 
         public final Command alldown = new ParallelGroup(
@@ -340,33 +331,7 @@ public class subsystems {
                 new SetPosition(flicker3, flicker3down)
         );
 
-//        public Command closeunsortedlaunch = new SequentialGroupFixed(
-//                launch2,
-//                new InstantCommand(() -> {
-//                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-//                }),
-//                new Delay(0.25),
-//                launch1,
-//                new Delay(0.25),
-//                launch3,
-//                new InstantCommand(() -> {
-//                    Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-//                }),
-//                new Delay(0.25)
-//
-//        );
-//        public Command launchIfBall(int index, Command launchCmd, double delaySec) {
-//            return new IfElseCommand(
-//                    () -> true ,
-//                    launchCmd
-//            );
-//            // This works
-        /// /            return new SequentialGroupFixed(
-        /// /                    launchCmd,
-        /// /                    new Delay(delaySec)
-        /// /            );
-        ///
-//        }
+
         public Command sensedunsorted;
         boolean launchifballdone = false;
 
@@ -375,15 +340,15 @@ public class subsystems {
                     launchifballdone = false;
                 })
                 .setUpdate(() -> {
-                    if (ColorSensing.isoccupied[0]) {
+                    if (isoccupied[0]) {
                         launch1.schedule();
                         launchifballdone = true;
 
-                    } else if (ColorSensing.isoccupied[1]) {
+                    } else if (isoccupied[1]) {
                         launch2.schedule();
                         launchifballdone = true;
 
-                    } else if (ColorSensing.isoccupied[2]) {
+                    } else if (isoccupied[2]) {
                         launch3.schedule();
                         launchifballdone = true;
                     } else {
@@ -392,7 +357,6 @@ public class subsystems {
                 })
                 .setIsDone(() -> launchifballdone);
 
-        //        public Command closeunsortedlaunch;
 
         // Merge these two launches to have one with ifelse
         int count = 0;
@@ -436,29 +400,6 @@ public class subsystems {
                 launchIfBall,
                 new Delay(0.25)
         );
-//        public Command closeunsortedlaunchtest() {
-//            return new DeferredCommand(
-//                    () -> {
-//                        java.util.ArrayList<Command> cmds = new java.util.ArrayList<>();
-//                        if (isoccupied[1]) {
-//                            cmds.add(launch2);
-//                            cmds.add(new Delay(0.25));
-//                        }
-//                        if (isoccupied[0]) {
-//                            cmds.add(launch1);
-//                            cmds.add(new Delay(0.25));
-//                        }
-//                        if (isoccupied[2]) {
-//                            cmds.add(launch3);
-//                            cmds.add(new Delay(0.25));
-//                        }
-        /// /                        if (cmds.isEmpty()) { return new InstantCommand( () -> {} ); }
-//
-//                        return new SequentialCommandGroup(cmds.toArray(new Command[0]));
-//                    },
-//                    java.util.Arrays.asList(Index.INSTANCE, ColorSensing.INSTANCE)
-//            );
-//        }
 
         private int index = 0;
         public LambdaCommand flickerOrder = new LambdaCommand()
@@ -519,129 +460,52 @@ public class subsystems {
                             break;
 
                         case NONE:
-                            flickOrder = "123";
+                            flickOrder = "321";
                             break;
                     }
 
                 })
                 .setIsDone(() -> true);
         ;
+        // Launch 3 in order (based on motif) with a .25sec delay after each and adjust the hood as we go
+        // This is best for "close" shooting
+        public Command closeSortedLaunch() {
+            Command[] order = getFlickOrder();
+            double[] hoods = getHoodOrder();
+            return new SequentialGroupFixed(
+                    order[0],
+                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[0])),
+                    new Delay(0.25),
+                    order[1],
+                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
+                    new Delay(0.25),
+                    order[2],
+                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
+                    new Delay(0.25)
+            );
+        }
 
-        public LambdaCommand closesortedLaunch = new LambdaCommand()
-                .setStart(() -> {
-                    switch (flickOrder) {
-                        case "123":
-                            new InstantCommand(launch1);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch2);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch3);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                            });
-                            new Delay(0.25);
-                            break;
+        private Command[] getFlickOrder() {
+            switch (flickOrder) {
+                case "132": return new Command[]{launch1, launch3, launch2};
+                case "213": return new Command[]{launch2, launch1, launch3};
+                case "231": return new Command[]{launch2, launch3, launch1};
+                case "312": return new Command[]{launch3, launch1, launch2};
+                case "321": return new Command[]{launch3, launch2, launch1};
+                default:    return new Command[]{launch1, launch2, launch3};
+            }
+        }
 
-                        case "132":
-                            new InstantCommand(launch1);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch3);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch2);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                            });
-                            new Delay(0.25);
-                            break;
-
-                        case "213":
-                            new InstantCommand(launch2);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch1);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch3);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                            });
-                            new Delay(0.25);
-                            break;
-
-                        case "231":
-                            new InstantCommand(launch2);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch3);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch1);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                            });
-                            new Delay(0.25);
-                            break;
-
-                        case "312":
-                            new InstantCommand(launch3);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch1);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch2);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                            });
-                            new Delay(0.25);
-                            break;
-
-                        case "321":
-                            new InstantCommand(launch3);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.4);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch2);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.35);
-                            });
-                            new Delay(0.25);
-                            new InstantCommand(launch1);
-                            new InstantCommand(() -> {
-                                Thrower.INSTANCE.hood.setPosition(closeHood + 0.3);
-                            });
-                            new Delay(0.25);
-                            break;
-                    }
-
-                })
-                .requires(this, Camera.INSTANCE, launch3, launch2, launch1)
-                .setIsDone(() -> true);
+        private double[] getHoodOrder() {
+            switch (flickOrder) {
+                case "132": return new double[]{closeHood+0.4, closeHood+0.35, closeHood+0.3};
+                case "213": return new double[]{closeHood+0.4, closeHood+0.35, closeHood+0.3};
+                case "231": return new double[]{closeHood+0.4, closeHood+0.35, closeHood+0.3};
+                case "312": return new double[]{closeHood+0.4, closeHood+0.35, closeHood+0.3};
+                case "321": return new double[]{closeHood+0.4, closeHood+0.35, closeHood+0.3};
+                default:    return new double[]{closeHood+0.4, closeHood+0.35, closeHood+0.3};
+            }
+        }
 
         public Command farunsortedlaunch = new SequentialGroupFixed(
                 launch2,
@@ -654,6 +518,24 @@ public class subsystems {
 
         );
 
+        // Launch 3, but only if each spot is occupied, and wait until we're atvelocity between shots
+        // This is intended for "far" launches, unsorted
+        public Command sensedunsortedatspeed() {
+            return new SequentialGroupFixed(
+                    new IfElseCommand(() -> isoccupied[0], new SequentialGroupFixed(
+                            new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                            launch1
+                    ), new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[1], new SequentialGroupFixed(
+                            new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                            launch2
+                    ), new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[2], new SequentialGroupFixed(
+                            new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                            launch3
+                    ), new NullCommand())
+            );
+        }
 
         public void initialize() {
 
@@ -663,9 +545,7 @@ public class subsystems {
             sensedunsorted = new SequentialGroupFixed(
                     new IfElseCommand(() -> isoccupied[0], launch1, new NullCommand()),
                     new IfElseCommand(() -> isoccupied[1], launch2, new NullCommand()),
-                    new IfElseCommand(() -> isoccupied[2], launch3, new NullCommand()),
-                    new Delay(2)
-//                    launch1
+                    new IfElseCommand(() -> isoccupied[2], launch3, new NullCommand())
             );
         }
 
@@ -796,9 +676,9 @@ public class subsystems {
                 hood.setPosition(hoodpos);
 
 //                ActiveOpMode.telemetry().addData("thrower1vel - velocity: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
-                ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
-                ActiveOpMode.telemetry().addData("targetvelocity ", targetvelocity);
-                ActiveOpMode.telemetry().addData("velocity/28*60 ", (thrower1.getVelocity() / 28) * 60);
+//                ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
+//                ActiveOpMode.telemetry().addData("targetvelocity ", targetvelocity);
+//                ActiveOpMode.telemetry().addData("velocity/28*60 ", (thrower1.getVelocity() / 28) * 60);
 
                 // Do not remove this one unless you check with Crocker:
                 if (thrower1.getVelocity() == 0 || thrower2.getVelocity() == 0) {
@@ -891,7 +771,6 @@ public class subsystems {
 //                })
 //                .setIsDone(() -> Math.abs(Math.abs(turret.getCurrentPosition()) - Math.abs(turretTargetPos)) <= 2);
 
-
         public void initialize() {
             Subsystem.super.initialize();
             magnet = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "magnet");
@@ -912,8 +791,8 @@ public class subsystems {
                 }
                 turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 // We actually need to go a BIT further so we're "home" but unclear how to
-                turret.setTargetPosition(10);
-                while (ActiveOpMode.opModeInInit() && turret.getCurrentPosition() <= 10) {
+                turret.setTargetPosition(2);
+                while (ActiveOpMode.opModeInInit() && turret.getCurrentPosition() <= 2) {
                     //
                 }
                 turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -922,15 +801,6 @@ public class subsystems {
             // Magnet is on. Safe to rotate to starting position:
             turret.setTargetPosition(initPos);
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-
-            // Center the turret so the magnet turns on....
-
-//            turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            turretTargetPos = initPos;
-//            turret.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(10, 0, 0, 0));
-//            turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
 
@@ -947,19 +817,20 @@ public class subsystems {
             ActiveOpMode.telemetry().addData("turretAtPosition", atposition);
             ActiveOpMode.telemetry().addData("hoodpos", Thrower.hoodpos);
             ActiveOpMode.telemetry().addData("motif", motif);
-            ActiveOpMode.telemetry().addLine("--- COLOR SENSING ---");
-            ActiveOpMode.telemetry().addData("isOccupied[0]", ColorSensing.isoccupied[0]);
-            ActiveOpMode.telemetry().addData("isOccupied[1]", ColorSensing.isoccupied[1]);
-            ActiveOpMode.telemetry().addData("isOccupied[2]", ColorSensing.isoccupied[2]);
-            ActiveOpMode.telemetry().addData("swatch[0]", ColorSensing.result1 != null ? ColorSensing.colorToRGBServo(ColorSensing.result1) : "null");
-            ActiveOpMode.telemetry().addData("swatch[1]", ColorSensing.result2 != null ? ColorSensing.colorToRGBServo(ColorSensing.result2) : "null");
-            ActiveOpMode.telemetry().addData("swatch[2]", ColorSensing.result3 != null ? ColorSensing.colorToRGBServo(ColorSensing.result3) : "null");
-            ActiveOpMode.telemetry().addData("flick count", Index.INSTANCE.count);
-            if (magnet.getState()) {
-                ActiveOpMode.telemetry().addLine("no magnet");
-            } else {
-                ActiveOpMode.telemetry().addLine("magnet sensed");
-            }
+//            ActiveOpMode.telemetry().addLine("--- COLOR SENSING ---");
+            ActiveOpMode.telemetry().addData("isOccupied1", isoccupied[0]);
+            ActiveOpMode.telemetry().addData("isOccupied2", isoccupied[1]);
+            ActiveOpMode.telemetry().addData("isOccupied3", isoccupied[2]);
+            ActiveOpMode.telemetry().addData("flickOrder", flickOrder);
+//            ActiveOpMode.telemetry().addData("swatch[0]", ColorSensing.result1 != null ? ColorSensing.colorToRGBServo(ColorSensing.result1) : "null");
+//            ActiveOpMode.telemetry().addData("swatch[1]", ColorSensing.result2 != null ? ColorSensing.colorToRGBServo(ColorSensing.result2) : "null");
+//            ActiveOpMode.telemetry().addData("swatch[2]", ColorSensing.result3 != null ? ColorSensing.colorToRGBServo(ColorSensing.result3) : "null");
+//            ActiveOpMode.telemetry().addData("flick count", Index.INSTANCE.count);
+//            if (magnet.getState()) {
+//                ActiveOpMode.telemetry().addLine("no magnet");
+//            } else {
+//                ActiveOpMode.telemetry().addLine("magnet sensed");
+//            }
             ActiveOpMode.telemetry().update();
         }
 
