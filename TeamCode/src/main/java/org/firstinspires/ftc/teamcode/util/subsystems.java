@@ -5,7 +5,6 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import  static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 
-import static java.lang.Math.log;
 import static java.lang.Thread.sleep;
 
 import android.util.Size;
@@ -20,7 +19,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.seattlesolvers.solverslib.command.RetryCommand;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -33,17 +31,18 @@ import java.util.List;
 
         import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.conditionals.IfElseCommand;
+import dev.nextftc.core.commands.conditionals.SwitchCommand;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.commands.utility.LambdaCommand;
+import dev.nextftc.core.commands.utility.NullCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.ServoEx;
 import dev.nextftc.hardware.positionable.SetPosition;
 
-import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -366,8 +365,9 @@ public class subsystems {
         /// /                    launchCmd,
         /// /                    new Delay(delaySec)
         /// /            );
+        ///
 //        }
-
+        public Command sensedunsorted;
         boolean launchifballdone = false;
 
         public Command launchIfBall = new LambdaCommand()
@@ -396,37 +396,39 @@ public class subsystems {
 
         // Merge these two launches to have one with ifelse
         int count = 0;
-        boolean done = false;
+        boolean sensingunsorteddone = false;
         String balls = "full";
         private static final long FLICK_COOLDOWN_MS = 300;
         private long lastFlickTimeMs = 0;
+
+        int state = 0;
+
         public LambdaCommand colorsensecloseunsortedlaunch = new LambdaCommand() // sunday
                 .setStart(() -> {
-                    done = false;
-                    count = 0;
+                    sensingunsorteddone = false;
                     lastFlickTimeMs = 0;
-                  if (ColorSensing.isoccupied[0]) {
-                        ActiveOpMode.telemetry().addData("1: ", ColorSensing.isoccupied[0]);
-                        ActiveOpMode.telemetry().addLine("FLICKING ONE");
-                        launch1.schedule();
-                        count++;
-                        new Delay(0.25);
+//                    sensingunsorteddone = true;
+                    state = 1;
+                })
+                .setUpdate(() -> {
+                    switch (state) {
+                        case 1:
+                            if (isoccupied[0]) {
+                                launch1.schedule();
+//                                try {
+//                                    sleep(200);
+//                                } catch (InterruptedException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                                flicker1.setPosition(flicker1down);
+//                                sensingunsorteddone = true;
+                            }
+                            break;
+                        default:
+                            //
                     }
-                    if (ColorSensing.isoccupied[1]) {
-                        ActiveOpMode.telemetry().addData("2: ", ColorSensing.isoccupied[1]);
-                        ActiveOpMode.telemetry().addLine("FLICKING TWO");
-                        launch2.schedule();
-                        count++;
-                        new Delay(0.25);
-                    }
-                    if (ColorSensing.isoccupied[2]) {
-                        ActiveOpMode.telemetry().addData("3: ", ColorSensing.isoccupied[2]);
-                        ActiveOpMode.telemetry().addLine("FLICKING THREE");
-                        launch3.schedule();
-                        count++;
-                        new Delay(0.25);
-                    }
-                });
+                })
+                .setIsDone(() -> sensingunsorteddone);
 
         public Command closeunsortedlaunch = new SequentialGroupFixed(
                 launchIfBall,
@@ -656,6 +658,17 @@ public class subsystems {
         public void initialize() {
 
         }
+
+        public void periodic() {
+            sensedunsorted = new SequentialGroupFixed(
+                    new IfElseCommand(() -> isoccupied[0], launch1, new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[1], launch2, new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[2], launch3, new NullCommand()),
+                    new Delay(2)
+//                    launch1
+            );
+        }
+
     }
 
     public static class Intake implements Subsystem {

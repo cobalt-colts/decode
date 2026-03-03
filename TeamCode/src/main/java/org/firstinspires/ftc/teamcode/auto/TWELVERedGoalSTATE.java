@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import static org.firstinspires.ftc.teamcode.util.subsystems.isoccupied;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -19,6 +21,7 @@ import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
+import dev.nextftc.core.commands.utility.NullCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
@@ -74,13 +77,21 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
                     ActiveOpMode.telemetry().addLine("flickin 3");
                     ActiveOpMode.telemetry().update();
                 }),
-                Index.INSTANCE.closeunsortedlaunch,
+                new SequentialGroupFixed(
+                        new IfElseCommand(() -> isoccupied[0], Index.INSTANCE.launch1, new NullCommand()),
+                        new IfElseCommand(() -> isoccupied[1], Index.INSTANCE.launch2, new NullCommand()),
+                        new IfElseCommand(() -> isoccupied[2], Index.INSTANCE.launch3, new NullCommand())
+//                        new Delay(2)
+//                    launch1
+                ),
+//                Index.INSTANCE.sensedunsorted,
+//                Index.INSTANCE.sensedunsorted,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+//                Index.INSTANCE.colorsensecloseunsortedlaunch,
+//                Index.INSTANCE.secondcolorsensecloseunsortedlaunch,
                 Intake.INSTANCE.intake,
 
                 new FollowPath(redgoalnine.line1, true),
@@ -94,13 +105,13 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+//                Index.INSTANCE.secondcolorsensecloseunsortedlaunch,
                 Intake.INSTANCE.intake,
                 new FollowPath(redgoalnine.line2, true),
                 new Delay(0.5),
@@ -110,13 +121,13 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+//                Index.INSTANCE.secondcolorsensecloseunsortedlaunch,
                 new InstantCommand(subsystems.Turret.INSTANCE.redpark),
                 Intake.INSTANCE.intake,
                 new FollowPath(redgoalnine.line3, true),
@@ -128,13 +139,13 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+//                Index.INSTANCE.secondcolorsensecloseunsortedlaunch,
                 subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
         );

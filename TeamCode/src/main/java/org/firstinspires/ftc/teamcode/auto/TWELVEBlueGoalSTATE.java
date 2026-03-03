@@ -61,8 +61,8 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 new Delay(0.25),
 
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -83,8 +83,8 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -101,8 +101,8 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
@@ -120,14 +120,14 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 //                Index.INSTANCE.flickerOrder,
 //                Index.INSTANCE.closesortedLaunch,
 //                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.closeunsortedlaunch,
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 
 //                new IfElseCommand(
 //                        () -> subsystems.hasAnyBalls,
 //                        Index.INSTANCE.closesortedLaunch
 //                ),
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.colorsensecloseunsortedlaunch,
 //                Index.INSTANCE.secondcloseunsortedlaunch,
                 subsystems.Turret.INSTANCE.home,
                 new TurnTo(Angle.fromDeg(0))
