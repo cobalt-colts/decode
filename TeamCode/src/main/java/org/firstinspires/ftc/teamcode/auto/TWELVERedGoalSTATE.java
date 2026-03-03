@@ -56,7 +56,7 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 
         return new SequentialGroupFixed(
                 subsystems.Camera.INSTANCE.setmotif,
-//                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
+//                subsystems.Turret.INSTANCE.redgoal, miles, 1/16/25 (worked just fine w default paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
                         new InstantCommand(() -> {
                             ActiveOpMode.telemetry().addLine("movin");

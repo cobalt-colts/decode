@@ -162,6 +162,21 @@ public class subsystems {
 //            ActiveOpMode.telemetry().addData("sat2", result2.HSV[1]);
 //            ActiveOpMode.telemetry().addData("sat3", result3.HSV[1]);
 
+            // Update our index of what color is in what slot so we can sort later:
+            indexOrder.clear();
+            for (int i = 0; i < 3; i++) {
+                if (isoccupied[i]) {
+                    PredominantColorProcessor.Result result = (i == 0) ? result1 : (i == 1) ? result2 : result3;
+                    if (result != null && result.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
+                        indexOrder.add('g');
+                    } else {
+                        indexOrder.add('p'); // default to purple if occupied but unclear
+                    }
+                } else {
+                    indexOrder.add('b'); // 'b' for blank/empty
+                }
+            }
+
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
 
             // Set the RGB lights based on what colors are seen:
@@ -278,6 +293,9 @@ public class subsystems {
                             ActiveOpMode.telemetry().addData("motif", motif);
                         }
                         motif = getMotif(tags);
+                    }
+                    if (motif == motifs.NONE) {
+                        motif = motifs.GPP; // XXX for testing, remove.
                     }
                 })
                 .setInterruptible(false)
@@ -402,7 +420,13 @@ public class subsystems {
         );
 
         private int index = 0;
-        public LambdaCommand flickerOrder = new LambdaCommand()
+
+        private String slotToString(int zeroBasedIndex) {
+            return Integer.toString(zeroBasedIndex + 1);
+        }
+
+
+        public LambdaCommand flickerOrder_disabled = new LambdaCommand()
                 .setStart(() -> {
                     switch (motif) {
                         case GPP:
@@ -542,6 +566,32 @@ public class subsystems {
         }
 
         public void periodic() {
+            // Always keep flickOrder up to date based on current indexOrder and motif
+            if (indexOrder.contains('g') && indexOrder.contains('p')) {
+                List<Integer> gSlots = new ArrayList<>();
+                List<Integer> pSlots = new ArrayList<>();
+                for (int i = 0; i < indexOrder.size(); i++) {
+                    if (indexOrder.get(i) == 'g') gSlots.add(i + 1);
+                    if (indexOrder.get(i) == 'p') pSlots.add(i + 1);
+                }
+
+                if (!gSlots.isEmpty() && !pSlots.isEmpty()) {
+                    String g  = Integer.toString(gSlots.get(0));
+                    String p1 = Integer.toString(pSlots.get(0));
+                    String p2 = pSlots.size() > 1 ? Integer.toString(pSlots.get(1)) : g;
+
+                    switch (motif) {
+                        case GPP: flickOrder = g  + p1 + p2; break;
+                        case PGP: flickOrder = p1 + g  + p2; break;
+                        case PPG: flickOrder = p1 + p2 + g;  break;
+                        default:  flickOrder = "123";         break;
+                    }
+                }
+            } else {
+                flickOrder = "123";
+            }
+
+            // sensedunsorted can stay here too since it was already being rebuilt every loop
             sensedunsorted = new SequentialGroupFixed(
                     new IfElseCommand(() -> isoccupied[0], launch1, new NullCommand()),
                     new IfElseCommand(() -> isoccupied[1], launch2, new NullCommand()),
@@ -821,7 +871,9 @@ public class subsystems {
             ActiveOpMode.telemetry().addData("isOccupied1", isoccupied[0]);
             ActiveOpMode.telemetry().addData("isOccupied2", isoccupied[1]);
             ActiveOpMode.telemetry().addData("isOccupied3", isoccupied[2]);
+            ActiveOpMode.telemetry().addData("indexOrder", indexOrder.toString());
             ActiveOpMode.telemetry().addData("flickOrder", flickOrder);
+
 //            ActiveOpMode.telemetry().addData("swatch[0]", ColorSensing.result1 != null ? ColorSensing.colorToRGBServo(ColorSensing.result1) : "null");
 //            ActiveOpMode.telemetry().addData("swatch[1]", ColorSensing.result2 != null ? ColorSensing.colorToRGBServo(ColorSensing.result2) : "null");
 //            ActiveOpMode.telemetry().addData("swatch[2]", ColorSensing.result3 != null ? ColorSensing.colorToRGBServo(ColorSensing.result3) : "null");

@@ -56,23 +56,14 @@ public class NextFTCTestingGC extends NextFTCOpMode {
     }
     private Command autoRoutine() {
         return new SequentialGroupFixed(
+                subsystems.Camera.INSTANCE.setmotif,
+
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                Index.INSTANCE.flickerOrder,
-                Index.INSTANCE.sensedunsortedatspeed(),
-                Index.INSTANCE.sensedunsortedatspeed()  // In case one didn't launch, order doesn't matter just get it launched
+                Index.INSTANCE.closeSortedLaunch(), // Launch in motif order
+                Index.INSTANCE.sensedunsorted  // In case one didn't launch, order doesn't matter just get it launched
         );
     }
 
-//    private Command autoRoutine_disabled() {
-//        return new SequentialGroupFixed(
-//                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch
-////                Index.INSTANCE.sensedunsorted,
-////                Index.INSTANCE.sensedunsorted
-//        );
-//    }
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
 //        subsystems.Turret.initPos = posConstants.redGoalInit;
