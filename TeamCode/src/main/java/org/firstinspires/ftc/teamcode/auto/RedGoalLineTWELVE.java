@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.util.subsystems.isoccupied;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.redgoalnine;
+import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
@@ -30,9 +28,9 @@ import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
 @Autonomous(name = "(12) RED Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
-public class TWELVERedGoalSTATE extends NextFTCOpMode {
+public class RedGoalLineTWELVE extends NextFTCOpMode {
 
-    public TWELVERedGoalSTATE() throws InterruptedException {
+    public RedGoalLineTWELVE() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
@@ -50,7 +48,7 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
                 subsystems.Camera.INSTANCE.setmotif,
                 new ParallelGroup(
                         Thrower.INSTANCE.shooteron,
-                        new FollowPath(redgoalnine.preload, true),
+                        new FollowPath(RedGoalLines12.preload, true),
                         subsystems.Turret.INSTANCE.redgoal
                 ),
 
@@ -62,10 +60,10 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 
                 // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
-                new FollowPath(redgoalnine.line1, true),
+                new FollowPath(RedGoalLines12.line1, true),
                 new Delay(0.25),
-                new FollowPath(redgoalnine.gate, true),
-                new FollowPath(redgoalnine.launch1, true),
+                new FollowPath(RedGoalLines12.gate, true),
+                new FollowPath(RedGoalLines12.launch1, true),
                 new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
@@ -73,9 +71,9 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
 
                 // Pick up line 2, drive to launch position, shoot
                 Intake.INSTANCE.intake,
-                new FollowPath(redgoalnine.line2, true),
+                new FollowPath(RedGoalLines12.line2, true),
                 new Delay(0.5),
-                new FollowPath(redgoalnine.launch2, true),
+                new FollowPath(RedGoalLines12.launch2, true),
                 new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
@@ -84,10 +82,10 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
                 // Pick up line 3, drive to launch position, shoot
                 subsystems.Turret.INSTANCE.redpark,
                 Intake.INSTANCE.intake,
-                new FollowPath(redgoalnine.line3, true),
+                new FollowPath(RedGoalLines12.line3, true),
                 new Delay(0.5),
                 new InstantCommand(() -> Thrower.targetvelocity = 1250),
-                new FollowPath(redgoalnine.launch3),
+                new FollowPath(RedGoalLines12.launch3),
                 new Delay(0.5),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
@@ -109,7 +107,7 @@ public class TWELVERedGoalSTATE extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        redgoalnine.BuildTrajectories(PedroComponent.Companion.follower());
+        RedGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(122, 126, Math.toRadians(-143.5)));
         autoRoutine().schedule();
     }

@@ -6,7 +6,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
-public class bluefarline {
+public class BlueFarLines9 {
 
     public static PathChain launch1;
     public static PathChain line1;

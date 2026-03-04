@@ -5,7 +5,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.bluegoalnine;
+import org.firstinspires.ftc.teamcode.util.paths.BlueGoalLines12;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
@@ -28,9 +28,9 @@ import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
 @Autonomous(name = "(12) BLUE Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Goal")
-public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
+public class BlueGoalLineTWELVE extends NextFTCOpMode {
 
-    public TWELVEBlueGoalSTATE() throws InterruptedException {
+    public BlueGoalLineTWELVE() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
@@ -48,7 +48,7 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                 subsystems.Camera.INSTANCE.setmotif,
                 new ParallelGroup(
                         Thrower.INSTANCE.shooteron,
-                        new FollowPath(bluegoalnine.preload, true),
+                        new FollowPath(BlueGoalLines12.preload, true),
                         subsystems.Turret.INSTANCE.bluegoal
                 ),
 
@@ -60,10 +60,10 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 
                 // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
-                new FollowPath(bluegoalnine.line1, true),
+                new FollowPath(BlueGoalLines12.line1, true),
                 new Delay(0.25),
-                new FollowPath(bluegoalnine.gate, true),
-                new FollowPath(bluegoalnine.launch1, true),
+                new FollowPath(BlueGoalLines12.gate, true),
+                new FollowPath(BlueGoalLines12.launch1, true),
                 new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
@@ -71,9 +71,9 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
 
                 // Pick up line 2, drive to launch position, shoot
                 Intake.INSTANCE.intake,
-                new FollowPath(bluegoalnine.line2, true),
+                new FollowPath(BlueGoalLines12.line2, true),
                 new Delay(0.5),
-                new FollowPath(bluegoalnine.launch2, true),
+                new FollowPath(BlueGoalLines12.launch2, true),
                 new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
@@ -82,10 +82,10 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                 // Pick up line 3, drive to launch position, shoot
                 subsystems.Turret.INSTANCE.bluepark,
                 Intake.INSTANCE.intake,
-                new FollowPath(bluegoalnine.line3, true),
+                new FollowPath(BlueGoalLines12.line3, true),
                 new Delay(0.5),
                 new InstantCommand(() -> Thrower.targetvelocity = 1250),
-                new FollowPath(bluegoalnine.launch3),
+                new FollowPath(BlueGoalLines12.launch3),
                 new Delay(0.5),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeunsortedlaunch,
@@ -107,7 +107,7 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        bluegoalnine.BuildTrajectories(PedroComponent.Companion.follower());
+        BlueGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(22, 126, Math.toRadians(324)));
         autoRoutine().schedule();
     }

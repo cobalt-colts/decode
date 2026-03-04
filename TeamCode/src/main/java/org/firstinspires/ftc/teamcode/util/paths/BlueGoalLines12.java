@@ -6,7 +6,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
-public class bluegoalnine {
+public class BlueGoalLines12 {
 
     public static PathChain launch1;
     public static PathChain line1;

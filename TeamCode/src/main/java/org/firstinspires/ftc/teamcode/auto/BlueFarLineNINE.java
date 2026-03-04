@@ -5,7 +5,7 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.redfarline;
+import org.firstinspires.ftc.teamcode.util.paths.BlueFarLines9;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
@@ -24,10 +24,10 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
-@Autonomous(name = "LINE RED Far-STATE", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Far")
-public class NINELineRedFarSTATE extends NextFTCOpMode {
+@Autonomous(name = "LINE BLUE Far-STATE", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Blue Far")
+public class BlueFarLineNINE extends NextFTCOpMode {
 
-    public NINELineRedFarSTATE() throws InterruptedException {
+    public BlueFarLineNINE() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
@@ -51,13 +51,13 @@ public class NINELineRedFarSTATE extends NextFTCOpMode {
                 // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
                 Index.INSTANCE.transfer2,
-                Turret.INSTANCE.redfar,
+                Turret.INSTANCE.bluefar,
                 new WaitUntil(() -> Math.abs(Turret.turret.getCurrentPosition() - Turret.turretTargetPos) <= 1),
-                new FollowPath(redfarline.line1, true),
+                new FollowPath(BlueFarLines9.line1, true),
                 new Delay(1),
                 Index.INSTANCE.down2,
                 Intake.INSTANCE.outtake,
-                new FollowPath(redfarline.launch1, true),
+                new FollowPath(BlueFarLines9.launch1, true),
                 new Delay(0.75),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
@@ -65,30 +65,30 @@ public class NINELineRedFarSTATE extends NextFTCOpMode {
                 // Pick up line 2, drive to launch position, shoot
                 Intake.INSTANCE.intake,
                 Index.INSTANCE.transfer2,
-                new FollowPath(redfarline.line2, false),
+                new FollowPath(BlueFarLines9.line2, false),
                 new Delay(1),
                 Index.INSTANCE.down2,
                 Intake.INSTANCE.outtake,
-                new FollowPath(redfarline.launch2, true),
+                new FollowPath(BlueFarLines9.launch2, true),
                 new Delay(1),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
                 // Park
-                new FollowPath(redfarline.offline, true)
+                new FollowPath(BlueFarLines9.offline, true)
         );
     }
 
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
-        Turret.initPos = posConstants.redFarInit;
-        Turret.INSTANCE.redfarinit.schedule();
+        Turret.initPos = posConstants.blueFarInit;
+        Turret.INSTANCE.bluefarinit.schedule();
     }
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        redfarline.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(84, 9, Math.toRadians(90)));
+        BlueFarLines9.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(60, 9, Math.toRadians(90)));
         autoRoutine().schedule();
     }
     @Override public void onUpdate() { }

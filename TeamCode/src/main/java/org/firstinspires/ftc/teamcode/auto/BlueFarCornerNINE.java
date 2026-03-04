@@ -5,15 +5,10 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.twelvebluefarcorner;
+import org.firstinspires.ftc.teamcode.util.paths.ninebluefarcorner;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
-import org.firstinspires.ftc.teamcode.util.subsystems.Camera;
-import org.firstinspires.ftc.teamcode.util.subsystems.ColorSensing;
-import org.firstinspires.ftc.teamcode.util.subsystems.Index;
-import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.util.subsystems.Thrower;
-import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.util.subsystems.*;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
@@ -26,19 +21,19 @@ import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
-@Autonomous(name = "TWELVE CORNER blue Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Far")
-public class TWELVECornerBlueFarSTATE extends NextFTCOpMode {
+@Autonomous(name = "CORNER blue Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Far")
+public class BlueFarCornerNINE extends NextFTCOpMode {
 
 
 
-    public TWELVECornerBlueFarSTATE() throws InterruptedException {
+    public BlueFarCornerNINE() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
                         Intake.INSTANCE,
-                        Turret.INSTANCE,
-                        Camera.INSTANCE,
-                        ColorSensing.INSTANCE),
+                        subsystems.Turret.INSTANCE,
+                        subsystems.Camera.INSTANCE,
+                        subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
 
 //                BulkReadComponent.INSTANCE
@@ -56,34 +51,27 @@ public class TWELVECornerBlueFarSTATE extends NextFTCOpMode {
                 Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
                 Turret.INSTANCE.bluefar,
-                new FollowPath(twelvebluefarcorner.line1, true),
+                new FollowPath(ninebluefarcorner.line1, true),
                 new Delay(0.25),
-                new FollowPath(twelvebluefarcorner.launch1, true),
+                new FollowPath(ninebluefarcorner.launch1, true),
                 Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
-                new FollowPath(twelvebluefarcorner.corner1, false),
-                new Delay(0.1),
-                new FollowPath(twelvebluefarcorner.bump1, false),
+                new FollowPath(ninebluefarcorner.line2, false),
+                new FollowPath(ninebluefarcorner.bump1, false),
+                new ParallelDeadlineGroup(
+                        new Delay(2),
+                        new FollowPath(ninebluefarcorner.bump2, true)
+                ),
                 new Delay(0.5),
-                new FollowPath(twelvebluefarcorner.launch2, true),
-                new Delay(1), //0.5
+                new FollowPath(ninebluefarcorner.launch2, true),
                 Intake.INSTANCE.outtake,
+                new Delay(1), //0.5
                 new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
-                Intake.INSTANCE.intake,
-                new FollowPath(twelvebluefarcorner.corner1, false),
-                new Delay(0.1),
-                new FollowPath(twelvebluefarcorner.bump1, false),
-                new Delay(0.5),
-                new FollowPath(twelvebluefarcorner.launch2, true),
-                new Delay(1), //0.5
-                Intake.INSTANCE.outtake,
-                new WaitUntil(() -> Turret.INSTANCE.atposition),
-                Index.INSTANCE.farunsortedlaunch,
-                new FollowPath(twelvebluefarcorner.offline, true)
+                new FollowPath(ninebluefarcorner.offline, true)
 
 
 //                new FollowPath(bluefar.line2, true),
@@ -95,7 +83,7 @@ public class TWELVECornerBlueFarSTATE extends NextFTCOpMode {
     }
 
     @Override public void onInit() {
-        Index.INSTANCE.alldown.schedule();
+        subsystems.Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
         Turret.INSTANCE.bluefarinit.schedule();
         subsystems.far = true;
@@ -104,7 +92,7 @@ public class TWELVECornerBlueFarSTATE extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        twelvebluefarcorner.BuildTrajectories(PedroComponent.Companion.follower());
+        ninebluefarcorner.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(60, 9, Math.toRadians(90)));
         autoRoutine().schedule();
     }

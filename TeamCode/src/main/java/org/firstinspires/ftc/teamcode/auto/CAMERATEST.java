@@ -5,24 +5,18 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.bluegoalnine;
-import org.firstinspires.ftc.teamcode.util.posConstants;
+import org.firstinspires.ftc.teamcode.util.paths.BlueGoalLines12;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
 import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.subsystems.Thrower;
 
 import dev.nextftc.core.commands.Command;
-import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
-import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
-import dev.nextftc.core.units.Angle;
-import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
-import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.ftc.NextFTCOpMode;
 
@@ -62,7 +56,7 @@ public class CAMERATEST extends NextFTCOpMode {
 ////                subsystems.Turret.INSTANCE.bluegoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
 //                new ParallelGroup(
 //                        Thrower.INSTANCE.shooteron,
-//                        new FollowPath(bluegoalnine.preload, true),
+//                        new FollowPath(BlueGoalLine.preload, true),
 //                        subsystems.Turret.INSTANCE.bluegoal
 //                ),
 //                new InstantCommand(() -> {Thrower.targetvelocity = 1370;}),
@@ -80,13 +74,13 @@ public class CAMERATEST extends NextFTCOpMode {
 ////                Index.INSTANCE.secondcloseunsortedlaunch,
 //                Intake.INSTANCE.intake,
 //
-//                new FollowPath(bluegoalnine.line1, true),
+//                new FollowPath(BlueGoalLine.line1, true),
 ////                subsystems.Turret.INSTANCE.bluegoal,
 //                new Delay(0.25),
 ////                new InstantCommand(() -> {Intake.outtake();}),
-//                new FollowPath(bluegoalnine.gate, true),
+//                new FollowPath(BlueGoalLine.gate, true),
 ////                new Delay(0.5),
-//                new FollowPath(bluegoalnine.launch1, true),
+//                new FollowPath(BlueGoalLine.launch1, true),
 //                new Delay(1), //0.5
 ////                Intake.INSTANCE.outtake,
 ////                Index.INSTANCE.flickerOrder,
@@ -101,11 +95,11 @@ public class CAMERATEST extends NextFTCOpMode {
 ////                Index.INSTANCE.closeunsortedlaunch,
 ////                Index.INSTANCE.secondcloseunsortedlaunch,
 //                Intake.INSTANCE.intake,
-//                new FollowPath(bluegoalnine.line2, true),
+//                new FollowPath(BlueGoalLine.line2, true),
 //                new Delay(0.5),
 ////                Intake.INSTANCE.outtake,
 ////                new InstantCommand(() -> {Intake.outtake();}),
-//                new FollowPath(bluegoalnine.launch2, true),
+//                new FollowPath(BlueGoalLine.launch2, true),
 //                new Delay(1),
 ////                Index.INSTANCE.flickerOrder,
 ////                Index.INSTANCE.closesortedLaunch,
@@ -119,12 +113,12 @@ public class CAMERATEST extends NextFTCOpMode {
 ////                Index.INSTANCE.secondcloseunsortedlaunch,
 //                new InstantCommand(subsystems.Turret.INSTANCE.bluepark),
 //                Intake.INSTANCE.intake,
-//                new FollowPath(bluegoalnine.line3, true),
+//                new FollowPath(BlueGoalLine.line3, true),
 //                new Delay(0.5),
 ////                Intake.INSTANCE.outtake,
 ////                new InstantCommand(() -> {Intake.outtake();}),
 //                new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
-//                new FollowPath(bluegoalnine.launch3),
+//                new FollowPath(BlueGoalLine.launch3),
 //                new Delay(0.5),
 ////                Index.INSTANCE.flickerOrder,
 ////                Index.INSTANCE.closesortedLaunch,
@@ -151,7 +145,7 @@ public class CAMERATEST extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        bluegoalnine.BuildTrajectories(PedroComponent.Companion.follower());
+        BlueGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(22, 126, Math.toRadians(324)));
         autoRoutine().schedule();
     }

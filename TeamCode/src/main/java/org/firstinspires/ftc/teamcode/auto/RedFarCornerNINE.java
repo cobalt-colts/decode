@@ -5,8 +5,8 @@ import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-import org.firstinspires.ftc.teamcode.util.paths.redfarcorner;
-import org.firstinspires.ftc.teamcode.util.paths.redgoalnine;
+import org.firstinspires.ftc.teamcode.util.paths.RedFarCorner9;
+import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
@@ -26,11 +26,11 @@ import dev.nextftc.ftc.NextFTCOpMode;
 //@Disabled
 @Config
 @Autonomous(name = "state far corner red", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
-public class NINECornerRedFarSTATE extends NextFTCOpMode {
+public class RedFarCornerNINE extends NextFTCOpMode {
 
 
 
-    public NINECornerRedFarSTATE() throws InterruptedException {
+    public RedFarCornerNINE() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
@@ -55,27 +55,27 @@ public class NINECornerRedFarSTATE extends NextFTCOpMode {
                 Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
                 subsystems.Turret.INSTANCE.redfar,
-                new FollowPath(redfarcorner.line1, true),
+                new FollowPath(RedFarCorner9.line1, true),
                 new Delay(0.25),
-                new FollowPath(redfarcorner.launch1, true),
+                new FollowPath(RedFarCorner9.launch1, true),
                 Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
                 Intake.INSTANCE.intake,
-                new FollowPath(redfarcorner.line2, false),
-                new FollowPath(redfarcorner.bump1, false),
+                new FollowPath(RedFarCorner9.line2, false),
+                new FollowPath(RedFarCorner9.bump1, false),
                 new ParallelDeadlineGroup(
                         new Delay(2),
-                        new FollowPath(redfarcorner.bump2, true)
+                        new FollowPath(RedFarCorner9.bump2, true)
                 ),
                 new Delay(0.5),
-                new FollowPath(redfarcorner.launch2, true),
+                new FollowPath(RedFarCorner9.launch2, true),
                 Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
-                new FollowPath(redfarcorner.offline, true)
+                new FollowPath(RedFarCorner9.offline, true)
 
 
 //                new FollowPath(redfar.line2, true),
@@ -94,7 +94,7 @@ public class NINECornerRedFarSTATE extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        redgoalnine.BuildTrajectories(PedroComponent.Companion.follower());
+        RedGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(117.5, 131.5, Math.toRadians(-143.5)));
         autoRoutine().schedule();
     }
