@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.paths.bluegoalnine;
-import org.firstinspires.ftc.teamcode.util.paths.bluegoalnine;
 import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
@@ -17,7 +16,6 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
-import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.core.units.Angle;
@@ -26,11 +24,11 @@ import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
+import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
+
 @Config
 @Autonomous(name = "(12) BLUE Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Goal")
 public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
-
-
 
     public TWELVEBlueGoalSTATE() throws InterruptedException {
         addComponents(
@@ -41,96 +39,63 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
                         subsystems.Camera.INSTANCE,
                         subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
-
-//                BulkReadComponent.INSTANCE
         );
     }
 
     private Command autoRoutine() {
-
-        return new SequentialGroup(
+        return new SequentialGroupFixed(
+                // Detect motif, drive to preload position, spin up shooter
                 subsystems.Camera.INSTANCE.setmotif,
-//                subsystems.Turret.INSTANCE.bluegoal, miles, 1/16/25 (worked just fine w deafult paths, turret caused it to shoot outside field.)
                 new ParallelGroup(
                         Thrower.INSTANCE.shooteron,
                         new FollowPath(bluegoalnine.preload, true),
                         subsystems.Turret.INSTANCE.bluegoal
                 ),
-                new InstantCommand(() -> {Thrower.targetvelocity = 1370;}),
+
+                // Shoot preloaded balls in motif order
+                new InstantCommand(() -> Thrower.targetvelocity = 1370),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
-                new Delay(0.25),
+                Index.INSTANCE.closeSortedLaunch(),
 
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-//                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
-
                 new FollowPath(bluegoalnine.line1, true),
-//                subsystems.Turret.INSTANCE.bluegoal,
                 new Delay(0.25),
-//                new InstantCommand(() -> {Intake.outtake();}),
                 new FollowPath(bluegoalnine.gate, true),
-//                new Delay(0.5),
                 new FollowPath(bluegoalnine.launch1, true),
-                new Delay(1), //0.5
-//                Intake.INSTANCE.outtake,
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-//                Index.INSTANCE.closeunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                new Delay(1),
+                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.sensedunsorted,
+
+                // Pick up line 2, drive to launch position, shoot
                 Intake.INSTANCE.intake,
                 new FollowPath(bluegoalnine.line2, true),
                 new Delay(0.5),
-//                Intake.INSTANCE.outtake,
-//                new InstantCommand(() -> {Intake.outtake();}),
                 new FollowPath(bluegoalnine.launch2, true),
                 new Delay(1),
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-//                Index.INSTANCE.secondcloseunsortedlaunch,
-                new InstantCommand(subsystems.Turret.INSTANCE.bluepark),
+                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.sensedunsorted,
+
+                // Pick up line 3, drive to launch position, shoot
+                subsystems.Turret.INSTANCE.bluepark,
                 Intake.INSTANCE.intake,
                 new FollowPath(bluegoalnine.line3, true),
                 new Delay(0.5),
-//                Intake.INSTANCE.outtake,
-//                new InstantCommand(() -> {Intake.outtake();}),
-                new InstantCommand(() -> {Thrower.targetvelocity = 1240;}),
+                new InstantCommand(() -> Thrower.targetvelocity = 1250),
                 new FollowPath(bluegoalnine.launch3),
                 new Delay(0.5),
-//                Index.INSTANCE.flickerOrder,
-//                Index.INSTANCE.closesortedLaunch,
-//                Index.INSTANCE.closesortedLaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
+                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.sensedunsorted,
+                Index.INSTANCE.sensedunsorted,
+                Index.INSTANCE.sensedunsorted,
 
-//                new IfElseCommand(
-//                        () -> subsystems.hasAnyBalls,
-//                        Index.INSTANCE.closesortedLaunch
-//                ),
-                Index.INSTANCE.colorsensecloseunsortedlaunch,
-//                Index.INSTANCE.secondcloseunsortedlaunch,
+                // Return home
                 subsystems.Turret.INSTANCE.home,
-                new TurnTo(Angle.fromDeg(0))
+                new TurnTo(Angle.fromDeg(180))
         );
     }
 
@@ -150,5 +115,4 @@ public class TWELVEBlueGoalSTATE extends NextFTCOpMode {
     @Override public void onStop() {
         subsystems.start = false;
     }
-
 }

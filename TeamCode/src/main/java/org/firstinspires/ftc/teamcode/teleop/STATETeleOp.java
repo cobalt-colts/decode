@@ -50,6 +50,9 @@ public class STATETeleOp extends LinearOpMode {
         intake = hardwareMap.dcMotor.get("intake");
         intake.setDirection(DcMotorEx.Direction.REVERSE);
 
+        startReady = false;
+        redAlliance = false; // or whatever the default should be
+
         flicker1 = hardwareMap.servo.get("flicker1");
         rightAnalog = hardwareMap.analogInput.get("rightAnalog");
         flicker2 = hardwareMap.servo.get("flicker2");
@@ -65,7 +68,19 @@ public class STATETeleOp extends LinearOpMode {
         light1 = hardwareMap.servo.get("light1");
         light2 = hardwareMap.servo.get("light2");
         light3 = hardwareMap.servo.get("light3");
-        portal = new VisionPortal.Builder().addProcessor(sensor1).addProcessor(sensor2).addProcessor(sensor3).setCameraResolution(new Size(640, 480)).setCamera(hardwareMap.get(WebcamName.class, "internalcam")).build();
+//        portal = new VisionPortal.Builder().addProcessor(sensor1).addProcessor(sensor2).addProcessor(sensor3).setCameraResolution(new Size(640, 480)).setCamera(hardwareMap.get(WebcamName.class, "internalcam")).build();
+        posConstants.rebuildSensors();
+        if (portal != null) {
+            portal.close();
+            portal = null;
+        }
+        portal = new VisionPortal.Builder()
+                .addProcessor(sensor1)
+                .addProcessor(sensor2)
+                .addProcessor(sensor3)
+                .setCameraResolution(new Size(640, 480))
+                .setCamera(hardwareMap.get(WebcamName.class, "internalcam"))
+                .build();
 
         turret = hardwareMap.get(DcMotorEx.class, "turret");
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -124,8 +139,13 @@ public class STATETeleOp extends LinearOpMode {
             shoot();
             powers();
             telemetry();
+            if (isStopRequested()) {
+                portal.stopStreaming();
+                portal.close();
+            }
         }
-
+//        portal.stopStreaming();
+        portal.close();
         limelight.stop();
     }
 
@@ -212,12 +232,24 @@ public class STATETeleOp extends LinearOpMode {
                 }
                 break;
 
+//            case 4:
+//                if (allDown) {
+//                    if (ball1 != 'b') flick1 = Index.AUTOUP;
+//                    else if (ball2 != 'b') flick2 = Index.AUTOUP;
+//                    else if (ball3 != 'b') flick3 = Index.AUTOUP;
+//                    else gamepad1.rumble(200);
+//                }
+//                break;
             case 4:
                 if (allDown) {
                     if (ball1 != 'b') flick1 = Index.AUTOUP;
                     else if (ball2 != 'b') flick2 = Index.AUTOUP;
                     else if (ball3 != 'b') flick3 = Index.AUTOUP;
-                    else gamepad1.rumble(200);
+                    else {
+                        gamepad1.rumble(200);
+                        greenPos = 5; // all empty, stop
+                    }
+                    // don't decrement or reset — stay in case 4 until all slots empty
                 }
                 break;
 
@@ -239,11 +271,15 @@ public class STATETeleOp extends LinearOpMode {
                 flicker2Pos = flicker2up;
                 break;
 
+            case TRANSFER:
+                flicker2Pos = flicker2transfer;
+                break;
+
             case AUTODOWN:
                 flicker2Pos = flicker2down;
                 if (backAnalog.getVoltage() > flicker2DownThreshold) {
                     flick2 = Index.HOLD;
-//                    flick3 = Index.AUTOUP;
+                    flick3 = Index.AUTOUP;
                 }
                 break;
 
@@ -269,7 +305,7 @@ public class STATETeleOp extends LinearOpMode {
                 flicker3Pos = flicker3down;
                 if (leftAnalog.getVoltage() > flicker3DownThreshold) {
                     flick3 = Index.HOLD;
-//                    flick1 = Index.AUTOUP;
+                    flick1 = Index.AUTOUP;
                 }
                 break;
 
@@ -309,7 +345,7 @@ public class STATETeleOp extends LinearOpMode {
 
         if (sensor1.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
             ball1 = 'p';
-            light1.setPosition(0.722);
+            light1.setPosition(0.721);
         }
         else if (sensor1.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
             ball1 = 'g';
@@ -322,7 +358,7 @@ public class STATETeleOp extends LinearOpMode {
 
         if (sensor2.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
             ball2 = 'p';
-            light2.setPosition(0.722);
+            light2.setPosition(0.721);
         }
         else if (sensor2.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
             ball2 = 'g';
@@ -335,11 +371,11 @@ public class STATETeleOp extends LinearOpMode {
 
         if (sensor3.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
             ball3 = 'p';
-            light3.setPosition(0.722);
+            light3.setPosition(0.721);
         }
         else if (sensor3.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
             ball3 = 'g';
-            light1.setPosition(0.5);
+            light3.setPosition(0.5);
         }
         else {
             ball3 = 'b';
@@ -353,9 +389,12 @@ public class STATETeleOp extends LinearOpMode {
     }
     public void intake() {
         if (gamepad1.left_bumper) intakePower = intakeOut;
-        else if (gamepad1.right_bumper) intakePower = intakeIn;
+        else if (gamepad1.right_bumper) {
+            intakePower = intakeIn;
+            flick2 = Index.TRANSFER;
+        }
         else intakePower = ((ball1 == 'b' || ball2 == 'b' || ball3 == 'b') ? intakeIn : intakeOut);
-        if (flicker1Pos == flicker3up || flicker2Pos == flicker2up || flicker3Pos == flicker1up) intakePower = intakeOut;
+        if (flicker1Pos == flicker1up || flicker2Pos == flicker2up || flicker3Pos == flicker3up) intakePower = intakeOut;
     }
     public void shoot() {
         if (gamepad1.touchpadWasPressed()) flyWheelCorrect = 100;
@@ -380,10 +419,11 @@ public class STATETeleOp extends LinearOpMode {
 
         controller.setPIDF(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d, ShootingSpeedTuning.f);
         if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) targetTps = (ll.fetchFlywheelSpeed(limelight)); //  * TICKS_PER_REV / 60.0
-        if (targetTps != 1691) targetTps /= 0.95;
-        else targetTps -= 50;
+        if (targetTps != (2000 * .89)) targetTps /= 1; //0.95
+        else targetTps -= 150;
         if (gamepad1.right_stick_button) targetTps = -2000;
         targetVelocity = (int) targetTps;
+//        targetVelocity = Math.max(2000, targetVelocity);
 //        targetVelocity = 800;
 
 
@@ -453,9 +493,9 @@ public class STATETeleOp extends LinearOpMode {
         telemetry.addData("thrower1Velocity", currentVelocity);
         telemetry.addData("diff: ", targetTps + thrower1.getVelocity());
         telemetry.addData("pid: ", power);
-        telemetry.addData("left: ", ball3);
-        telemetry.addData("flick2: ", ball2);
-        telemetry.addData("flick1: ", ball1);
+        telemetry.addData("ball3: ", ball3);
+        telemetry.addData("ball2: ", ball2);
+        telemetry.addData("ball1: ", ball1);
         telemetry.addData("flick2: ", backAnalog.getVoltage());
         telemetry.addData("red: ", redAlliance);
         telemetry.addData("pinpoint: ", pinpoint.getHeading(AngleUnit.RADIANS));

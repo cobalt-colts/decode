@@ -64,10 +64,10 @@ public class bluegoalnine {
         line2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(53.522, 81.896),
+                                new Pose(53.522, 78.896), //81.896
                                 new Pose(49.674, 58.372),
                                 new Pose(42.509, 55.693),
-                                new Pose(24.313, 54.483)
+                                new Pose(24.313, 52.483) //54.483
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -87,10 +87,10 @@ public class bluegoalnine {
         line3 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(53.522, 81.896),
+                                new Pose(53.522, 78.896), //81.896
                                 new Pose(53.570, 31.433),
                                 new Pose(46.648, 38.763),
-                                new Pose(23.374, 35.961)
+                                new Pose(23.374, 33.961) //35.961
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
@@ -99,7 +99,7 @@ public class bluegoalnine {
         launch3 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(23.374, 35.961),
+                                new Pose(23.374, 33.961),
                                 new Pose(52.000, 110.000)
                         )
                 )

@@ -16,17 +16,16 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
-import dev.nextftc.core.commands.groups.SequentialGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
+import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
+
 @Config
-@Autonomous(name = "LINE RED Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Far")
+@Autonomous(name = "LINE RED Far-STATE", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Far")
 public class NINELineRedFarSTATE extends NextFTCOpMode {
-
-
 
     public NINELineRedFarSTATE() throws InterruptedException {
         addComponents(
@@ -37,46 +36,46 @@ public class NINELineRedFarSTATE extends NextFTCOpMode {
                         subsystems.Camera.INSTANCE,
                         subsystems.ColorSensing.INSTANCE),
                 new PedroComponent(Constants::createFollower)
-
-//                BulkReadComponent.INSTANCE
         );
     }
 
     private Command autoRoutine() {
         subsystems.far = true;
 
-        return new SequentialGroup(
-//                Thrower.INSTANCE.farshoot,
-
+        return new SequentialGroupFixed(
+                // Shoot preloaded balls
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                new Delay(0.1),
-                Index.INSTANCE.farunsortedlaunch,
-                Index.INSTANCE.farunsortedlaunch,
+                Index.INSTANCE.sensedunsortedatspeed(),
+                Index.INSTANCE.sensedunsortedatspeed(),
+
+                // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
+                Index.INSTANCE.transfer2,
                 Turret.INSTANCE.redfar,
-                new WaitUntil(() -> Math.abs(Math.abs(Turret.turret.getCurrentPosition()) - Math.abs(Turret.turretTargetPos)) <= 1),
+                new WaitUntil(() -> Math.abs(Turret.turret.getCurrentPosition() - Turret.turretTargetPos) <= 1),
                 new FollowPath(redfarline.line1, true),
-                new Delay(1), //0.5
-                Intake.INSTANCE.intake,
+                new Delay(1),
+                Index.INSTANCE.down2,
+                Intake.INSTANCE.outtake,
                 new FollowPath(redfarline.launch1, true),
                 new Delay(0.75),
-                Index.INSTANCE.farunsortedlaunch,
-                Index.INSTANCE.farunsortedlaunch,
+                Index.INSTANCE.sensedunsortedatspeed(),
+                Index.INSTANCE.sensedunsortedatspeed(),
+
+                // Pick up line 2, drive to launch position, shoot
                 Intake.INSTANCE.intake,
+                Index.INSTANCE.transfer2,
                 new FollowPath(redfarline.line2, false),
-                new Delay(1), //0.5
+                new Delay(1),
+                Index.INSTANCE.down2,
+                Intake.INSTANCE.outtake,
                 new FollowPath(redfarline.launch2, true),
-                new Delay(1), //0.5
-                Index.INSTANCE.farunsortedlaunch,
-                Index.INSTANCE.farunsortedlaunch,
+                new Delay(1),
+                Index.INSTANCE.sensedunsortedatspeed(),
+                Index.INSTANCE.sensedunsortedatspeed(),
+
+                // Park
                 new FollowPath(redfarline.offline, true)
-
-
-//                new FollowPath(redfar.line2, true),
-//                new FollowPath(redfar.launch2, true),
-//                new FollowPath(redfar.offline, true)
-
-
         );
     }
 
@@ -84,7 +83,6 @@ public class NINELineRedFarSTATE extends NextFTCOpMode {
         Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.redFarInit;
         Turret.INSTANCE.redfarinit.schedule();
-//        Thrower.INSTANCE.farhood.schedule();
     }
     @Override
     public void onStartButtonPressed() {
@@ -97,5 +95,4 @@ public class NINELineRedFarSTATE extends NextFTCOpMode {
     @Override public void onStop() {
         subsystems.start = false;
     }
-
 }

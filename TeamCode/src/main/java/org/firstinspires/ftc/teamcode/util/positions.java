@@ -27,7 +27,7 @@ public class positions {
     public static double flicker2Pos = flicker2down;
     public static double flicker3Pos = flicker3down;
     public static boolean allDown;
-    public enum Index { HOLD, DOWN, UP, AUTODOWN, AUTOUP}
+    public enum Index { HOLD, DOWN, UP, AUTODOWN, AUTOUP, TRANSFER}
     public static Index index = Index.HOLD;
     public static Index flick3 = Index.HOLD;
     public static Index flick2 = Index.HOLD;

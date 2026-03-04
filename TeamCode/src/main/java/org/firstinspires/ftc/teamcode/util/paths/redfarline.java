@@ -42,7 +42,7 @@ public class redfarline {
                                 new Pose(90.000, 15.000),
                                 new Pose(92.817, 73.878),
                                 new Pose(117.509, 56.346),
-                                new Pose(133.000, 56.000)
+                                new Pose(133.000, 58.000) //56
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(0))
 

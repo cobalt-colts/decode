@@ -68,7 +68,7 @@ public class redgoalnine {
                                 new Pose(85.000, 90.000),
                                 new Pose(94.326, 58.372),
                                 new Pose(101.491, 65.693),
-                                new Pose(120.000, 64.500)
+                                new Pose(122.000, 64.500) //120
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
@@ -91,7 +91,7 @@ public class redgoalnine {
                                 new Pose(85.000, 90.000),
                                 new Pose(90.430, 31.433),
                                 new Pose(97.352, 38.763),
-                                new Pose(120.000, 40.500)
+                                new Pose(122.000, 40.500) //120
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))

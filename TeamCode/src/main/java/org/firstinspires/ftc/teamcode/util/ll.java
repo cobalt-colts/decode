@@ -34,12 +34,13 @@ public class ll {
                             // Removed /2 This returns speed in rpm. Convert to ticks per second outside this code
                     if (ta > 0.4) flywheelspeed = ((1752.97 - (211.567 * ta))); // 323.74855 * Math.pow(0.996013, ta);
                     else if (ta < 0.1) flywheelspeed = Double.NaN;
-                    else flywheelspeed = 1900; // 1800 constant far zone speed
+                    else flywheelspeed = 2000; // 1900 constant far zone speed
                     flywheelspeed *= .89;
                     ActiveOpMode.telemetry().addData("flywheelspeed (in ll): ", flywheelspeed);
                 }
             }
         }
+        else flywheelspeed = Double.NaN;
         return flywheelspeed;
     }
     public static double fetchAlignment(Limelight3A limelight, boolean redAlliance) {
@@ -73,7 +74,7 @@ public class ll {
             // flywheelspeed = 2161 * Math.pow(0.86, ta); // For Ri3D bot
             if (ta > 0.4) hoodpos = ((.13 + .1436 * ta) /* + 0.05777 */ ); // 0.30707 * Math.pow(121.29199, ta);   // xxx fudge factor // miles 2/23/26
             else hoodpos = (farHood);
-            hoodpos = Math.max(0.13, hoodpos);
+            hoodpos = Math.max(0.08, hoodpos); //.13
             hoodpos = Math.min(0.7, hoodpos);
         } else {
 //            hoodpos = .2;

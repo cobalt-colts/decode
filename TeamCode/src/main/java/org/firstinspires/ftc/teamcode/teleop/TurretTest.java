@@ -43,6 +43,9 @@ public class TurretTest extends LinearOpMode {
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        posConstants.portal.close();
+        posConstants.portal.stopStreaming();
+
         waitForStart();
         if (isStopRequested()) return;
 

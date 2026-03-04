@@ -330,6 +330,14 @@ public class subsystems {
                 new Delay(0.12)
         );
 
+        public Command transfer2 = new SequentialGroupFixed(
+                new SetPosition(flicker2, flicker2transfer),
+                new Delay(0.1)
+        );
+        public Command down2 = new SequentialGroupFixed(
+                new SetPosition(flicker2, flicker2down),
+                new Delay(0.1)
+        );
         public Command launch2 = new SequentialGroupFixed(
                 new SetPosition(flicker2, flicker2up),
                 new Delay(0.2),
@@ -413,9 +421,9 @@ public class subsystems {
                 .setIsDone(() -> sensingunsorteddone);
 
         public Command closeunsortedlaunch = new SequentialGroupFixed(
-                launchIfBall,
-                launchIfBall,
-                launchIfBall,
+                launch1,
+                launch2,
+                launch3,
                 new Delay(0.25)
         );
 
@@ -704,9 +712,10 @@ public class subsystems {
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                if (far) targetvelocity = 1610;
+                if (far) targetvelocity = 1650; //1610
                 else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
                 if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
+                if (Double.isNaN(hoodpos)) hoodpos = 0.08;
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
 

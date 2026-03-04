@@ -39,8 +39,8 @@ public class bluefarline {
                         new BezierCurve(
                                 new Pose(54.000, 15.000),
                                 new Pose(54.313, 58.070),
-                                new Pose(39.169, 54.625),
-                                new Pose(11.000, 58.000) // 55
+//                                new Pose(39.169, 54.625),
+                                new Pose(11.000, 60.000) // 58
                         )
                 ).setConstantHeadingInterpolation(Math.toRadians(180))
 
@@ -48,7 +48,7 @@ public class bluefarline {
 
         launch2 = follower.pathBuilder().addPath(
                         new BezierLine(
-                                new Pose(11.000, 55.000),
+                                new Pose(11.000, 60.000),
 
                                 new Pose(54.000, 15.000)
                         )

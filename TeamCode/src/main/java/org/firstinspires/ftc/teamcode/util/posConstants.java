@@ -33,18 +33,39 @@ public class posConstants {;
     public static Servo hood, flicker3, flicker2, flicker1, light1, light2, light3;
     public static AnalogInput rightAnalog, backAnalog, leftAnalog;
     public static DigitalChannel magnet;
-    public static PredominantColorProcessor sensor2 = new PredominantColorProcessor.Builder()
-            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
-            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
-            .build();
-    public static PredominantColorProcessor sensor1= new PredominantColorProcessor.Builder()
-            .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
-            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
-            .build();
-    public static PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
-            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, -0.2, 0.2))
-            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
-            .build();
+
+    // In posConstants, change the sensor declarations to just:
+    public static PredominantColorProcessor sensor1;
+    public static PredominantColorProcessor sensor2;
+    public static PredominantColorProcessor sensor3;
+
+    // Add this static method:
+    public static void rebuildSensors() {
+        sensor1 = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
+                .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+                .build();
+        sensor2 = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
+                .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+                .build();
+        sensor3 = new PredominantColorProcessor.Builder()
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, -0.2, 0.2))
+                .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+                .build();
+    }
+//    public static PredominantColorProcessor sensor2 = new PredominantColorProcessor.Builder()
+//            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.8, -0.3, -0.3, -0.8))
+//            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+//            .build();
+//    public static PredominantColorProcessor sensor1= new PredominantColorProcessor.Builder()
+//            .setRoi(ImageRegion.asUnityCenterCoordinates(0.6, .1, 0.9, -0.3))
+//            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+//            .build();
+//    public static PredominantColorProcessor sensor3 = new PredominantColorProcessor.Builder()
+//            .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, -0.2, 0.2))
+//            .setSwatches(PredominantColorProcessor.Swatch.ARTIFACT_GREEN, PredominantColorProcessor.Swatch.ARTIFACT_PURPLE, PredominantColorProcessor.Swatch.BLACK, PredominantColorProcessor.Swatch.WHITE)
+//            .build();
     public static VisionPortal portal;
     public static Limelight3A limelight;
     public static GoBildaPinpointDriver pinpoint;
@@ -66,6 +87,7 @@ public class posConstants {;
     //flicker 2
     public static double flicker2down = 0.77; // 0.375
     public static final double flicker2up = 0.38;
+    public static final double flicker2transfer = 0.72;
     public static double flicker2DownThreshold = 2.15;
     public static double flicker2UpThreshold = 1.8;
 
@@ -83,7 +105,7 @@ public class posConstants {;
     public static final double closeSpeed = 746.67;
     public static final double closeHood = 0.25; // 0.28
     public static final double farSpeed = 2000;
-    public static final double farHood = 0.08; // 0.19
+    public static final double farHood = 0.03; // 0.08
     public static double hoodAdjust = 0.03;
     public static double hoodAdjustClose = 0.02;
     public static double hoodAdjustFar = 0.04;
