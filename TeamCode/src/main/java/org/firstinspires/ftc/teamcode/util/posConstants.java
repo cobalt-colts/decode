@@ -118,13 +118,13 @@ public class posConstants {;
     public static final int limelightFast = 150; // 100
     public static double tolerance = 1;
     public static double ticksPerDegree = .75;
-    public static double turretP = 100;
+    public static double turretP = 150;
 
     // auto turret pos constants
 
     public static int redGoalInit = 90; // Was 68
     public static int redFarObelisk = 0;
-    public static int redFarInit = 32; //25
+    public static int redFarInit = 25; //32
     public static int redFarPickup = -92; //-88   -96
     public static int redGoalPickup = -65; //-65
     public static int redGoalPark = -39;
