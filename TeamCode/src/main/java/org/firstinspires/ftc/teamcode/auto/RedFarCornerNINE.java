@@ -57,8 +57,9 @@ public class RedFarCornerNINE extends NextFTCOpMode {
                 subsystems.Turret.INSTANCE.redfar,
                 new FollowPath(RedFarCorner9.line1, true),
                 new Delay(0.25),
-                new FollowPath(RedFarCorner9.launch1, true),
                 Intake.INSTANCE.outtake,
+                new FollowPath(RedFarCorner9.launch1, true),
+//                Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
@@ -70,8 +71,9 @@ public class RedFarCornerNINE extends NextFTCOpMode {
                         new FollowPath(RedFarCorner9.bump2, true)
                 ),
                 new Delay(0.5),
-                new FollowPath(RedFarCorner9.launch2, true),
                 Intake.INSTANCE.outtake,
+                new FollowPath(RedFarCorner9.launch2, true),
+//                Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
@@ -89,13 +91,13 @@ public class RedFarCornerNINE extends NextFTCOpMode {
     @Override public void onInit() {
         Index.INSTANCE.alldown.schedule();
         subsystems.Turret.initPos = posConstants.redFarInit;
-        subsystems.Turret.INSTANCE.redgoalinit.schedule();
+        subsystems.Turret.INSTANCE.redfarinit.schedule();
     }
     @Override
     public void onStartButtonPressed() {
         subsystems.start = true;
-        RedGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(117.5, 131.5, Math.toRadians(-143.5)));
+        RedFarCorner9.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(84.0, 9.0, Math.toRadians(-270)));
         autoRoutine().schedule();
     }
     @Override public void onUpdate() { }
