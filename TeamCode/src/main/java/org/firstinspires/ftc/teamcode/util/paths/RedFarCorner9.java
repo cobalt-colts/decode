@@ -34,7 +34,7 @@ public class RedFarCorner9 {
 
                                 new Pose(90.000, 15.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -45,7 +45,7 @@ public class RedFarCorner9 {
                                 new Pose(117.009, 9.139),
                                 new Pose(132.000, 8.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -75,7 +75,7 @@ public class RedFarCorner9 {
 
                                 new Pose(90.000, 15.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
 
@@ -85,7 +85,7 @@ public class RedFarCorner9 {
 
                                 new Pose(105.000, 33.000)
                         )
-                ).setLinearHeadingInterpolation(Math.toRadians(45), Math.toRadians(0))
+                ).setConstantHeadingInterpolation(Math.toRadians(0))
 
                 .build();
     }
