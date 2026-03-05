@@ -54,7 +54,7 @@ public class BlueFarCornerNINE extends NextFTCOpMode {
                 new FollowPath(ninebluefarcorner.line1, true),
                 new Delay(0.25),
                 new FollowPath(ninebluefarcorner.launch1, true),
-                Intake.INSTANCE.outtake,
+//                Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
@@ -67,7 +67,7 @@ public class BlueFarCornerNINE extends NextFTCOpMode {
                 ),
                 new Delay(0.5),
                 new FollowPath(ninebluefarcorner.launch2, true),
-                Intake.INSTANCE.outtake,
+                Intake.INSTANCE.intake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> Turret.INSTANCE.atposition),
                 Index.INSTANCE.farunsortedlaunch,
