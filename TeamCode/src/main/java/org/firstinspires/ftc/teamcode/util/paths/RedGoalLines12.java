@@ -100,7 +100,7 @@ public class RedGoalLines12 {
                 .addPath(
                         new BezierLine(
                                 new Pose(120.000, 40.500),
-                                new Pose(92.000, 110.000)
+                                new Pose(88.000, 110.000) //92
                         )
                 )
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
