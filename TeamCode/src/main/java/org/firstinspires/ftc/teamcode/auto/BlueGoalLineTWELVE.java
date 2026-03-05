@@ -56,7 +56,8 @@ public class BlueGoalLineTWELVE extends NextFTCOpMode {
                 new InstantCommand(() -> Thrower.targetvelocity = 1370),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
-                Index.INSTANCE.closeSortedLaunch(),
+                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.sensedunsorted,
 
                 // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
@@ -66,7 +67,7 @@ public class BlueGoalLineTWELVE extends NextFTCOpMode {
                 new FollowPath(BlueGoalLines12.launch1, true),
                 new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeSortedLaunch(),
                 Index.INSTANCE.sensedunsorted,
 
                 // Pick up line 2, drive to launch position, shoot
@@ -76,7 +77,7 @@ public class BlueGoalLineTWELVE extends NextFTCOpMode {
                 new FollowPath(BlueGoalLines12.launch2, true),
                 new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeSortedLaunch(),
                 Index.INSTANCE.sensedunsorted,
 
                 // Pick up line 3, drive to launch position, shoot
@@ -88,7 +89,7 @@ public class BlueGoalLineTWELVE extends NextFTCOpMode {
                 new FollowPath(BlueGoalLines12.launch3),
                 new Delay(0.5),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                Index.INSTANCE.closeunsortedlaunch,
+                Index.INSTANCE.closeSortedLaunch(),
                 Index.INSTANCE.sensedunsorted,
                 Index.INSTANCE.sensedunsorted,
                 Index.INSTANCE.sensedunsorted,
