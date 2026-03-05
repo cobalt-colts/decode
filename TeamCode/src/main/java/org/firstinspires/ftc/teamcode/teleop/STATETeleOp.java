@@ -181,13 +181,21 @@ public class STATETeleOp extends LinearOpMode {
         if (gamepad1.bWasPressed()) greenPos = 3;
         if (gamepad1.aWasPressed() || gamepad1.right_trigger >= 0.2) greenPos = 4;
         if (greenPos < 1) greenPos = 3;
+        if (ball1 == 'b' && ball2 == 'b' && ball3 == 'b') greenPos = 5;
 
+        if (gamepad1.left_stick_button && gamepad1.rightStickButtonWasPressed()) {
+            greenPos = 5;
+            flick1 = Index.UP;
+            flick2 = Index.UP;
+            flick3 = Index.UP;
+        }
         if (gamepad1.dpadRightWasPressed()) flick1 = Index.UP;
         if (gamepad1.dpadRightWasReleased()) flick1 = Index.DOWN;
         if (gamepad1.dpadUpWasPressed()) flick2 = Index.UP;
         if (gamepad1.dpadUpWasReleased()) flick2 = Index.DOWN;
         if (gamepad1.dpadLeftWasPressed()) flick3 = Index.UP;
         if (gamepad1.dpadLeftWasReleased()) flick3 = Index.DOWN;
+        if (gamepad1.dpadDownWasPressed()) down();
         if (gamepad1.dpad_down || gamepad1.left_trigger >= 0.2 || gamepad1.aWasReleased()) greenPos = 5;
 
 
@@ -273,18 +281,21 @@ public class STATETeleOp extends LinearOpMode {
 
             case TRANSFER:
                 flicker2Pos = flicker2transfer;
+                if (intakePower < intakeIn) flick2 = Index.AUTODOWN;
                 break;
 
             case AUTODOWN:
                 flicker2Pos = flicker2down;
                 if (backAnalog.getVoltage() > flicker2DownThreshold) {
                     flick2 = Index.HOLD;
-                    flick3 = Index.AUTOUP;
+                    // removed flick3 = Index.AUTOUP
                 }
                 break;
 
             case AUTOUP:
-                flicker2Pos = flicker2up;
+                if (canShoot) {
+                    flicker2Pos = flicker2up;
+                }
                 if (backAnalog.getVoltage() < flicker2UpThreshold && !gamepad1.dpad_up) flick2 = Index.AUTODOWN;
                 break;
         }
@@ -305,12 +316,14 @@ public class STATETeleOp extends LinearOpMode {
                 flicker3Pos = flicker3down;
                 if (leftAnalog.getVoltage() > flicker3DownThreshold) {
                     flick3 = Index.HOLD;
-                    flick1 = Index.AUTOUP;
+                    // removed flick1 = Index.AUTOUP
                 }
                 break;
 
             case AUTOUP:
-                flicker3Pos = flicker3up;
+                if (canShoot) {
+                    flicker3Pos = flicker3up;
+                }
                 if (leftAnalog.getVoltage() < flicker3UpThreshold) flick3 = Index.AUTODOWN;
                 break;
         }
@@ -335,52 +348,30 @@ public class STATETeleOp extends LinearOpMode {
                 break;
 
             case AUTOUP:
-                flicker1Pos = flicker1up;
+                if (canShoot) {
+                    flicker1Pos = flicker1up;
+                }
                 if (rightAnalog.getVoltage() > flicker1UpThreshold && !gamepad1.dpad_right) flick1 = Index.AUTODOWN;
                 break;
         }
     }
     public void color() {
-        allDown = (flicker1Pos == flicker1down && flicker3Pos == flicker3down && flicker2Pos == flicker2down && backAnalog.getVoltage() < flicker2DownThreshold && rightAnalog.getVoltage() > flicker1DownThreshold && leftAnalog.getVoltage() > flicker3DownThreshold);
+        //        allDown = (flicker1Pos == flicker1down && flicker3Pos == flicker3down && flicker2Pos == flicker2down && backAnalog.getVoltage() < flicker2DownThreshold && rightAnalog.getVoltage() > flicker1DownThreshold && leftAnalog.getVoltage() > flicker3DownThreshold);
+        allDown = ( Math.abs(flicker1Pos - flicker1down) < 0.1
+                && Math.abs(flicker3Pos - flicker3down) < 0.1
+                && Math.abs(flicker2Pos - flicker2down) < 0.1
+                && backAnalog.getVoltage() > flicker2DownThreshold
+                && rightAnalog.getVoltage() < flicker1DownThreshold
+                && leftAnalog.getVoltage() > flicker3DownThreshold);
 
-        if (sensor1.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
-            ball1 = 'p';
-            light1.setPosition(0.721);
-        }
-        else if (sensor1.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
-            ball1 = 'g';
-            light1.setPosition(0.5);
-        }
-        else {
-            ball1 = 'b';
-            light1.setPosition(0.277);
-        }
+        ball1 = getballletter(sensor1.getAnalysis(), GREY_SATURATION1);
+        light1.setPosition(colorToRGBServo(sensor1.getAnalysis(), GREY_SATURATION1));
 
-        if (sensor2.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
-            ball2 = 'p';
-            light2.setPosition(0.721);
-        }
-        else if (sensor2.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
-            ball2 = 'g';
-            light2.setPosition(0.5);
-        }
-        else {
-            ball2 = 'b';
-            light2.setPosition(0.277);
-        }
+        ball2 = getballletter(sensor2.getAnalysis(), GREY_SATURATION2);
+        light2.setPosition(colorToRGBServo(sensor2.getAnalysis(), GREY_SATURATION2));
 
-        if (sensor3.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
-            ball3 = 'p';
-            light3.setPosition(0.721);
-        }
-        else if (sensor3.getAnalysis().closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
-            ball3 = 'g';
-            light3.setPosition(0.5);
-        }
-        else {
-            ball3 = 'b';
-            light3.setPosition(0.277);
-        }
+        ball3 = getballletter(sensor3.getAnalysis(), GREY_SATURATION3);
+        light3.setPosition(colorToRGBServo(sensor3.getAnalysis(), GREY_SATURATION3));
     }
     public void down() {
         flick3 = Index.DOWN;
@@ -393,11 +384,12 @@ public class STATETeleOp extends LinearOpMode {
             intakePower = intakeIn;
             flick2 = Index.TRANSFER;
         }
+        else if (flicker1Pos == flicker1up || flicker2Pos == flicker2up || flicker3Pos == flicker3up) intakePower = intakeOut;
         else intakePower = ((ball1 == 'b' || ball2 == 'b' || ball3 == 'b') ? intakeIn : intakeOut);
-        if (flicker1Pos == flicker1up || flicker2Pos == flicker2up || flicker3Pos == flicker3up) intakePower = intakeOut;
-    }
+        }
     public void shoot() {
         if (gamepad1.touchpadWasPressed()) flyWheelCorrect = 100;
+        if (gamepad1.rightStickButtonWasPressed()) flyWheelCorrect -= 50;
         if (gamepad1.leftStickButtonWasPressed()) flyWheelCorrect = 0;
 //        if (gamepad1.psWasPressed()) {
 //            turret.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -419,10 +411,11 @@ public class STATETeleOp extends LinearOpMode {
 
         controller.setPIDF(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d, ShootingSpeedTuning.f);
         if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) targetTps = (ll.fetchFlywheelSpeed(limelight)); //  * TICKS_PER_REV / 60.0
-        if (targetTps != (2000 * .89)) targetTps /= 1; //0.95
-        else targetTps -= 150;
-        if (gamepad1.right_stick_button) targetTps = -2000;
+        if (targetTps <= (2000 * .88)) targetTps /= 1; //0.95
+        else targetTps -= (100 - flyWheelCorrect);  // Lower top speed now that hood is shooting more horizontal. Was 150
+        if (gamepad1.right_stick_button || gamepad1.left_stick_button) targetTps = -2000;
         targetVelocity = (int) targetTps;
+        targetVelocity = Math.max(600, targetVelocity);
 //        targetVelocity = Math.max(2000, targetVelocity);
 //        targetVelocity = 800;
 
@@ -431,14 +424,8 @@ public class STATETeleOp extends LinearOpMode {
 
         power = controller.calculate(currentVelocity, targetVelocity);
 
-        if (targetVelocity < 100) {
-            thrower1.setMotorDisable();
-            thrower2.setMotorDisable();
-        }
-        else {
-            thrower1.setPower(power);
-            thrower2.setPower(power);
-        }
+        thrower1.setPower(power);
+        thrower2.setPower(power);
 
 //        hoodPos = (targetTps >= 1000 ? farHood : (closeHood));
 //        hoodPos = farHood;
@@ -449,12 +436,11 @@ public class STATETeleOp extends LinearOpMode {
 //            if (count == 1) hoodPos += 0.4;
 //            else if (count == 2) hoodPos += 0.3;
 //        }
-        hoodPos = Math.max(hoodPos, 0.19);
+        hoodPos = Math.max(hoodPos, 0.08);
         hoodPos = Math.min(hoodPos, 0.4);
 
 //        canShoot = ((thrower1.getVelocity() / targetTps <= flywheelThreshold) && (turret.getVelocity() <= turretThreshold));
-        if (hoodPos == farHood) canShoot = (targetTps) - (thrower1.getVelocity() / 28) * 60 <= 10;
-        else canShoot = true;
+        canShoot = (Math.abs((targetTps) - (thrower1.getVelocity() / 28) * 60) <= 10 && Math.abs(turretPos - turret.getCurrentPosition()) <= 5);
     }
     public void powers() {
         frontLeftMotor.setPower(frontLeftPower);
@@ -490,16 +476,20 @@ public class STATETeleOp extends LinearOpMode {
     }
     public void telemetry() {
         telemetry.addData("fetch: ", targetTps);
-        telemetry.addData("thrower1Velocity", currentVelocity);
+        telemetry.addData("currentVelocity", currentVelocity);
         telemetry.addData("diff: ", targetTps + thrower1.getVelocity());
         telemetry.addData("pid: ", power);
         telemetry.addData("ball3: ", ball3);
         telemetry.addData("ball2: ", ball2);
         telemetry.addData("ball1: ", ball1);
+        telemetry.addData("greenPos: ", greenPos);
         telemetry.addData("flick2: ", backAnalog.getVoltage());
+        telemetry.addData("alldown: ", allDown);
         telemetry.addData("red: ", redAlliance);
         telemetry.addData("pinpoint: ", pinpoint.getHeading(AngleUnit.RADIANS));
         telemetry.addData("thrower1velocity", thrower1.getVelocity());
+        telemetry.addData("targetVelocity", targetVelocity);
+        telemetry.addData("velocitydiff", Math.abs(targetVelocity - thrower1.getVelocity()));
         telemetry.addData("thrower1power", thrower1.getPower());
         telemetry.addData("thrower2power", thrower2.getPower());
         telemetry.addData("hood: ", hoodPos);
@@ -508,6 +498,9 @@ public class STATETeleOp extends LinearOpMode {
         telemetry.addData("Back state", (flick2.equals(Index.HOLD)));
         telemetry.addData("Left state", (flick3.equals(Index.HOLD)));
         telemetry.addData("Right state", (flick1.equals(Index.HOLD)));
+//        telemetry.addData("back.getVoltage()", backAnalog.getVoltage());
+//        telemetry.addData("right.getVoltage()", rightAnalog.getVoltage());
+//        telemetry.addData("left.getVoltage()", leftAnalog.getVoltage());
         telemetry.update();
     }
 }
