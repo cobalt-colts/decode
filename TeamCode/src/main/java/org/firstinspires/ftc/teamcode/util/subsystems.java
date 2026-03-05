@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import  static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
-
+import static org.firstinspires.ftc.teamcode.util.positions.*;
 import static java.lang.Thread.sleep;
 
 import android.util.Size;
@@ -96,9 +96,6 @@ public class subsystems {
         private long lastToggleTime = 0;
         private boolean lightsOn = false;
         private static final long BLINK_INTERVAL_MS = 250;
-        private static final long GREY_SATURATION1 = 90; // Below this value for position 1 = low saturation = grey
-        private static final long GREY_SATURATION2 = 110; // Below this value for position 2 = low saturation = grey
-        private static final long GREY_SATURATION3 = 112; // Below this value for position 3 = low saturation = grey
 
         private static final int THRESHOLD = 8; // tune this. higher = more stable & slower to respond to change
         private int[] positiveCount = new int[3];
@@ -107,33 +104,7 @@ public class subsystems {
         // Add this:
         public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
 
-        private static boolean isball(PredominantColorProcessor.Result result, long satCutoff) {
-            if (result == null) return false;
-            if (result.HSV[1] < satCutoff) {   // Saturation lower than this means it's grey
-                return false;
-            }
-            PredominantColorProcessor.Swatch resultswatch = result.closestSwatch;
-            return resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN
-                    || resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE;
-        }
 
-        private static double colorToRGBServo(PredominantColorProcessor.Result color, long satCutoff) {
-            float hue = color.HSV[0];
-            float sat = color.HSV[1];
-            float val = color.HSV[2];
-
-            if (sat < satCutoff) {
-                // It's grey
-                return 0.3;
-            }
-            if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
-                return 0.7;
-            }
-            if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
-                return 0.5;
-            }
-            return 0.3;   // Return red if there's nothing present
-        }
 
         private void updateOccupied(int i, PredominantColorProcessor.Result result, long satCutoff) {
             if (isball(result, satCutoff)) {
@@ -393,32 +364,32 @@ public class subsystems {
 
         int state = 0;
 
-        public LambdaCommand colorsensecloseunsortedlaunch = new LambdaCommand() // sunday
-                .setStart(() -> {
-                    sensingunsorteddone = false;
-                    lastFlickTimeMs = 0;
-//                    sensingunsorteddone = true;
-                    state = 1;
-                })
-                .setUpdate(() -> {
-                    switch (state) {
-                        case 1:
-                            if (isoccupied[0]) {
-                                launch1.schedule();
-//                                try {
-//                                    sleep(200);
-//                                } catch (InterruptedException e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                                flicker1.setPosition(flicker1down);
-//                                sensingunsorteddone = true;
-                            }
-                            break;
-                        default:
-                            //
-                    }
-                })
-                .setIsDone(() -> sensingunsorteddone);
+//        public LambdaCommand colorsensecloseunsortedlaunch = new LambdaCommand() // sunday
+//                .setStart(() -> {
+//                    sensingunsorteddone = false;
+//                    lastFlickTimeMs = 0;
+////                    sensingunsorteddone = true;
+//                    state = 1;
+//                })
+//                .setUpdate(() -> {
+//                    switch (state) {
+//                        case 1:
+//                            if (isoccupied[0]) {
+//                                launch1.schedule();
+////                                try {
+////                                    sleep(200);
+////                                } catch (InterruptedException e) {
+////                                    throw new RuntimeException(e);
+////                                }
+////                                flicker1.setPosition(flicker1down);
+////                                sensingunsorteddone = true;
+//                            }
+//                            break;
+//                        default:
+//                            //
+//                    }
+//                })
+//                .setIsDone(() -> sensingunsorteddone);
 
         public Command closeunsortedlaunch = new SequentialGroupFixed(
                 launch1,
@@ -712,7 +683,7 @@ public class subsystems {
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                if (far) targetvelocity = 1650; //1610
+                if (far) targetvelocity = 1600; //1650
                 else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
                 if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
                 if (Double.isNaN(hoodpos)) hoodpos = 0.08;
