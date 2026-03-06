@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
 import org.firstinspires.ftc.teamcode.util.posConstants;
+import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
 import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
@@ -27,7 +28,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
-@Autonomous(name = "(12) RED Close-State", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
+@Autonomous(name = "RED Close 12 State", preselectTeleOp = "STATE Teleop", group = "Red Goal")
 public class RedGoalLineTWELVE extends NextFTCOpMode {
 
     public RedGoalLineTWELVE() throws InterruptedException {
@@ -45,7 +46,7 @@ public class RedGoalLineTWELVE extends NextFTCOpMode {
     private Command autoRoutine() {
         return new SequentialGroupFixed(
                 // Detect motif, drive to preload position, spin up shooter
-                subsystems.Camera.INSTANCE.setmotif,
+//                subsystems.Camera.INSTANCE.setmotif,
                 new ParallelGroup(
                         Thrower.INSTANCE.shooteron,
                         new FollowPath(RedGoalLines12.preload, true),
@@ -58,6 +59,8 @@ public class RedGoalLineTWELVE extends NextFTCOpMode {
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.closeunsortedlaunch,
                 Index.INSTANCE.sensedunsorted,
+                Index.INSTANCE.sensedunsorted,
+
 
                 // Pick up line 1, drive to launch position, shoot
                 Intake.INSTANCE.intake,
@@ -69,6 +72,8 @@ public class RedGoalLineTWELVE extends NextFTCOpMode {
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeSortedLaunch(),
                 Index.INSTANCE.sensedunsorted,
+                Index.INSTANCE.sensedunsorted,
+
 
                 // Pick up line 2, drive to launch position, shoot
                 Intake.INSTANCE.intake,
@@ -102,12 +107,20 @@ public class RedGoalLineTWELVE extends NextFTCOpMode {
     }
 
     @Override public void onInit() {
+        positions.redAlliance = true;
         Index.INSTANCE.alldown.schedule();
         subsystems.Turret.initPos = posConstants.redGoalInit;
         subsystems.Turret.INSTANCE.redgoalinit.schedule();
     }
+
+    @Override public void onWaitForStart() {
+        subsystems.Camera.INSTANCE.scanMotif();
+    }
     @Override
     public void onStartButtonPressed() {
+        if (subsystems.motif == subsystems.motifs.NONE) {
+            subsystems.motif = subsystems.motifs.GPP; // fallback if motif never detected
+        }
         subsystems.start = true;
         RedGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(122, 126, Math.toRadians(-143.5)));

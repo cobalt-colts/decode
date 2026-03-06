@@ -20,7 +20,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
-@Autonomous(name = "NextFTCTestingGC", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Goal")
+@Autonomous(name = "NextFTCTestingGC", preselectTeleOp = "STATE Teleop", group = "Red Goal")
 public class NextFTCTestingGC extends NextFTCOpMode {
 
 
@@ -40,7 +40,7 @@ public class NextFTCTestingGC extends NextFTCOpMode {
     }
     private Command autoRoutine() {
         return new SequentialGroupFixed(
-                subsystems.Camera.INSTANCE.setmotif,
+//                subsystems.Camera.INSTANCE.setmotif,
 
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 Index.INSTANCE.closeSortedLaunch(), // Launch in motif order

@@ -4,13 +4,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
-import org.firstinspires.ftc.teamcode.util.positions;
-
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 import org.firstinspires.ftc.teamcode.util.paths.RedFarCorner9;
-import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
 import org.firstinspires.ftc.teamcode.util.posConstants;
+import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Index;
 import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
@@ -28,11 +26,11 @@ import dev.nextftc.ftc.NextFTCOpMode;
 //@Disabled
 @Config
 @Autonomous(name = "RED Far Corner-STATE", preselectTeleOp = "STATE Teleop", group = "Red Goal")
-public class RedFarCornerNINE extends NextFTCOpMode {
+public class RedFarCornerTWELVE extends NextFTCOpMode {
 
 
 
-    public RedFarCornerNINE() throws InterruptedException {
+    public RedFarCornerTWELVE() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
@@ -84,6 +82,23 @@ public class RedFarCornerNINE extends NextFTCOpMode {
                 Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
+                Intake.INSTANCE.intake,
+                new FollowPath(RedFarCorner9.line2, false),
+                new FollowPath(RedFarCorner9.bump1, false),
+                new ParallelDeadlineGroup(
+                        new Delay(2),
+                        new FollowPath(RedFarCorner9.bump2, true)
+                ),
+                new Delay(0.5),
+//                Intake.INSTANCE.outtake,
+                new FollowPath(RedFarCorner9.launch2, true),
+                Intake.INSTANCE.outtake,
+                new Delay(1), //0.5
+                new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
+                Index.INSTANCE.farSortedLaunch(),
+                Index.INSTANCE.sensedunsortedatspeed(),
+                Index.INSTANCE.sensedunsortedatspeed(),
+                subsystems.Turret.INSTANCE.home,
                 new FollowPath(RedFarCorner9.offline, true)
 
 

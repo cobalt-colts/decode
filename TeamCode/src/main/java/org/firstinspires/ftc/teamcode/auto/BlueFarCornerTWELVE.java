@@ -25,7 +25,7 @@ import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Config
-@Autonomous(name = "TWELVE CORNER blue Far-Meet 3", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "blue Far")
+@Autonomous(name = "BLUE Far Corner 12 State", preselectTeleOp = "STATE Teleop", group = "blue Far")
 public class BlueFarCornerTWELVE extends NextFTCOpMode {
 
 
@@ -45,8 +45,6 @@ public class BlueFarCornerTWELVE extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
-        subsystems.far = true;
-
         return new SequentialGroup(
 //                subsystems.Thrower.INSTANCE.farshoot,
 

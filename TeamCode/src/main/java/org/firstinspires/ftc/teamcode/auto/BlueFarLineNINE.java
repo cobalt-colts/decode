@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Index;
 import org.firstinspires.ftc.teamcode.util.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.subsystems.Thrower;
 import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.util.positions;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
@@ -24,7 +25,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
-@Autonomous(name = "LINE BLUE Far-STATE", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Blue Far")
+@Autonomous(name = "BLUE Far Line-STATE", preselectTeleOp = "STATE Teleop", group = "Blue Far")
 public class BlueFarLineNINE extends NextFTCOpMode {
 
     public BlueFarLineNINE() throws InterruptedException {
@@ -40,11 +41,11 @@ public class BlueFarLineNINE extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
-        subsystems.far = true;
 
         return new SequentialGroupFixed(
                 // Shoot preloaded balls
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
@@ -59,6 +60,7 @@ public class BlueFarLineNINE extends NextFTCOpMode {
                 Intake.INSTANCE.outtake,
                 new FollowPath(BlueFarLines9.launch1, true),
                 new Delay(0.75),
+                Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
@@ -71,6 +73,7 @@ public class BlueFarLineNINE extends NextFTCOpMode {
                 Intake.INSTANCE.outtake,
                 new FollowPath(BlueFarLines9.launch2, true),
                 new Delay(1),
+                Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
@@ -80,12 +83,24 @@ public class BlueFarLineNINE extends NextFTCOpMode {
     }
 
     @Override public void onInit() {
+        positions.redAlliance = false;
+        subsystems.far = true;
+
         Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.blueFarInit;
         Turret.INSTANCE.bluefarinit.schedule();
     }
+
+    @Override public void onWaitForStart() {
+        subsystems.Camera.INSTANCE.scanMotifSingle();
+    }
+
     @Override
     public void onStartButtonPressed() {
+        if (subsystems.motif == subsystems.motifs.NONE) {
+            subsystems.motif = subsystems.motifs.GPP;
+        }
+
         subsystems.start = true;
         BlueFarLines9.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(60, 9, Math.toRadians(90)));

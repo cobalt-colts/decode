@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.util.positions;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.paths.RedFarLines9;
@@ -24,7 +25,7 @@ import dev.nextftc.ftc.NextFTCOpMode;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 
 @Config
-@Autonomous(name = "LINE RED Far-STATE", preselectTeleOp = "Sriram's ChatGPT TeleOp", group = "Red Far")
+@Autonomous(name = "RED Far Line-STATE", preselectTeleOp = "STATE Teleop", group = "Red Far")
 public class RedFarLineNINE extends NextFTCOpMode {
 
     public RedFarLineNINE() throws InterruptedException {
@@ -40,11 +41,11 @@ public class RedFarLineNINE extends NextFTCOpMode {
     }
 
     private Command autoRoutine() {
-        subsystems.far = true;
 
         return new SequentialGroupFixed(
                 // Shoot preloaded balls
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
@@ -59,6 +60,7 @@ public class RedFarLineNINE extends NextFTCOpMode {
                 Intake.INSTANCE.outtake,
                 new FollowPath(RedFarLines9.launch1, true),
                 new Delay(0.75),
+                Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
@@ -71,6 +73,7 @@ public class RedFarLineNINE extends NextFTCOpMode {
                 Intake.INSTANCE.outtake,
                 new FollowPath(RedFarLines9.launch2, true),
                 new Delay(1),
+                Index.INSTANCE.farSortedLaunch(),
                 Index.INSTANCE.sensedunsortedatspeed(),
                 Index.INSTANCE.sensedunsortedatspeed(),
 
@@ -80,12 +83,22 @@ public class RedFarLineNINE extends NextFTCOpMode {
     }
 
     @Override public void onInit() {
+        positions.redAlliance = true;
+        subsystems.far = true;
+
         Index.INSTANCE.alldown.schedule();
         Turret.initPos = posConstants.redFarInit;
         Turret.INSTANCE.redfarinit.schedule();
     }
+    @Override public void onWaitForStart() {
+        subsystems.Camera.INSTANCE.scanMotifSingle();
+    }
     @Override
     public void onStartButtonPressed() {
+        if (subsystems.motif == subsystems.motifs.NONE) {
+            subsystems.motif = subsystems.motifs.GPP;
+        }
+
         subsystems.start = true;
         RedFarLines9.BuildTrajectories(PedroComponent.Companion.follower());
         PedroComponent.Companion.follower().setStartingPose(new Pose(84, 9, Math.toRadians(90)));

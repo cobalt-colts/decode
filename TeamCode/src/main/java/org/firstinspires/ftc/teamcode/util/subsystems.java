@@ -5,7 +5,6 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import  static org.firstinspires.ftc.teamcode.util.ShooterPIDConfig.*;
 import static org.firstinspires.ftc.teamcode.util.positions.*;
-import static java.lang.Thread.sleep;
 
 import android.util.Size;
 
@@ -97,26 +96,37 @@ public class subsystems {
         private boolean lightsOn = false;
         private static final long BLINK_INTERVAL_MS = 250;
 
-        private static final int THRESHOLD = 8; // tune this. higher = more stable & slower to respond to change
-        private int[] positiveCount = new int[3];
-        private int[] negativeCount = new int[3];
-
-        // Add this:
-        public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
+//        public static boolean hasAnyBalls() { return (isoccupied[0] || isoccupied[1] || isoccupied[2]); }
 
 
+        private static final double ALPHA = 0.15; // tune: lower = smoother but slower to respond
+        private float[] satAvg;
+        private boolean[] initialized;
 
         private void updateOccupied(int i, PredominantColorProcessor.Result result, long satCutoff) {
-            if (isball(result, satCutoff)) {
-                positiveCount[i]++;
-                negativeCount[i] = 0;
+            if (result == null) return;
+
+            float sat = result.HSV[1];
+
+            // Initialize on first reading
+            if (!initialized[i]) {
+                satAvg[i] = sat;
+                initialized[i] = true;
             } else {
-                negativeCount[i]++;
-                positiveCount[i] = 0;
+                satAvg[i] = (float)(ALPHA * sat + (1 - ALPHA) * satAvg[i]);
             }
 
-            if (positiveCount[i] >= THRESHOLD) isoccupied[i] = true;
-            if (negativeCount[i] >= THRESHOLD) isoccupied[i] = false;
+            // Use a hysteresis band to prevent flickering at the threshold
+            if (isoccupied[i]) {
+                // Only mark empty if average drops well below cutoff
+                if (satAvg[i] < satCutoff - 15) isoccupied[i] = false;
+            } else {
+                // Only mark occupied if average rises well above cutoff
+                if (satAvg[i] > satCutoff + 15) isoccupied[i] = true;
+            }
+
+            // Expose for telemetry tuning
+            ActiveOpMode.telemetry().addData("satAvg[" + i + "]", satAvg[i]);
         }
 
         @Override
@@ -133,25 +143,33 @@ public class subsystems {
 //            ActiveOpMode.telemetry().addData("sat2", result2.HSV[1]);
 //            ActiveOpMode.telemetry().addData("sat3", result3.HSV[1]);
 
+//            ActiveOpMode.telemetry().addData("hue0", result1.HSV[0]);
+//            ActiveOpMode.telemetry().addData("hue1", result2.HSV[0]);
+//            ActiveOpMode.telemetry().addData("hue2", result3.HSV[0]);
+
             // Update our index of what color is in what slot so we can sort later:
             indexOrder.clear();
+            PredominantColorProcessor.Result[] results = {result1, result2, result3};
+            long[] satCutoffs = {GREY_SATURATION1, GREY_SATURATION2, GREY_SATURATION3};
+
             for (int i = 0; i < 3; i++) {
+                PredominantColorProcessor.Result result = results[i];
                 if (isoccupied[i]) {
-                    PredominantColorProcessor.Result result = (i == 0) ? result1 : (i == 1) ? result2 : result3;
-                    if (result != null && result.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
+                    // Use isball with hue check to confirm color, same logic as occupation detection
+                    if (result != null && result.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN
+                            && isball(result, satCutoffs[i])) {
                         indexOrder.add('g');
                     } else {
-                        indexOrder.add('p'); // default to purple if occupied but unclear
+                        indexOrder.add('p');
                     }
                 } else {
-                    indexOrder.add('b'); // 'b' for blank/empty
+                    indexOrder.add('b');
                 }
             }
 
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
 
             // Set the RGB lights based on what colors are seen:
-            // No Artifact = red = 0.277
             // Artifact = purple=0.7 or green=0.5, specific to the position represented
             // Shooter up to speed Thrower.INSTANCE.atvelocity and aimed at goal Turret.INSTANCE.atposition = blinking. Set the light to 0.0 in the shooter's periodic() and hope there's enough lag to "blink"
             long now = System.nanoTime() / 1000000;
@@ -165,6 +183,11 @@ public class subsystems {
                     light2.setPosition(colorToRGBServo(ColorSensing.result2, GREY_SATURATION2));
                     light3.setPosition(colorToRGBServo(ColorSensing.result3, GREY_SATURATION3));
                 } else {
+                    if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
+                        light1.setPosition(.1);
+                        light2.setPosition(.1);
+                        light3.setPosition(.1);
+                    }
                 }
             }
         }
@@ -172,6 +195,9 @@ public class subsystems {
         @Override
         public void initialize()  {
             Subsystem.super.initialize();
+
+            initialized = new boolean[3];
+            satAvg = new float[3];
 
             light1 = ActiveOpMode.hardwareMap().get(Servo.class, "light1");
             light2 = ActiveOpMode.hardwareMap().get(Servo.class, "light2");
@@ -195,7 +221,7 @@ public class subsystems {
                             PredominantColorProcessor.Swatch.WHITE)
                     .build();
             sensor3 = new PredominantColorProcessor.Builder()
-                    .setRoi(ImageRegion.asUnityCenterCoordinates(-0.5, 0.5, -0.2, 0.2))
+                    .setRoi(ImageRegion.asUnityCenterCoordinates(-0.4, 0.6, -0.2, 0.3))
                     .setSwatches(
                             PredominantColorProcessor.Swatch.ARTIFACT_GREEN,
                             PredominantColorProcessor.Swatch.ARTIFACT_PURPLE,
@@ -219,23 +245,45 @@ public class subsystems {
         }
 
 
-        motifs getMotif(List<Integer> tags) {
-            if (tags.contains(21) && tags.contains(22)) {
-                motifOrder[0] = 'g';
-                motifOrder[1] = 'p';
-                motifOrder[2] = 'p';
-                return motifs.GPP;
-            } else if (tags.contains(22) && tags.contains(23)) {
-                motifOrder[0] = 'p';
-                motifOrder[1] = 'g';
-                motifOrder[2] = 'p';
-                return motifs.PGP;
-            } else if (tags.contains(23) && tags.contains(21)) {
-                motifOrder[0] = 'p';
-                motifOrder[1] = 'p';
-                motifOrder[2] = 'g';
-                return motifs.PPG;
-            } else return motifs.GPP;
+//        motifs getMotif(List<Integer> tags) {
+//            if (tags.contains(21) && tags.contains(22)) {
+//                motifOrder[0] = 'g';
+//                motifOrder[1] = 'p';
+//                motifOrder[2] = 'p';
+//                return motifs.GPP;
+//            } else if (tags.contains(22) && tags.contains(23)) {
+//                motifOrder[0] = 'p';
+//                motifOrder[1] = 'g';
+//                motifOrder[2] = 'p';
+//                return motifs.PGP;
+//            } else if (tags.contains(23) && tags.contains(21)) {
+//                motifOrder[0] = 'p';
+//                motifOrder[1] = 'p';
+//                motifOrder[2] = 'g';
+//                return motifs.PPG;
+//            } else return motifs.GPP;
+//        }
+
+        motifs getMotif(List<LLResultTypes.FiducialResult> fiducials) {
+            if (fiducials.size() < 2) return motifs.NONE;
+
+            // Sort by tx: most negative = leftmost
+            fiducials.sort((a, b) -> Double.compare(a.getTargetXDegrees(), b.getTargetXDegrees()));
+
+            int leftTag  = fiducials.get(0).getFiducialId();
+            int rightTag = fiducials.get(1).getFiducialId();
+
+            if (redAlliance) {
+                if (leftTag == 23 && rightTag == 22) return motifs.PPG;
+                if (leftTag == 22 && rightTag == 21) return motifs.PGP;
+                if (leftTag == 21 && rightTag == 23) return motifs.GPP;
+            } else {
+                if (leftTag == 21 && rightTag == 23) return motifs.PPG;
+                if (leftTag == 22 && rightTag == 21) return motifs.GPP;
+                if (leftTag == 23 && rightTag == 22) return motifs.PGP;
+            }
+
+            return motifs.NONE;
         }
 
         Limelight3A limelight; // = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
@@ -245,33 +293,86 @@ public class subsystems {
             Subsystem.super.initialize();
 
             limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");;
+            limelight.setPollRateHz(100);
+            limelight.pipelineSwitch(1);
+            limelight.start(); // add this
 
         }
 
-        public LambdaCommand setmotif = new LambdaCommand()
-                .setStart(() -> {
-                    limelight.setPollRateHz(100);
-                    limelight.pipelineSwitch(1);
-                    limelight.start();
-                    LLResult result = limelight.getLatestResult();
-                    if (result != null && result.isValid()) {
-                        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-                        List<Integer> tags = new ArrayList<Integer>();
-                        for (LLResultTypes.FiducialResult fiducial : fiducials) {
-                            int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                            tags.add(id);
-                            motif = getMotif(tags);
-                            ActiveOpMode.telemetry().addData("motif", motif);
-                        }
-                        motif = getMotif(tags);
+//        public LambdaCommand setmotif = new LambdaCommand()
+//                .setStart(() -> {
+//                    limelight.setPollRateHz(100);
+//                    limelight.pipelineSwitch(1);
+//                    limelight.start();
+//                    LLResult result = limelight.getLatestResult();
+//                    if (result != null && result.isValid()) {
+//                        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+//                        List<Integer> tags = new ArrayList<Integer>();
+//                        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+//                            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+//                            tags.add(id);
+//                            motif = getMotif(tags);
+//                            ActiveOpMode.telemetry().addData("motif", motif);
+//                        }
+//                        motif = getMotif(tags);
+//                    }
+//                    if (motif == motifs.NONE) {
+//                        motif = motifs.GPP; // XXX for testing, remove.
+//                    }
+//                })
+//                .setInterruptible(false)
+//                .requires(this)
+//                .setIsDone(() -> motif != motifs.NONE);
+
+        public void scanMotif() {
+            LLResult result = limelight.getLatestResult();
+            if (result != null && result.isValid()) {
+                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                if (fiducials.size() >= 2) {
+                    motifs detected = getMotif(fiducials);
+                    if (detected != motifs.NONE) {
+                        motif = detected;
                     }
-                    if (motif == motifs.NONE) {
-                        motif = motifs.GPP; // XXX for testing, remove.
+                }
+            }
+        }
+
+        public void scanMotifSingle() {
+            LLResult result = limelight.getLatestResult();
+            if (result != null && result.isValid()) {
+                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+                if (fiducials.size() >= 1) {
+                    int tag = fiducials.get(0).getFiducialId();
+                    motifs detected = motifs.NONE;
+                    if (positions.redAlliance) {
+                        if (tag == 23) detected = motifs.PPG;
+                        else if (tag == 22) detected = motifs.PGP;
+                        else if (tag == 21) detected = motifs.GPP;
+                    } else {
+                        if (tag == 23) detected = motifs.PPG;
+                        else if (tag == 21) detected = motifs.GPP;
+                        else if (tag == 22) detected = motifs.PGP;
                     }
-                })
-                .setInterruptible(false)
-                .requires(this)
-                .setIsDone(() -> motif != motifs.NONE);
+                    if (detected != motifs.NONE) motif = detected;
+                }
+            }
+        }
+
+//        public void scanMotif() {
+//            LLResult result = limelight.getLatestResult();
+//            if (result != null && result.isValid()) {
+//                List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+//                List<Integer> tags = new ArrayList<>();
+//                for (LLResultTypes.FiducialResult fiducial : fiducials) {
+//                    tags.add(fiducial.getFiducialId());
+//                }
+//                motifs detected = getMotif(tags);
+//                if (detected != motifs.NONE) {
+//                    motif = detected;
+//                }
+//                // No else — keep last known value if tags not currently visible
+//            }
+//        }
     }
 
     public static class Index implements Subsystem {
@@ -364,33 +465,6 @@ public class subsystems {
 
         int state = 0;
 
-//        public LambdaCommand colorsensecloseunsortedlaunch = new LambdaCommand() // sunday
-//                .setStart(() -> {
-//                    sensingunsorteddone = false;
-//                    lastFlickTimeMs = 0;
-////                    sensingunsorteddone = true;
-//                    state = 1;
-//                })
-//                .setUpdate(() -> {
-//                    switch (state) {
-//                        case 1:
-//                            if (isoccupied[0]) {
-//                                launch1.schedule();
-////                                try {
-////                                    sleep(200);
-////                                } catch (InterruptedException e) {
-////                                    throw new RuntimeException(e);
-////                                }
-////                                flicker1.setPosition(flicker1down);
-////                                sensingunsorteddone = true;
-//                            }
-//                            break;
-//                        default:
-//                            //
-//                    }
-//                })
-//                .setIsDone(() -> sensingunsorteddone);
-
         public Command closeunsortedlaunch = new SequentialGroupFixed(
                 launch1,
                 launch2,
@@ -482,6 +556,25 @@ public class subsystems {
                     order[1],
                     new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
                     new Delay(0.25),
+                    order[2],
+                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
+                    new Delay(0.25)
+            );
+        }
+
+        public Command farSortedLaunch() {
+            Command[] order = getFlickOrder();
+            double[] hoods = getHoodOrder();
+            return new SequentialGroupFixed(
+                    new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                    order[0],
+                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[0])),
+                    new Delay(0.25),
+                    new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
+                    order[1],
+                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
+                    new Delay(0.25),
+                    new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                     order[2],
                     new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
                     new Delay(0.25)
@@ -749,6 +842,8 @@ public class subsystems {
 
         private DigitalChannel magnet;
 
+        public String telemetryWarning = "";
+
         private Turret() {
         }
 
@@ -802,30 +897,37 @@ public class subsystems {
 //                .setIsDone(() -> Math.abs(Math.abs(turret.getCurrentPosition()) - Math.abs(turretTargetPos)) <= 2);
 
         public void initialize() {
+            telemetryWarning = "";
+            // xxx new Thursday -gc
+            subsystems.far = false;
+            subsystems.motif = subsystems.motifs.NONE;
+
             Subsystem.super.initialize();
             magnet = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "magnet");
             magnet.setMode(DigitalChannel.Mode.INPUT);
             turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            turret.setPositionPIDFCoefficients(100);
+            turret.setPositionPIDFCoefficients(125);
 
             if (magnet.getState()) {
                 // MAGNET IS NOT SENSED (true=not sensed, oddly) -> WE ARE NOT IN THE RIGHT POSITION!
-                // Try to rotate slowly until magnet is sensed, but with a limit?
-                // Try to rotate slowly until magnet is sensed, but with a limit?
-                turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                turret.setPower(-.6);   // Hope that this is the correct direction
-                while (ActiveOpMode.opModeInInit() && magnet.getState()) {
-                    //
-                }
-                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                // We actually need to go a BIT further so we're "home" but unclear how to
-                turret.setTargetPosition(2);
-                while (ActiveOpMode.opModeInInit() && turret.getCurrentPosition() <= 2) {
-                    //
-                }
-                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                telemetryWarning = "WARNING: MAGNET NOT SENSED. CHECK TURRET POSITION.";
+
+//                // Try to rotate slowly until magnet is sensed, but with a limit?
+//                // Try to rotate slowly until magnet is sensed, but with a limit?
+//                turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//                turret.setPower(-.6);   // Hope that this is the correct direction
+//                while (ActiveOpMode.opModeInInit() && magnet.getState()) {
+//                    //
+//                }
+//                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                // We actually need to go a BIT further so we're "home" but unclear how to
+//                turret.setTargetPosition(2);
+//                while (ActiveOpMode.opModeInInit() && turret.getCurrentPosition() <= 2) {
+//                    //
+//                }
+//                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
 
             // Magnet is on. Safe to rotate to starting position:
@@ -840,6 +942,9 @@ public class subsystems {
             turret.setPower(1);
             atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
 
+            if (telemetryWarning.length() > 0) {
+                ActiveOpMode.telemetry().addLine(telemetryWarning);
+            }
             ActiveOpMode.telemetry().addData("turretTargetPos", turretTargetPos);
             ActiveOpMode.telemetry().addData("turretCurrentPos", turret.getCurrentPosition());
             ActiveOpMode.telemetry().addData("turretError", turretTargetPos - turret.getCurrentPosition());
