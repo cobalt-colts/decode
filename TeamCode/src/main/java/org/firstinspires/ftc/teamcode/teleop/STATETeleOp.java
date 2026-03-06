@@ -51,7 +51,7 @@ public class STATETeleOp extends LinearOpMode {
         intake.setDirection(DcMotorEx.Direction.REVERSE);
 
         startReady = false;
-        redAlliance = false; // or whatever the default should be
+        //redAlliance = false; // or whatever the default should be
 
         flicker1 = hardwareMap.servo.get("flicker1");
         rightAnalog = hardwareMap.analogInput.get("rightAnalog");
