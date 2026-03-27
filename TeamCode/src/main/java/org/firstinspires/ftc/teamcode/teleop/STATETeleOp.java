@@ -411,7 +411,7 @@ public class STATETeleOp extends LinearOpMode {
 
         controller.setPIDF(ShootingSpeedTuning.p, ShootingSpeedTuning.i, ShootingSpeedTuning.d, ShootingSpeedTuning.f);
         if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) targetTps = (ll.fetchFlywheelSpeed(limelight)); //  * TICKS_PER_REV / 60.0
-        if (targetTps <= (2000 * .88)) targetTps /= 1; //0.95
+        if (targetTps <= (1900 * .88)) targetTps /= 1; //0.95
         else targetTps -= (100 - flyWheelCorrect);  // Lower top speed now that hood is shooting more horizontal. Was 150
         if (gamepad1.right_stick_button || gamepad1.left_stick_button) targetTps = -2000;
         targetVelocity = (int) targetTps;
@@ -440,7 +440,7 @@ public class STATETeleOp extends LinearOpMode {
         hoodPos = Math.min(hoodPos, 0.4);
 
 //        canShoot = ((thrower1.getVelocity() / targetTps <= flywheelThreshold) && (turret.getVelocity() <= turretThreshold));
-        canShoot = (Math.abs((targetTps) - (thrower1.getVelocity() / 28) * 60) <= 10 && Math.abs(turretPos - turret.getCurrentPosition()) <= 5);
+        canShoot = (Math.abs((targetTps) - (thrower1.getVelocity() / 28) * 60) <= 40 && Math.abs(turretPos - turret.getCurrentPosition()) <= 2);
     }
     public void powers() {
         frontLeftMotor.setPower(frontLeftPower);

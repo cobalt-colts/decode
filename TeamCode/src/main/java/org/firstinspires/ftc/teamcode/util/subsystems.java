@@ -169,6 +169,15 @@ public class subsystems {
 
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
 
+//            if (!hasAnyBalls) new InstantCommand(Intake);
+            if (start) {
+                if (isoccupied[0] && isoccupied[1] && isoccupied[2]) {
+                    Intake.INSTANCE.intakeMotor.setPower(0.5);
+                } else {
+                    Intake.INSTANCE.intakeMotor.setPower(-1);
+                }
+            }
+
             // Set the RGB lights based on what colors are seen:
             // Artifact = purple=0.7 or green=0.5, specific to the position represented
             // Shooter up to speed Thrower.INSTANCE.atvelocity and aimed at goal Turret.INSTANCE.atposition = blinking. Set the light to 0.0 in the shooter's periodic() and hope there's enough lag to "blink"
@@ -183,11 +192,11 @@ public class subsystems {
                     light2.setPosition(colorToRGBServo(ColorSensing.result2, GREY_SATURATION2));
                     light3.setPosition(colorToRGBServo(ColorSensing.result3, GREY_SATURATION3));
                 } else {
-                    if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
-                        light1.setPosition(.1);
-                        light2.setPosition(.1);
-                        light3.setPosition(.1);
-                    }
+//                    if (Thrower.INSTANCE.atvelocity && Turret.INSTANCE.atposition) {
+//                        light1.setPosition(.1);
+//                        light2.setPosition(.1);
+//                        light3.setPosition(.1);
+//                    }
                 }
             }
         }
@@ -778,7 +787,8 @@ public class subsystems {
 
                 if (far) targetvelocity = 1600; //1650
                 else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
-                if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
+                if (far) hoodpos = 0.08;
+                else if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
                 if (Double.isNaN(hoodpos)) hoodpos = 0.08;
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
@@ -908,7 +918,7 @@ public class subsystems {
             turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            turret.setPositionPIDFCoefficients(125);
+            turret.setPositionPIDFCoefficients(150);
 
             if (magnet.getState()) {
                 // MAGNET IS NOT SENSED (true=not sensed, oddly) -> WE ARE NOT IN THE RIGHT POSITION!

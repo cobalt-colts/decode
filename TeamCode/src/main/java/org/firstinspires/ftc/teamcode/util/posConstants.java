@@ -79,8 +79,8 @@ public class posConstants {;
     // INDEX
 
     // flicker 1
-    public static final double flicker1down = .24; //.22
-    public static final double flicker1up = .6;
+    public static final double flicker1down = .25; //.24     .22
+    public static final double flicker1up = .7; //.6
     public static double flicker1DownThreshold = 0.92;
     public static double flicker1UpThreshold = 1.8;
 
@@ -114,9 +114,10 @@ public class posConstants {;
     public static final double turretManual = 0.1; // 0.35
     public static final int turretMax = 300;
     public static final int turretMin = -100;
+    public static final double turretFarAdjust = 7.5; //5
     public static final int limelightSlow = 250;
     public static final int limelightFast = 150; // 100
-    public static double tolerance = 1;
+    public static double tolerance = 0.4;
     public static double ticksPerDegree = .75;
     public static double turretP = 150;
 
@@ -124,10 +125,10 @@ public class posConstants {;
 
     public static int redGoalInit = 90; // Was 68
     public static int redFarObelisk = 0;
-    public static int redFarInit = 25; //32
-    public static int redFarPickup = -92; //-88   -96
+    public static int redFarInit = 28; //25    32
+    public static int redFarPickup = -90; //-92     -88   -96
     public static int redGoalPickup = -65; //-65
-    public static int redGoalPark = -39;
+    public static int redGoalPark = -35; //-39
 
     public static int blueFarInit = -redFarInit;
     public static int blueFarPickup = -redFarPickup;

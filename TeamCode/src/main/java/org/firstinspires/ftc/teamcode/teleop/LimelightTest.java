@@ -44,48 +44,16 @@ public class LimelightTest extends LinearOpMode {
 
         while (opModeIsActive()) {
             LLResult result = limelight.getLatestResult();
-            List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
-//            if (!tags.isEmpty()) tag = tags.get(0);
-            ta = result.getTa();
-            ty = result.getTy();
-            family = tag.getFamily();
-////            space = tag.getTargetPoseCameraSpace();
-////            orientation = space.getOrientation();
-////            yaw = orientation.getYaw();
-////            yaw = tag.getSkew();
-//            if (!tags.isEmpty() && !tag.getTargetCorners().isEmpty() && !tag.getTargetCorners().get(0).isEmpty()) rightDelta = tag.getTargetCorners().get(0).get(0) - tag.getTargetCorners().get(1).get(0);
-
-//            LLResult result = limelight.getLatestResult();
             if (result != null && result.isValid()) {
-                tags = result.getFiducialResults();
-                if (!tags.isEmpty()) {
-                    LLResultTypes.FiducialResult tag = tags.get(0);
-
-                    // 3D camera space pose
-                    Pose3D campose = tag.getTargetPoseCameraSpace();
-                    if (campose != null) {
-                        double x   = campose.getPosition().x;
-                        double y   = campose.getPosition().y;
-                        double z   = campose.getPosition().z;
-                        double yaw = campose.getOrientation().getYaw();
-                        telemetry.addData("x", x);
-                        telemetry.addData("y", y);
-                        telemetry.addData("z", z);
-                        telemetry.addData("yaw", yaw);
-                    } else {
-                        telemetry.addLine("campose is null");
-                    }
-                } else {
-                    telemetry.addLine("no tags detected");
-                }
+                List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
+                if (!tags.isEmpty()) tag = tags.get(0);
+                ta = result.getTa();
+                ty = result.getTy();
             }
+
 
             telemetry.addData("getTa", ta);
             telemetry.addData("getTy", ty);
-            telemetry.addData("space:", space);
-            telemetry.addData("orientation", orientation);
-            telemetry.addData("yaw", yaw);
-            telemetry.addData("pipeline:", family);
             telemetry.update();
         }
     }

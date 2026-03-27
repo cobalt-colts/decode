@@ -56,7 +56,7 @@ dependencies {
 //    implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.5.1")
 //    implementation("com.bylazar.sloth:fullpanels:0.2.4+1.0.12")
     implementation('com.acmerobotics.dashboard:dashboard:0.5.1')    // Non-Sloth
-//    implementation "com.bylazar:fullpanels:1.0.6" // Non-Sloth, wants sdk 33 or 34
+    implementation "com.bylazar:fullpanels:1.0.12" // Non-Sloth, wants sdk 33 or 34
 
     implementation 'dev.nextftc:ftc:1.1.0'
     implementation 'dev.nextftc:hardware:1.1.0' // If you would like to use the hardware module

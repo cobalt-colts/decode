@@ -34,7 +34,7 @@ public class ll {
                             // Removed /2 This returns speed in rpm. Convert to ticks per second outside this code
                     if (ta > 0.4) flywheelspeed = ((1752.97 - (211.567 * ta))); // 323.74855 * Math.pow(0.996013, ta);
                     else if (ta < 0.1) flywheelspeed = Double.NaN;
-                    else flywheelspeed = 2000; // 1900 constant far zone speed
+                    else flywheelspeed = 1950; // 2000 constant far zone speed
                     flywheelspeed *= .89;
                     ActiveOpMode.telemetry().addData("flywheelspeed (in ll): ", flywheelspeed);
                 }
@@ -47,14 +47,22 @@ public class ll {
         final int RED_GOAL_TAG = 24;
         final int BLUE_GOAL_TAG = 20;
         int targetTag = redAlliance ? RED_GOAL_TAG : BLUE_GOAL_TAG;
-        int far = redAlliance ? -1 : 1;
+        int far = redAlliance ? 1 : -1;
         LLResult result = limelight.getLatestResult();
         if(result != null && result.isValid()) {
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
             for (LLResultTypes.FiducialResult tag : fiducials) {
                 if (tag.getFiducialId() == targetTag) {
                     double horizontalOffset = result.getTy(); //angle
-//                    if (result.getTa() < 0.5) horizontalOffset += far * posConstants.farAngleOffset;
+                    double farAdjust = 0;
+                    if (result.getTa() < 0.5) {
+                        if (result.getTa() >= 0.3) farAdjust = far * 1.5; //2.5
+                        else {
+                            if (result.getTx() <= 13) farAdjust = far * 4;
+                            else farAdjust = far * 2;
+                        }
+                    }
+                    horizontalOffset += far * farAdjust;
                     if (Math.abs(horizontalOffset) > tolerance) {
                         return (horizontalOffset * ticksPerDegree);
                     } else return 0;

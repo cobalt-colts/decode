@@ -25,12 +25,12 @@ import dev.nextftc.ftc.NextFTCOpMode;
 
 //@Disabled
 @Config
-@Autonomous(name = "RED Far Corner-STATE", preselectTeleOp = "STATE Teleop", group = "Red Goal")
-public class RedFarCornerTWELVE extends NextFTCOpMode {
+@Autonomous(name = "RED Far Line-STATE", preselectTeleOp = "STATE Teleop", group = "Red Goal")
+public class RedFarLineNine extends NextFTCOpMode {
 
 
 
-    public RedFarCornerTWELVE() throws InterruptedException {
+    public RedFarLineNine() throws InterruptedException {
         addComponents(
                 new SubsystemComponent(Thrower.INSTANCE,
                         Index.INSTANCE,
@@ -60,7 +60,7 @@ public class RedFarCornerTWELVE extends NextFTCOpMode {
                 new Delay(0.25),
 //                Intake.INSTANCE.outtake,
                 new FollowPath(RedFarCorner9.launch1, true),
-                Intake.INSTANCE.outtake,
+//                Intake.INSTANCE.outtake,
                 new Delay(1), //0.5
                 new WaitUntil(() -> subsystems.Turret.INSTANCE.atposition),
                 Index.INSTANCE.farSortedLaunch(),

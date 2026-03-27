@@ -5,7 +5,6 @@ import static org.firstinspires.ftc.teamcode.util.posConstants.flicker1down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.flicker2down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.flicker3down;
 import static org.firstinspires.ftc.teamcode.util.posConstants.pinpoint;
-import static org.firstinspires.ftc.teamcode.util.posConstants.sensor1;
 
 import com.acmerobotics.dashboard.config.Config;
 
@@ -53,28 +52,24 @@ public class positions {
 
     public static boolean startReady;
 
-    public static final long GREY_SATURATION1 = 90; // Below this value for position 1 = low saturation = grey
+    public static final long GREY_SATURATION1 = 100; // Below this value for position 1 = low saturation = grey
     public static final long GREY_SATURATION2 = 110; // Below this value for position 2 = low saturation = grey
-    public static final long GREY_SATURATION3 = 112; // Below this value for position 3 = low saturation = grey
+    public static final long GREY_SATURATION3 = 103; // Below this value for position 3 = low saturation = grey
+
 
     public static boolean isball(PredominantColorProcessor.Result result, long satCutoff) {
         if (result == null) return false;
-        if (result.HSV[1] < satCutoff) {   // Saturation lower than this means it's grey
-            return false;
-        }
-        PredominantColorProcessor.Swatch resultswatch = result.closestSwatch;
-        return resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN
-                || resultswatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE;
+        if (result.HSV[1] < satCutoff) return false;
+        PredominantColorProcessor.Swatch s = result.closestSwatch;
+        return s == PredominantColorProcessor.Swatch.ARTIFACT_GREEN
+                || s == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE;
     }
 
     public static double colorToRGBServo(PredominantColorProcessor.Result color, long satCutoff) {
-        float hue = color.HSV[0];
-        float sat = color.HSV[1];
-        float val = color.HSV[2];
+        if (color == null) return 0.1;
 
-        if (sat < satCutoff) {
-            // It's grey
-            return 0.3;
+        if (!isball(color, satCutoff)) {
+            return 0.1; // grey/off - not a ball
         }
         if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
             return 0.7;
@@ -82,11 +77,11 @@ public class positions {
         if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_GREEN) {
             return 0.5;
         }
-        return 0.1;   // Return black/off if there's nothing present
+        return 0.1;
     }
 
     public static char getballletter(PredominantColorProcessor.Result color, long satCutoff) {
-        if (isball(color, GREY_SATURATION1)) {
+        if (isball(color, satCutoff)) {
             // It's a ball, but which color?
             if (color.closestSwatch == PredominantColorProcessor.Swatch.ARTIFACT_PURPLE) {
                 return('p');
