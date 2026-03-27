@@ -950,23 +950,23 @@ public class subsystems {
             turret.setTargetPosition(turretTargetPos);
             turret.setPower(1);
             atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
-
-            if (telemetryWarning.length() > 0) {
-                ActiveOpMode.telemetry().addLine(telemetryWarning);
-            }
-            ActiveOpMode.telemetry().addData("turretTargetPos", turretTargetPos);
-            ActiveOpMode.telemetry().addData("turretCurrentPos", turret.getCurrentPosition());
-            ActiveOpMode.telemetry().addData("turretError", turretTargetPos - turret.getCurrentPosition());
-            ActiveOpMode.telemetry().addData("turretPower", turret.getPower());
-            ActiveOpMode.telemetry().addData("turretAtPosition", atposition);
-            ActiveOpMode.telemetry().addData("hoodpos", Thrower.hoodpos);
-            ActiveOpMode.telemetry().addData("motif", motif);
-//            ActiveOpMode.telemetry().addLine("--- COLOR SENSING ---");
-            ActiveOpMode.telemetry().addData("isOccupied1", isoccupied[0]);
-            ActiveOpMode.telemetry().addData("isOccupied2", isoccupied[1]);
-            ActiveOpMode.telemetry().addData("isOccupied3", isoccupied[2]);
-            ActiveOpMode.telemetry().addData("indexOrder", indexOrder.toString());
-            ActiveOpMode.telemetry().addData("flickOrder", flickOrder);
+//
+//            if (telemetryWarning.length() > 0) {
+//                ActiveOpMode.telemetry().addLine(telemetryWarning);
+//            }
+//            ActiveOpMode.telemetry().addData("turretTargetPos", turretTargetPos);
+//            ActiveOpMode.telemetry().addData("turretCurrentPos", turret.getCurrentPosition());
+//            ActiveOpMode.telemetry().addData("turretError", turretTargetPos - turret.getCurrentPosition());
+//            ActiveOpMode.telemetry().addData("turretPower", turret.getPower());
+//            ActiveOpMode.telemetry().addData("turretAtPosition", atposition);
+//            ActiveOpMode.telemetry().addData("hoodpos", Thrower.hoodpos);
+//            ActiveOpMode.telemetry().addData("motif", motif);
+////            ActiveOpMode.telemetry().addLine("--- COLOR SENSING ---");
+//            ActiveOpMode.telemetry().addData("isOccupied1", isoccupied[0]);
+//            ActiveOpMode.telemetry().addData("isOccupied2", isoccupied[1]);
+//            ActiveOpMode.telemetry().addData("isOccupied3", isoccupied[2]);
+//            ActiveOpMode.telemetry().addData("indexOrder", indexOrder.toString());
+//            ActiveOpMode.telemetry().addData("flickOrder", flickOrder);
 
 //            ActiveOpMode.telemetry().addData("swatch[0]", ColorSensing.result1 != null ? ColorSensing.colorToRGBServo(ColorSensing.result1) : "null");
 //            ActiveOpMode.telemetry().addData("swatch[1]", ColorSensing.result2 != null ? ColorSensing.colorToRGBServo(ColorSensing.result2) : "null");

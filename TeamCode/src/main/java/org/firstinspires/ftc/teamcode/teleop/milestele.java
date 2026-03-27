@@ -84,7 +84,8 @@ public class milestele extends NextFTCOpMode {
     @Override
     public void onUpdate() {
         BindingManager.update();
-        ActiveOpMode.telemetry().addData("left trigger", intake.get());
+        ActiveOpMode.telemetry().addData("is outtaking?", intake.get());
+        ActiveOpMode.telemetry().update();
     }
 
     @Override
