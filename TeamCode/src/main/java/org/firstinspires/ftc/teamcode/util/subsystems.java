@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 public class subsystems {
     private static final Logger log = LoggerFactory.getLogger(subsystems.class);
     public static boolean start = false;
+    public static boolean teleop = false;
     public static char motifOrder[] = {'b', 'b', 'b'};
     public static ArrayList<Character> indexOrder = new ArrayList<>(3);
     public static int count = 0;
@@ -409,7 +410,7 @@ public class subsystems {
                 new Delay(0.2),
                 new SetPosition(flicker1, flicker1down),
                 new Delay(0.12)
-        );
+        ).setInterruptible(false);
 
         public Command transfer2 = new SequentialGroupFixed(
                 new SetPosition(flicker2, flicker2transfer),
@@ -424,13 +425,13 @@ public class subsystems {
                 new Delay(0.2),
                 new SetPosition(flicker2, flicker2down),
                 new Delay(0.12)
-        );
+        ).setInterruptible(false);
         public Command launch3 = new SequentialGroupFixed(
                 new SetPosition(flicker3, flicker3up),
                 new Delay(0.2),
                 new SetPosition(flicker3, flicker3down),
                 new Delay(0.12)
-        );
+        ).setInterruptible(false);
 
         public final Command alldown = new ParallelGroup(
                 new SetPosition(flicker1, flicker1down),
@@ -479,7 +480,7 @@ public class subsystems {
                 launch2,
                 launch3,
                 new Delay(0.25)
-        );
+        ).setInterruptible(false);
 
         private int index = 0;
 
@@ -614,10 +615,8 @@ public class subsystems {
 
         public Command farunsortedlaunch = new SequentialGroupFixed(
                 launch2,
-                new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 launch1,
-                new Delay(1),
                 new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                 launch3
 

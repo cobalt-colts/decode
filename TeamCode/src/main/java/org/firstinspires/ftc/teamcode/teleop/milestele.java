@@ -55,8 +55,17 @@ public class milestele extends NextFTCOpMode {
             .whenTrue(() -> {subsystems.Intake.INSTANCE.intakeMotor.setPower(0.5);})
             .whenFalse(() -> {subsystems.Intake.INSTANCE.intakeMotor.setPower(-1);});
 
-    Button flick1 = button(() -> gamepad1.dpad_up)
+    Button flick1 = button(() -> gamepad1.dpad_left)
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch1);
+
+    Button flick2 = button(() -> gamepad1.dpad_up)
+            .whenBecomesTrue(subsystems.Index.INSTANCE.launch2);
+
+    Button flick3 = button(() -> gamepad1.dpad_right)
+            .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
+
+    Button flickall = button(() -> gamepad1.dpad_down)
+            .whenBecomesTrue(subsystems.Index.INSTANCE.closeunsortedlaunch);
 
     @Override
     public void onStartButtonPressed() {
@@ -69,6 +78,7 @@ public class milestele extends NextFTCOpMode {
         driverControlled.schedule();
         PedroComponent.Companion.follower().setStartingPose(new Pose(0, 0, Math.toRadians(-180)));
         subsystems.start = true;
+        subsystems.teleop = true;
     }
 
     @Override
