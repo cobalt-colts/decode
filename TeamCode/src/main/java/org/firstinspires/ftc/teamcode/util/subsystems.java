@@ -688,7 +688,7 @@ public class subsystems {
             private Intake() {
             }
 
-            private DcMotorEx intakeMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
+            public DcMotorEx intakeMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
             double intakePower = -1;
             public static boolean negative = false;
 
