@@ -80,7 +80,7 @@ public class posConstants {;
 
     // flicker 1
     public static final double flicker1down = .25; //.24     .22
-    public static final double flicker1up = .7; //.6
+    public static final double flicker1up = .8; //.6
     public static double flicker1DownThreshold = 0.92;
     public static double flicker1UpThreshold = 1.8;
 

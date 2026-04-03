@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
+import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 
 import dev.nextftc.bindings.BindingManager;
@@ -32,7 +33,13 @@ import static dev.nextftc.bindings.Bindings.*;
 @TeleOp(name = "COWTOWN TeleOp")
 public class milestele extends NextFTCOpMode {
 
+    private boolean teleopPipelineConfigured = false;
+
     public milestele() throws InterruptedException {
+        subsystems.teleop = true;
+        subsystems.start = false;
+        subsystems.far = false;
+        positions.flyWheelCorrect = 0;
         addComponents(
                 new SubsystemComponent(subsystems.Thrower.INSTANCE,
                         subsystems.Index.INSTANCE,
@@ -46,14 +53,8 @@ public class milestele extends NextFTCOpMode {
         );
     }
 
-    private Command resetDrive = new InstantCommand(() -> PedroComponent.Companion.follower().setPose(new Pose(0, 0, Math.toRadians(-180))));
-
     Button reset = button(() -> gamepad1.options)
-            .whenBecomesTrue(resetDrive);
-
-    Button intake = button(() -> gamepad1.left_bumper)
-            .whenTrue(() -> {subsystems.Intake.INSTANCE.intakeMotor.setPower(0.5);})
-            .whenFalse(() -> {subsystems.Intake.INSTANCE.intakeMotor.setPower(-1);});
+            .whenBecomesTrue(() -> PedroComponent.Companion.follower().setPose(new Pose(0, 0, Math.toRadians(-180))));
 
     Button flick1 = button(() -> gamepad1.dpad_left)
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch1);
@@ -66,31 +67,68 @@ public class milestele extends NextFTCOpMode {
 
     Button flickall = button(() -> gamepad1.dpad_down)
             .whenBecomesTrue(subsystems.Index.INSTANCE.closeunsortedlaunch);
+//
+//    Button shooterBoost = button(() -> gamepad1.touchpad)
+//            .whenBecomesTrue(() -> positions.flyWheelCorrect = 100);
+//
+//    Button shooterTrimDown = button(() -> gamepad1.right_stick_button)
+//            .whenBecomesTrue(() -> positions.flyWheelCorrect -= 50);
+//
+//    Button shooterTrimReset = button(() -> gamepad1.left_stick_button)
+//            .whenBecomesTrue(() -> positions.flyWheelCorrect = 0);
+
+    @Override
+    public void onInit() {
+        subsystems.teleop = true;
+        subsystems.start = false;
+        subsystems.far = false;
+        positions.flyWheelCorrect = 0;
+    }
 
     @Override
     public void onStartButtonPressed() {
         DriverControlledCommand driverControlled = new PedroDriverControlled(
                 Gamepads.gamepad1().leftStickY(),
                 Gamepads.gamepad1().leftStickX(),
-                Gamepads.gamepad1().rightStickX(),
+                Gamepads.gamepad1().rightStickX().negate(),
                 false
         );
         driverControlled.schedule();
         PedroComponent.Companion.follower().setStartingPose(new Pose(0, 0, Math.toRadians(-180)));
         subsystems.start = true;
         subsystems.teleop = true;
+        if (subsystems.Thrower.limelight != null) {
+            subsystems.Thrower.limelight.pipelineSwitch(positions.redAlliance ? 2 : 3);
+            teleopPipelineConfigured = true;
+        }
     }
 
     @Override
     public void onUpdate() {
         BindingManager.update();
-        ActiveOpMode.telemetry().addData("is outtaking?", intake.get());
+
+        if (!subsystems.start || !subsystems.teleop) {
+            subsystems.Intake.INSTANCE.intakeMotor.setPower(0);
+        } else if (gamepad1.left_bumper) {
+            subsystems.Intake.INSTANCE.intakeMotor.setPower(0.5);
+        } else {
+            subsystems.Intake.INSTANCE.intakeMotor.setPower(-1);
+        }
+
+        if (!teleopPipelineConfigured && subsystems.Thrower.limelight != null) {
+            subsystems.Thrower.limelight.pipelineSwitch(positions.redAlliance ? 2 : 3);
+            teleopPipelineConfigured = true;
+        }
+        ActiveOpMode.telemetry().addData("intake", gamepad1.left_bumper ? "OUT" : "IN");
         ActiveOpMode.telemetry().update();
     }
 
     @Override
     public void onStop() {
         BindingManager.reset();
+        subsystems.Intake.INSTANCE.intakeMotor.setPower(0);
         subsystems.start = false;
+        subsystems.teleop = false;
+        teleopPipelineConfigured = false;
     }
 }

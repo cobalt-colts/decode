@@ -172,10 +172,12 @@ public class subsystems {
 
 //            if (!hasAnyBalls) new InstantCommand(Intake);
             if (start) {
-                if (isoccupied[0] && isoccupied[1] && isoccupied[2]) {
-                    Intake.INSTANCE.intakeMotor.setPower(0.5);
-                } else {
-                    Intake.INSTANCE.intakeMotor.setPower(-1);
+                if (!teleop) {
+                    if (isoccupied[0] && isoccupied[1] && isoccupied[2]) {
+                        Intake.INSTANCE.intakeMotor.setPower(0.5);
+                    } else {
+                        Intake.INSTANCE.intakeMotor.setPower(-1);
+                    }
                 }
             }
 
@@ -304,7 +306,9 @@ public class subsystems {
 
             limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");;
             limelight.setPollRateHz(100);
-            limelight.pipelineSwitch(1);
+            if (!teleop) {
+                limelight.pipelineSwitch(1);
+            }
             limelight.start(); // add this
 
         }
@@ -407,7 +411,7 @@ public class subsystems {
         }
         public Command launch1 = new SequentialGroupFixed(
                 new SetPosition(flicker1, flicker1up),
-                new Delay(0.2),
+                new Delay(0.3),
                 new SetPosition(flicker1, flicker1down),
                 new Delay(0.12)
         ).setInterruptible(false);
@@ -695,6 +699,7 @@ public class subsystems {
             public void initialize() {
                 Subsystem.super.initialize();
                 intakeMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
+                intakeMotor.setPower(0);
             }
 
             public Command outtake = new InstantCommand(() -> {
@@ -707,6 +712,9 @@ public class subsystems {
             @Override
             public void periodic() {
                 Subsystem.super.periodic();
+                if (!start) {
+                    intakeMotor.setPower(0);
+                }
 //            if (start) {
 //                intakePower = (negative ? -1 : 0.5);
 //                intakeMotor.setPower(intakePower);
@@ -735,6 +743,7 @@ public class subsystems {
         public static Limelight3A limelight;
 
         public static double hoodpos = .3;  // Initial value, somewhat reasonable for near auto
+        private static final double TELEOP_DYNAMIC_SPEED_THRESHOLD = 1900 * 0.88;
 
         public Command shooteron = new InstantCommand(() -> {
             isshooteron = true;
@@ -784,11 +793,27 @@ public class subsystems {
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
 
-                if (far) targetvelocity = 1600; //1650
-                else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
-                if (far) hoodpos = 0.08;
-                else if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
-                if (Double.isNaN(hoodpos)) hoodpos = 0.08;
+                if (teleop) {
+                    double fetchedSpeed = ll.fetchFlywheelSpeed(limelight);
+                    if (!Double.isNaN(fetchedSpeed)) {
+                        targetvelocity = fetchedSpeed;
+                    }
+                    if (targetvelocity > TELEOP_DYNAMIC_SPEED_THRESHOLD) {
+                        targetvelocity -= (100 - flyWheelCorrect);
+                    }
+                    targetvelocity = Math.max(600, targetvelocity);
+
+                    double fetchedHood = ll.fetchHoodPos(limelight);
+                    hoodpos = Double.isNaN(fetchedHood) ? closeHood : fetchedHood;
+                    hoodpos = Math.max(0.08, hoodpos);
+                    hoodpos = Math.min(0.4, hoodpos);
+                } else {
+                    if (far) targetvelocity = 1600; //1650
+                    else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
+                    if (far) hoodpos = 0.08;
+                    else if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
+                    if (Double.isNaN(hoodpos)) hoodpos = 0.08;
+                }
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
 
@@ -848,6 +873,9 @@ public class subsystems {
 
         public static final Turret INSTANCE = new Turret();
         public static int turretTargetPos = 0;
+        private static final double AUTOAIM_GAIN = 1.6;
+        private static final int AUTOAIM_MAX_STEP_TICKS = 75;
+        private static final int AUTOAIM_MIN_STEP_TICKS = 4;
 
         private DigitalChannel magnet;
 
@@ -900,6 +928,7 @@ public class subsystems {
         });
 
 
+
 //        public Command redinit = new LambdaCommand()
 //                .setStart(() -> {turretTargetPos = redFarInit;
 //                })
@@ -907,9 +936,6 @@ public class subsystems {
 
         public void initialize() {
             telemetryWarning = "";
-            // xxx new Thursday -gc
-            subsystems.far = false;
-            subsystems.motif = subsystems.motifs.NONE;
 
             Subsystem.super.initialize();
             magnet = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "magnet");
@@ -947,6 +973,29 @@ public class subsystems {
 
         public void periodic() {
             Subsystem.super.periodic();
+
+            if (start && teleop && Thrower.limelight != null) {
+                double alignmentTicks = ll.fetchAlignment(Thrower.limelight, redAlliance);
+                if (!Double.isNaN(alignmentTicks)) {
+                    int correctionTicks = (int) Math.round(alignmentTicks * AUTOAIM_GAIN);
+                    correctionTicks = Math.max(-AUTOAIM_MAX_STEP_TICKS, Math.min(AUTOAIM_MAX_STEP_TICKS, correctionTicks));
+
+                    if (correctionTicks > 0) {
+                        correctionTicks = Math.max(correctionTicks, AUTOAIM_MIN_STEP_TICKS);
+                    } else if (correctionTicks < 0) {
+                        correctionTicks = Math.min(correctionTicks, -AUTOAIM_MIN_STEP_TICKS);
+                    }
+
+                    turretTargetPos = turret.getCurrentPosition() + correctionTicks;
+                } else {
+                    if (ActiveOpMode.gamepad1() != null) {
+                        ActiveOpMode.gamepad1().rumble(0.2, 0.2, 120);
+                    }
+                }
+            }
+
+            turretTargetPos = Math.min(turretTargetPos, turretMax);
+            turretTargetPos = Math.max(turretTargetPos, turretMin);
             turret.setTargetPosition(turretTargetPos);
             turret.setPower(1);
             atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
