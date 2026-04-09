@@ -30,6 +30,9 @@ import dev.nextftc.hardware.impl.MotorEx;
 
 import static dev.nextftc.bindings.Bindings.*;
 
+import org.psilynx.psikit.ftc.autolog.PsiKitAutoLog;
+
+@PsiKitAutoLog
 @TeleOp(name = "COWTOWN TeleOp")
 public class milestele extends NextFTCOpMode {
 
