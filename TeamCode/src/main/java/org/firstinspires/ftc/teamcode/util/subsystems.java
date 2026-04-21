@@ -409,6 +409,8 @@ public class subsystems {
         public ServoEx getFlicker3() {
             return flicker3;
         }
+
+
         public Command launch1 = new SequentialGroupFixed(
                 new SetPosition(flicker1, flicker1up),
                 new Delay(0.3),
@@ -424,6 +426,7 @@ public class subsystems {
                 new SetPosition(flicker2, flicker2down),
                 new Delay(0.1)
         );
+
         public Command launch2 = new SequentialGroupFixed(
                 new SetPosition(flicker2, flicker2up),
                 new Delay(0.2),
@@ -705,6 +708,7 @@ public class subsystems {
             public Command outtake = new InstantCommand(() -> {
                 intakeMotor.setPower(0.5);
             });
+
             public Command intake = new InstantCommand(() -> {
                 intakeMotor.setPower(-1);
             });
