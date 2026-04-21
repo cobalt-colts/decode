@@ -123,5 +123,5 @@ Thumbs.db
 *.dll
 *.exe
 
-FtcRobotController/build
-TeamCode/build
+FtcRobotController/build/*
+TeamCode/build/*
