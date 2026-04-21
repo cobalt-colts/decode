@@ -534,7 +534,7 @@ public final class subsystems {
             launch2 = buildLaunch(flicker2, flicker2up, flicker2down);
             launch3 = buildLaunch(flicker3, flicker3up, flicker3down);
 
-            alldown = new ParallelCommandGroup(
+            alldown = new SequentialCommandGroup(
                     setPosition(flicker1, flicker1down),
                     setPosition(flicker2, flicker2down),
                     setPosition(flicker3, flicker3down)
@@ -542,35 +542,35 @@ public final class subsystems {
 
             closeunsortedlaunch = new UninterruptibleCommand(
                     new SequentialCommandGroup(
-                            launch1,
-                            launch2,
-                            launch3,
+                            buildLaunch(flicker1, flicker1up, flicker1down),
+                            buildLaunch(flicker2, flicker2up, flicker2down),
+                            buildLaunch(flicker3, flicker3up, flicker3down),
                             new WaitCommand(250)
                     )
             );
 
             sensedunsorted = new UninterruptibleCommand(
                     new SequentialCommandGroup(
-                            new ConditionalCommand(launch1, new InstantCommand(), () -> isoccupied[0]),
-                            new ConditionalCommand(launch2, new InstantCommand(), () -> isoccupied[1]),
-                            new ConditionalCommand(launch3, new InstantCommand(), () -> isoccupied[2])
+                            new ConditionalCommand(buildLaunch(flicker1, flicker1up, flicker1down), new InstantCommand(), () -> isoccupied[0]),
+                            new ConditionalCommand(buildLaunch(flicker2, flicker2up, flicker2down), new InstantCommand(), () -> isoccupied[1]),
+                            new ConditionalCommand(buildLaunch(flicker3, flicker3up, flicker3down), new InstantCommand(), () -> isoccupied[2])
                     )
             );
 
             sensedunsortedatspeed = new UninterruptibleCommand(
                     new SequentialCommandGroup(
                             new ConditionalCommand(
-                                    new SequentialCommandGroup(new WaitUntilCommand(() -> Thrower.atvelocity), launch1),
+                                    new SequentialCommandGroup(new WaitUntilCommand(() -> Thrower.atvelocity), buildLaunch(flicker1, flicker1up, flicker1down)),
                                     new InstantCommand(),
                                     () -> isoccupied[0]
                             ),
                             new ConditionalCommand(
-                                    new SequentialCommandGroup(new WaitUntilCommand(() -> Thrower.atvelocity), launch2),
+                                    new SequentialCommandGroup(new WaitUntilCommand(() -> Thrower.atvelocity), buildLaunch(flicker2, flicker2up, flicker2down)),
                                     new InstantCommand(),
                                     () -> isoccupied[1]
                             ),
                             new ConditionalCommand(
-                                    new SequentialCommandGroup(new WaitUntilCommand(() -> Thrower.atvelocity), launch3),
+                                    new SequentialCommandGroup(new WaitUntilCommand(() -> Thrower.atvelocity), buildLaunch(flicker3, flicker3up, flicker3down)),
                                     new InstantCommand(),
                                     () -> isoccupied[2]
                             )
@@ -585,9 +585,9 @@ public final class subsystems {
         private Command buildLaunch(Servo servo, double up, double down) {
             return new UninterruptibleCommand(
                     new SequentialCommandGroup(
-                            setPosition(servo, up),
+                            new InstantCommand(() -> servo.setPosition(up), this),
                             new WaitCommand(200),
-                            setPosition(servo, down),
+                            new InstantCommand(() -> servo.setPosition(down), this),
                             new WaitCommand(120)
                     )
             );
@@ -596,17 +596,35 @@ public final class subsystems {
         private Command[] getFlickOrder() {
             switch (flickOrder) {
                 case "132":
-                    return new Command[]{launch1, launch3, launch2};
+                    return new Command[]{
+                            buildLaunch(flicker1, flicker1up, flicker1down),
+                            buildLaunch(flicker3, flicker3up, flicker3down),
+                            buildLaunch(flicker2, flicker2up, flicker2down)};
                 case "213":
-                    return new Command[]{launch2, launch1, launch3};
+                    return new Command[]{
+                            buildLaunch(flicker2, flicker2up, flicker2down),
+                            buildLaunch(flicker1, flicker1up, flicker1down),
+                            buildLaunch(flicker3, flicker3up, flicker3down)};
                 case "231":
-                    return new Command[]{launch2, launch3, launch1};
+                    return new Command[]{
+                            buildLaunch(flicker2, flicker2up, flicker2down),
+                            buildLaunch(flicker3, flicker3up, flicker3down),
+                            buildLaunch(flicker1, flicker1up, flicker1down)};
                 case "312":
-                    return new Command[]{launch3, launch1, launch2};
+                    return new Command[]{
+                            buildLaunch(flicker3, flicker3up, flicker3down),
+                            buildLaunch(flicker1, flicker1up, flicker1down),
+                            buildLaunch(flicker2, flicker2up, flicker2down)};
                 case "321":
-                    return new Command[]{launch3, launch2, launch1};
+                    return new Command[]{
+                            buildLaunch(flicker3, flicker3up, flicker3down),
+                            buildLaunch(flicker2, flicker2up, flicker2down),
+                            buildLaunch(flicker1, flicker1up, flicker1down)};
                 default:
-                    return new Command[]{launch1, launch2, launch3};
+                    return new Command[]{
+                            buildLaunch(flicker1, flicker1up, flicker1down),
+                            buildLaunch(flicker2, flicker2up, flicker2down),
+                            buildLaunch(flicker3, flicker3up, flicker3down)};
             }
         }
 
@@ -655,11 +673,11 @@ public final class subsystems {
         public Command farunsortedlaunch() {
             return new UninterruptibleCommand(
                     new SequentialCommandGroup(
-                            launch2,
+                            buildLaunch(flicker2, flicker2up, flicker2down),
                             new WaitUntilCommand(() -> Thrower.atvelocity),
-                            launch1,
+                            buildLaunch(flicker1, flicker1up, flicker1down),
                             new WaitUntilCommand(() -> Thrower.atvelocity),
-                            launch3
+                            buildLaunch(flicker3, flicker3up, flicker3down)
                     )
             );
         }
