@@ -991,10 +991,6 @@ public class subsystems {
                     }
 
                     turretTargetPos = turret.getCurrentPosition() + correctionTicks;
-                } else {
-                    if (ActiveOpMode.gamepad1() != null) {
-                        ActiveOpMode.gamepad1().rumble(0.2, 0.2, 120);
-                    }
                 }
             }
 
