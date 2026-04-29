@@ -565,35 +565,35 @@ public class subsystems {
         // This is best for "close" shooting
         public Command closeSortedLaunch() {
             Command[] order = getFlickOrder();
-            double[] hoods = getHoodOrder();
+//            double[] hoods = getHoodOrder();
             return new SequentialGroupFixed(
                     order[0],
-                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[0])),
+//                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[0])),
                     new Delay(0.25),
                     order[1],
-                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
+//                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
                     new Delay(0.25),
                     order[2],
-                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
+//                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
                     new Delay(0.25)
             );
         }
 
         public Command farSortedLaunch() {
             Command[] order = getFlickOrder();
-            double[] hoods = getHoodOrder();
+//            double[] hoods = getHoodOrder();
             return new SequentialGroupFixed(
                     new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                     order[0],
-                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[0])),
+//                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[0])),
                     new Delay(0.25),
                     new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                     order[1],
-                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
+//                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[1])),
                     new Delay(0.25),
                     new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
                     order[2],
-                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
+//                    new InstantCommand(() -> Thrower.INSTANCE.hood.setPosition(hoods[2])),
                     new Delay(0.25)
             );
         }
@@ -778,7 +778,7 @@ public class subsystems {
             thrower1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
             thrower2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-            hood.setPosition(0.5);
+//            hood.setPosition(0.5);
 
             //thrower1.setVelocity(0);
             //thrower2.setPower(thrower1.getPower());
@@ -807,16 +807,13 @@ public class subsystems {
                     }
                     targetvelocity = Math.max(600, targetvelocity);
 
-                    double fetchedHood = ll.fetchHoodPos(limelight);
-                    hoodpos = Double.isNaN(fetchedHood) ? closeHood : fetchedHood;
-                    hoodpos = Math.max(0.08, hoodpos);
-                    hoodpos = Math.min(0.4, hoodpos);
+//                    double fetchedHood = ll.fetchHoodPos(limelight);
+//                    hoodpos = Double.isNaN(fetchedHood) ? closeHood : fetchedHood;
+//                    hoodpos = Math.max(0.08, hoodpos);
+//                    hoodpos = Math.min(0.4, hoodpos);
                 } else {
                     if (far) targetvelocity = 1600; //1650
                     else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
-                    if (far) hoodpos = 0.08;
-                    else if (!Double.isNaN(ll.fetchHoodPos(limelight))) { hoodpos = ll.fetchHoodPos(limelight); }
-                    if (Double.isNaN(hoodpos)) hoodpos = 0.08;
                 }
 
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
@@ -834,7 +831,7 @@ public class subsystems {
                     }
                 }
 
-                hood.setPosition(hoodpos);
+//                hood.setPosition(hoodpos);
 
 //                ActiveOpMode.telemetry().addData("thrower1vel - velocity: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
 //                ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
