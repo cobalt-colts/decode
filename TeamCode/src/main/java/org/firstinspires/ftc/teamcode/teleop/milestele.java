@@ -68,7 +68,7 @@ public class milestele extends NextFTCOpMode {
     Button flick3 = button(() -> gamepad1.dpad_right)
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
 
-    Button flickall = button(() -> gamepad1.dpad_down)
+    Button flickall = button(() -> gamepad1.right_bumper)
             .whenBecomesTrue(subsystems.Index.INSTANCE.closeunsortedlaunch);
 //
 //    Button shooterBoost = button(() -> gamepad1.touchpad)

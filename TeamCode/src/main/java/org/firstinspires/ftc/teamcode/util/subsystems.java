@@ -482,10 +482,16 @@ public class subsystems {
 
         int state = 0;
 
+        public double hoodoffset = 0;
+
         public Command closeunsortedlaunch = new SequentialGroupFixed(
+                new InstantCommand(() -> hoodoffset = 0),
                 launch1,
+                new InstantCommand(() -> hoodoffset += .025),
                 launch2,
+                new InstantCommand(() -> hoodoffset += .025),
                 launch3,
+                new InstantCommand(() -> hoodoffset = 0),
                 new Delay(0.25)
         ).setInterruptible(false);
 
