@@ -43,33 +43,40 @@ public class ll {
         else flywheelspeed = Double.NaN;
         return flywheelspeed;
     }
-    public static double fetchAlignment(Limelight3A limelight, boolean redAlliance) {
-        final int RED_GOAL_TAG = 24;
-        final int BLUE_GOAL_TAG = 20;
-        int targetTag = redAlliance ? RED_GOAL_TAG : BLUE_GOAL_TAG;
-        int far = redAlliance ? 1 : -1;
+    public static double fetchAlignment(Limelight3A limelight) {
+        if (limelight == null) {
+            return Double.NaN;
+        }
+
+        limelight.start();
         LLResult result = limelight.getLatestResult();
-        if(result != null && result.isValid()) {
-            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            for (LLResultTypes.FiducialResult tag : fiducials) {
-                if (tag.getFiducialId() == targetTag) {
-                    double horizontalOffset = result.getTy(); //angle
-                    double farAdjust = 0;
-                    if (result.getTa() < 0.5) {
-                        if (result.getTa() >= 0.3) farAdjust = far * 1.5; //2.5
-                        else {
-                            if (result.getTx() <= 13) farAdjust = far * 4;
-                            else farAdjust = far * 2;
-                        }
-                    }
-                    horizontalOffset += far * farAdjust;
-                    if (Math.abs(horizontalOffset) > tolerance) {
-                        return (horizontalOffset * ticksPerDegree);
-                    } else return 0;
+
+        if (result == null || !result.isValid()) {
+            return Double.NaN;
+        }
+
+        double tx = Double.NaN;
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        if (fiducials != null) {
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                int id = fiducial.getFiducialId();
+                if (id == 24 || id == 20) {
+                    tx = fiducial.getTargetXDegrees();
+                    break;
                 }
             }
         }
-        return Double.NaN;
+
+        if (Double.isNaN(tx)) {
+            tx = result.getTx();
+        }
+
+        if (Double.isNaN(tx) || Math.abs(tx) <= tolerance) {
+            return 0;
+        }
+
+        double correction = (0.00002304 * tx * Math.abs(tx)) + (1.2 * tx);
+        return correction;
     }
     public static double fetchHoodPos(Limelight3A limelight) {
         double ta = 0;

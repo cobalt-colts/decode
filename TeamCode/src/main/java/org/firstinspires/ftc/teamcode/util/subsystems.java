@@ -19,6 +19,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.controller.PIDFController;
+import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -484,12 +485,27 @@ public class subsystems {
 
         public double hoodoffset = 0;
 
+        public double veloffset = 0;
+
+        public Command farunsortedlaunch = new SequentialGroupFixed(
+                new InstantCommand(() -> hoodoffset = 0),
+                launch1,
+//                new InstantCommand(() -> hoodoffset += .025), // .25, .35 for close (?)
+                new InstantCommand(() -> hoodoffset += .075),
+                launch2,
+                new Delay(.25),
+//                new InstantCommand(() -> hoodoffset += .025),
+                launch3,
+                new InstantCommand(() -> hoodoffset = 0),
+                new Delay(0.25)
+        ).setInterruptible(false);
+
         public Command closeunsortedlaunch = new SequentialGroupFixed(
                 new InstantCommand(() -> hoodoffset = 0),
                 launch1,
                 new InstantCommand(() -> hoodoffset += .025),
                 launch2,
-                new InstantCommand(() -> hoodoffset += .025),
+                new InstantCommand(() -> hoodoffset += .035),
                 launch3,
                 new InstantCommand(() -> hoodoffset = 0),
                 new Delay(0.25)
@@ -626,15 +642,6 @@ public class subsystems {
             }
         }
 
-        public Command farunsortedlaunch = new SequentialGroupFixed(
-                launch2,
-                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                launch1,
-                new WaitUntil(() -> Thrower.INSTANCE.atvelocity),
-                launch3
-
-        );
-
         // Launch 3, but only if each spot is occupied, and wait until we're atvelocity between shots
         // This is intended for "far" launches, unsorted
         public Command sensedunsortedatspeed() {
@@ -745,6 +752,7 @@ public class subsystems {
         public boolean atvelocity = false;
         public boolean isshooteron = false;
 
+
         DcMotorEx thrower1; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
         DcMotorEx thrower2; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
         Servo hood; // = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
@@ -825,7 +833,7 @@ public class subsystems {
                 atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
 
                 double currentVelocity = (thrower1.getVelocity() / 28) * 60;
-                double pid = controller.calculate(currentVelocity, targetvelocity);
+                double pid = controller.calculate(currentVelocity, targetvelocity + Index.INSTANCE.veloffset);
 
                 if (targetvelocity < 100) {
                     thrower1.setMotorDisable();
@@ -880,9 +888,9 @@ public class subsystems {
 
         public static final Turret INSTANCE = new Turret();
         public static int turretTargetPos = 0;
-        private static final double AUTOAIM_GAIN = 1.6;
-        private static final int AUTOAIM_MAX_STEP_TICKS = 75;
-        private static final int AUTOAIM_MIN_STEP_TICKS = 4;
+        private static final double AUTOAIM_GAIN = 0.9;
+        private static final int AUTOAIM_MAX_STEP_TICKS = 35;
+        private static final int AUTOAIM_MIN_STEP_TICKS = 0;
 
         private DigitalChannel magnet;
 
@@ -950,30 +958,9 @@ public class subsystems {
             turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            turret.setPositionPIDFCoefficients(150);
+            turret.setPositionPIDFCoefficients(turretP);
 
-            if (magnet.getState()) {
-                // MAGNET IS NOT SENSED (true=not sensed, oddly) -> WE ARE NOT IN THE RIGHT POSITION!
-                telemetryWarning = "WARNING: MAGNET NOT SENSED. CHECK TURRET POSITION.";
-
-//                // Try to rotate slowly until magnet is sensed, but with a limit?
-//                // Try to rotate slowly until magnet is sensed, but with a limit?
-//                turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//                turret.setPower(-.6);   // Hope that this is the correct direction
-//                while (ActiveOpMode.opModeInInit() && magnet.getState()) {
-//                    //
-//                }
-//                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                // We actually need to go a BIT further so we're "home" but unclear how to
-//                turret.setTargetPosition(2);
-//                while (ActiveOpMode.opModeInInit() && turret.getCurrentPosition() <= 2) {
-//                    //
-//                }
-//                turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            }
-
-            // Magnet is on. Safe to rotate to starting position:
-            turret.setTargetPosition(initPos);
+            turret.setTargetPosition(0);
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
@@ -982,15 +969,14 @@ public class subsystems {
             Subsystem.super.periodic();
 
             if (start && teleop && Thrower.limelight != null) {
-                double alignmentTicks = ll.fetchAlignment(Thrower.limelight, redAlliance);
+                double alignmentTicks = ll.fetchAlignment(Thrower.limelight);
                 if (!Double.isNaN(alignmentTicks)) {
                     int correctionTicks = (int) Math.round(alignmentTicks * AUTOAIM_GAIN);
-                    correctionTicks = Math.max(-AUTOAIM_MAX_STEP_TICKS, Math.min(AUTOAIM_MAX_STEP_TICKS, correctionTicks));
-
-                    if (correctionTicks > 0) {
-                        correctionTicks = Math.max(correctionTicks, AUTOAIM_MIN_STEP_TICKS);
-                    } else if (correctionTicks < 0) {
-                        correctionTicks = Math.min(correctionTicks, -AUTOAIM_MIN_STEP_TICKS);
+                    if (Math.abs(correctionTicks) <= AUTOAIM_MIN_STEP_TICKS) {
+                        correctionTicks = 0;
+                    } else {
+                        correctionTicks = Math.max(-AUTOAIM_MAX_STEP_TICKS,
+                                Math.min(AUTOAIM_MAX_STEP_TICKS, correctionTicks));
                     }
 
                     turretTargetPos = turret.getCurrentPosition() + correctionTicks;

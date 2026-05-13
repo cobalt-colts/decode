@@ -32,9 +32,11 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
 
     public static double p = ShooterPIDConfig.kP, i = ShooterPIDConfig.kI, d = ShooterPIDConfig.kD, f = ShooterPIDConfig.kF;
 
-    public static double hoodpos = 0.5;
+    public static double hoodpos = 0.55;
 
     public static int targetVelocity = 0;
+
+    public static int turretPos = 0;
 
     private DcMotorEx masterShootingSpeedMotor;
     private DcMotorEx slaveShootingSpeedMotor;
@@ -42,6 +44,8 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
     private DcMotorEx intake;
 
     private Servo flicker1;
+
+    private DcMotorEx turret;
 
     private TelemetryManager.TelemetryWrapper ptelemetry;
 
@@ -57,11 +61,27 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
         );
     }
     Button flickall = button(() -> gamepad1.right_bumper)
+            .whenBecomesTrue(subsystems.Index.INSTANCE.farunsortedlaunch);
+
+    Button flickfar = button(() -> gamepad1.left_bumper)
             .whenBecomesTrue(subsystems.Index.INSTANCE.closeunsortedlaunch);
+
+    Button flick1 = button(() -> gamepad1.dpad_down)
+            .whenBecomesTrue(subsystems.Index.INSTANCE.launch1);
+
     @Override
     public void onInit() {
         ptelemetry = PanelsTelemetry.INSTANCE.getFtcTelemetry();
 
+        turret = hardwareMap.get(DcMotorEx.class, "turret");
+
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setPositionPIDFCoefficients(150);
+
+        turret.setTargetPosition(0);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setPower(1);
 
         positions.redAlliance = false;
         subsystems.teleop = true;
@@ -77,6 +97,8 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
         intake = hardwareMap.get(DcMotorEx.class, "intake");
 
         hood = hardwareMap.servo.get("hood");
+
+        hood.setPosition(hoodpos);
 
         flicker1 = hardwareMap.servo.get("flicker1");
 
@@ -110,6 +132,9 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
             slaveShootingSpeedMotor.setPower(power);
         }
 
+        turret.setTargetPosition(turretPos);
+        turret.setPower(1);
+
         hood.setPosition(hoodpos + subsystems.Index.INSTANCE.hoodoffset);
         // LUT based on error for offset in the future
 
@@ -119,6 +144,7 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
         telemetry.addData("currentVelocity:", currentVelocity);
         telemetry.addData("targetVelocity", targetVelocity);
         telemetry.addData("currentError:", (targetVelocity - currentVelocity));
+        telemetry.addData("\"real\" velo:", subsystems.Thrower.targetvelocity + subsystems.Index.INSTANCE.veloffset);
         telemetry.update();
         ptelemetry.addData("current velocity", currentVelocity);
         ptelemetry.addData("target velocity", targetVelocity);

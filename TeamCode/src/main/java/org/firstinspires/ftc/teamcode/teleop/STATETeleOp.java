@@ -399,12 +399,12 @@ public class STATETeleOp extends LinearOpMode {
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 //        if (gamepad1.right_bumper) turretPos = turretMax;
-//        else if (gamepad1.left_bumper) turretPos = turretMin;
-        if (Double.isNaN(fetchAlignment(limelight, redAlliance))){
-            gamepad1.rumble(0.25, 0.25, 250);
-//            if (turret.getCurrentPosition() > 0) turretPos = turretMax;
-//            else turretPos = turretMin;
-        } else turretPos = (turret.getCurrentPosition() + fetchAlignment(limelight, redAlliance));
+////        else if (gamepad1.left_bumper) turretPos = turretMin;
+//        if (Double.isNaN(fetchAlignment(limelight, redAlliance))){
+//            gamepad1.rumble(0.25, 0.25, 250);
+////            if (turret.getCurrentPosition() > 0) turretPos = turretMax;
+////            else turretPos = turretMin;
+//        } else turretPos = (turret.getCurrentPosition() + fetchAlignment(limelight, redAlliance));
 
         turretPos = Math.min((int) turretPos, turretMax);
         turretPos = Math.max((int) turretPos, turretMin);

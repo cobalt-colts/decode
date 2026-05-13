@@ -251,7 +251,7 @@ public final class subsystems {
         @Override
         public void periodic() {
             if (start && teleop && Thrower.limelight != null) {
-                double alignmentTicks = ll.fetchAlignment(Thrower.limelight, redAlliance);
+                double alignmentTicks = ll.fetchAlignment(Thrower.limelight);
                 if (!Double.isNaN(alignmentTicks)) {
                     int correctionTicks = (int) Math.round(alignmentTicks * AUTOAIM_GAIN);
                     correctionTicks = Math.max(-AUTOAIM_MAX_STEP_TICKS,

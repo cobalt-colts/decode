@@ -125,6 +125,7 @@ public class milesteleblue extends NextFTCOpMode {
             teleopPipelineConfigured = true;
         }
         ActiveOpMode.telemetry().addData("intake", gamepad1.left_bumper ? "OUT" : "IN");
+        ActiveOpMode.telemetry().addData("turret target pos", subsystems.Turret.turretTargetPos);
         ActiveOpMode.telemetry().update();
     }
 
