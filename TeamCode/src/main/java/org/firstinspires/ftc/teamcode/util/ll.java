@@ -43,6 +43,22 @@ public class ll {
         else flywheelspeed = Double.NaN;
         return flywheelspeed;
     }
+
+    public static double fetchTa(Limelight3A limelight) {
+        if (limelight == null)  {
+            return Double.NaN;
+        }
+        limelight.start();
+        LLResult result = limelight.getLatestResult();
+
+        if (result == null || !result.isValid()) {
+            return Double.NaN;
+        }
+
+        double ta = result.getTa();
+
+        return ta;
+    }
     public static double fetchAlignment(Limelight3A limelight) {
         if (limelight == null) {
             return Double.NaN;

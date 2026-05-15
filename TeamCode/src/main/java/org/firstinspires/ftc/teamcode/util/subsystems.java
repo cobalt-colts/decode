@@ -128,7 +128,7 @@ public class subsystems {
             }
 
             // Expose for telemetry tuning
-            ActiveOpMode.telemetry().addData("satAvg[" + i + "]", satAvg[i]);
+//            ActiveOpMode.telemetry().addData("satAvg[" + i + "]", satAvg[i]);
         }
 
         @Override
@@ -753,15 +753,21 @@ public class subsystems {
         public boolean isshooteron = false;
 
 
-        DcMotorEx thrower1; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
-        DcMotorEx thrower2; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
+        DcMotorEx masterShootingSpeedMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
+        DcMotorEx slaveShootingSpeedMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
         Servo hood; // = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
 
         public static PIDFController controller;
         public static Limelight3A limelight;
 
+        InterpLUT shootlut = new InterpLUT();
+        InterpLUT hoodlut = new InterpLUT();
+
         public static double hoodpos = .3;  // Initial value, somewhat reasonable for near auto
         private static final double TELEOP_DYNAMIC_SPEED_THRESHOLD = 1900 * 0.88;
+
+        double fetchedSpeed;
+
 
         public Command shooteron = new InstantCommand(() -> {
             isshooteron = true;
@@ -775,24 +781,51 @@ public class subsystems {
             isshooteron = false;
             controller = new PIDFController(kP, kI, kD, kF);
 
+            fetchedSpeed = 750;
+
+            shootlut = new InterpLUT();
+            hoodlut = new InterpLUT();
+
             limelight = ActiveOpMode.hardwareMap().get(Limelight3A.class, "limelight");
             limelight.start();
 
-            thrower1 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
-            thrower2 = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
+            controller = new PIDFController(kP, kI, kD, kF);
+
+            masterShootingSpeedMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower1");
+            slaveShootingSpeedMotor = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "thrower2");
+
+
             hood = ActiveOpMode.hardwareMap().get(Servo.class, "hood");
 
-            thrower1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            thrower2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            masterShootingSpeedMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            slaveShootingSpeedMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-            thrower1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            thrower2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            masterShootingSpeedMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            slaveShootingSpeedMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            masterShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+            slaveShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
+
+            shootlut.add(0.1, 911);
+            shootlut.add(0.322, 910);
+            shootlut.add(0.724, 775);
+            shootlut.add(1.079, 700);
+            shootlut.add(1.522, 650);
+            shootlut.add(3.09, 600);
+            shootlut.add(15, 599);
+            shootlut.createLUT();
+
+            hoodlut.add(0.1, .324);
+            hoodlut.add(0.322, .325);
+            hoodlut.add(0.724, .435);
+            hoodlut.add(1.079, .475);
+            hoodlut.add(1.522, .5);
+            hoodlut.add(3.09, .6);
+            hoodlut.add(15, .601);
+            hoodlut.createLUT();
 
 
-            thrower1.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-            thrower2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-
-//            hood.setPosition(0.5);
+            hood.setPosition(0.5);
 
             //thrower1.setVelocity(0);
             //thrower2.setPower(thrower1.getPower());
@@ -810,52 +843,54 @@ public class subsystems {
 
 //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
+                double ta = ll.fetchTa(limelight);
 
-                if (teleop) {
-                    double fetchedSpeed = ll.fetchFlywheelSpeed(limelight);
-                    if (!Double.isNaN(fetchedSpeed)) {
-                        targetvelocity = fetchedSpeed;
-                    }
-                    if (targetvelocity > TELEOP_DYNAMIC_SPEED_THRESHOLD) {
-                        targetvelocity -= (100 - flyWheelCorrect);
-                    }
-                    targetvelocity = Math.max(600, targetvelocity);
+
+                if (!Double.isNaN(ta)) {
+                    fetchedSpeed = shootlut.get(ll.fetchTa(limelight));
+                }
+
+                targetvelocity = fetchedSpeed;
+
 
 //                    double fetchedHood = ll.fetchHoodPos(limelight);
 //                    hoodpos = Double.isNaN(fetchedHood) ? closeHood : fetchedHood;
 //                    hoodpos = Math.max(0.08, hoodpos);
 //                    hoodpos = Math.min(0.4, hoodpos);
-                } else {
-                    if (far) targetvelocity = 1600; //1650
-                    else if (!Double.isNaN(ll.fetchFlywheelSpeed(limelight))) { targetvelocity = ll.fetchFlywheelSpeed(limelight); }
+            }
+
+            atvelocity = (targetvelocity) - (masterShootingSpeedMotor.getVelocity() / 28) * 60 <= 10;
+
+            double currentVelocity = masterShootingSpeedMotor.getVelocity();
+            double pid = controller.calculate(currentVelocity, targetvelocity);
+
+            if (targetvelocity < 100) {
+                masterShootingSpeedMotor.setMotorDisable();
+                slaveShootingSpeedMotor.setMotorDisable();
+            } else {
+                if (isshooteron) {
+                    masterShootingSpeedMotor.setPower(pid);
+                    slaveShootingSpeedMotor.setPower(pid);
                 }
+            }
 
-                atvelocity = (targetvelocity) - (thrower1.getVelocity() / 28) * 60 <= 10;
+            double hoodpos = hoodlut.get(ll.fetchTa(limelight)) + Index.INSTANCE.hoodoffset;
 
-                double currentVelocity = (thrower1.getVelocity() / 28) * 60;
-                double pid = controller.calculate(currentVelocity, targetvelocity + Index.INSTANCE.veloffset);
+            if (Double.isNaN(hoodpos)){
+                hoodpos = 0.45;
+            }
 
-                if (targetvelocity < 100) {
-                    thrower1.setMotorDisable();
-                    thrower2.setMotorDisable();
-                } else {
-                    if (isshooteron) {
-                        thrower1.setPower(pid);
-                        thrower2.setPower(pid);
-                    }
-                }
-
-//                hood.setPosition(hoodpos);
+            hood.setPosition(Math.clamp(hoodpos, 0, 1));
 
 //                ActiveOpMode.telemetry().addData("thrower1vel - velocity: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
 //                ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
 //                ActiveOpMode.telemetry().addData("targetvelocity ", targetvelocity);
 //                ActiveOpMode.telemetry().addData("velocity/28*60 ", (thrower1.getVelocity() / 28) * 60);
 
-                // Do not remove this one unless you check with Crocker:
-                if (thrower1.getVelocity() == 0 || thrower2.getVelocity() == 0) {
-                    ActiveOpMode.telemetry().addLine("ENCODER CABLE UNPLUGGED???");
-                }
+            // Do not remove this one unless you check with Crocker:
+//            if (masterShootingSpeedMotor.getVelocity() == 0 || slaveShootingSpeedMotor.getVelocity() == 0) {
+//                ActiveOpMode.telemetry().addLine("ENCODER CABLE UNPLUGGED???");
+//            }
 // rely on later telemetry to do the update() so it's on one screen
 //                ActiveOpMode.telemetry().update();
 
@@ -867,19 +902,6 @@ public class subsystems {
 //                panelstel.addData("atvelocity", atvelocity);
 //                panelstel.addData("error", targetvelocity - (thrower1.getVelocity() / 28) * 60);
 //                panelstel.update();
-
-
-            } else {
-                Index.INSTANCE.alldown.schedule();
-                thrower1.setPower(0);
-                thrower2.setPower(0);
-                velocity = 1300; // What is this variable for?
-//                ActiveOpMode.telemetry().addLine("NOT RUNNING");
-//                ActiveOpMode.telemetry().addData("target ", targetTps);
-//                ActiveOpMode.telemetry().addData("velocity", thrower1.getVelocity());
-//                ActiveOpMode.telemetry().update();
-
-            }
         }
     }
 
@@ -903,6 +925,7 @@ public class subsystems {
 
         public static DcMotorEx turret; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
         public static int initPos = redFarInit;
+
 
         public Command redgoalinit = new InstantCommand(() -> {
             turretTargetPos = redGoalInit;
@@ -943,6 +966,8 @@ public class subsystems {
         });
 
 
+        private boolean turretZeroed;
+        private boolean lastMagnetState;
 
 //        public Command redinit = new LambdaCommand()
 //                .setStart(() -> {turretTargetPos = redFarInit;
@@ -955,13 +980,21 @@ public class subsystems {
             Subsystem.super.initialize();
             magnet = ActiveOpMode.hardwareMap().get(DigitalChannel.class, "magnet");
             magnet.setMode(DigitalChannel.Mode.INPUT);
+
             turret = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
-            turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turret.setTargetPosition(0);
+
             turret.setPositionPIDFCoefficients(turretP);
 
-            turret.setTargetPosition(0);
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            turretZeroed = false;
+            lastMagnetState = magnet.getState();
+
         }
 
 
@@ -981,6 +1014,33 @@ public class subsystems {
 
                     turretTargetPos = turret.getCurrentPosition() + correctionTicks;
                 }
+                boolean magnetTriggered = magnet.getState();
+
+                /*
+                 * Zero ONLY on rising edge.
+                 * Prevents resetting every loop while magnet is held.
+                 */
+                if (magnetTriggered && !lastMagnetState) {
+
+                    // Optional safety:
+                    // only zero if we're near expected home
+                    if (Math.abs(turret.getCurrentPosition()) < 150) {
+
+                        turret.setPower(0);
+
+                        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                        turretTargetPos = 0;
+
+                        turret.setTargetPosition(0);
+
+                        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                        turretZeroed = true;
+                    }
+                }
+
+                lastMagnetState = magnetTriggered;
             }
 
             turretTargetPos = Math.min(turretTargetPos, turretMax);
@@ -1015,7 +1075,7 @@ public class subsystems {
 //            } else {
 //                ActiveOpMode.telemetry().addLine("magnet sensed");
 //            }
-            ActiveOpMode.telemetry().update();
+//            ActiveOpMode.telemetry().update();
         }
 
     }

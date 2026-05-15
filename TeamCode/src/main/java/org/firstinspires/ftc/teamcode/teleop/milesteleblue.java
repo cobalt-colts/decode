@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorGoBildaPinpoint;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 import org.firstinspires.ftc.teamcode.util.positions;
@@ -57,6 +60,8 @@ public class milesteleblue extends NextFTCOpMode {
         );
     }
 
+    private GoBildaPinpointDriver pinpoint;
+
     Button reset = button(() -> gamepad1.options)
             .whenBecomesTrue(() -> PedroComponent.Companion.follower().setPose(new Pose(0, 0, Math.toRadians(-180))));
 
@@ -88,6 +93,7 @@ public class milesteleblue extends NextFTCOpMode {
         subsystems.start = false;
         subsystems.far = false;
         positions.flyWheelCorrect = 0;
+        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     }
 
     @Override
@@ -126,6 +132,9 @@ public class milesteleblue extends NextFTCOpMode {
         }
         ActiveOpMode.telemetry().addData("intake", gamepad1.left_bumper ? "OUT" : "IN");
         ActiveOpMode.telemetry().addData("turret target pos", subsystems.Turret.turretTargetPos);
+        ActiveOpMode.telemetry().addData("turret current pos", subsystems.Turret.turret.getCurrentPosition());
+        ActiveOpMode.telemetry().addData("pinpoint heading", pinpoint.getHeading(AngleUnit.DEGREES));
+        ActiveOpMode.telemetry().addData("target turret vel", subsystems.Thrower.targetvelocity);
         ActiveOpMode.telemetry().update();
     }
 
