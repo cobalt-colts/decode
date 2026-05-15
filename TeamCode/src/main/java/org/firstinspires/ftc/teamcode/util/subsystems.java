@@ -763,7 +763,7 @@ public class subsystems {
         InterpLUT shootlut = new InterpLUT();
         InterpLUT hoodlut = new InterpLUT();
 
-        public static double hoodpos = .3;  // Initial value, somewhat reasonable for near auto
+        public static double hoodpos = .5;  // Initial value, somewhat reasonable for near auto
         private static final double TELEOP_DYNAMIC_SPEED_THRESHOLD = 1900 * 0.88;
 
         double fetchedSpeed;
@@ -874,10 +874,11 @@ public class subsystems {
                 }
             }
 
-            double hoodpos = hoodlut.get(ll.fetchTa(limelight)) + Index.INSTANCE.hoodoffset;
+            double newhoodpos = hoodlut.get(ll.fetchTa(limelight)) + Index.INSTANCE.hoodoffset;
 
-            if (Double.isNaN(hoodpos)){
-                hoodpos = 0.45;
+
+            if (!Double.isNaN(newhoodpos)){
+                hoodpos = newhoodpos;
             }
 
             hood.setPosition(Math.clamp(hoodpos, 0, 1));
