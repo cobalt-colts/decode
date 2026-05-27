@@ -175,7 +175,7 @@ public class subsystems {
             if (start) {
                 if (!teleop) {
                     if (isoccupied[0] && isoccupied[1] && isoccupied[2]) {
-                        Intake.INSTANCE.intakeMotor.setPower(0.5);
+                        Intake.INSTANCE.intakeMotor.setPower(0);
                     } else {
                         Intake.INSTANCE.intakeMotor.setPower(-1);
                     }
@@ -764,9 +764,9 @@ public class subsystems {
         InterpLUT hoodlut = new InterpLUT();
 
         public static double hoodpos = .5;  // Initial value, somewhat reasonable for near auto
-        private static final double TELEOP_DYNAMIC_SPEED_THRESHOLD = 1900 * 0.88;
+        public static double DEFAULT_SHOOT_TA = 0.724;
 
-        double fetchedSpeed;
+        private double shootTa = DEFAULT_SHOOT_TA;
 
 
         public Command shooteron = new InstantCommand(() -> {
@@ -781,7 +781,7 @@ public class subsystems {
             isshooteron = false;
             controller = new PIDFController(kP, kI, kD, kF);
 
-            fetchedSpeed = 750;
+            shootTa = DEFAULT_SHOOT_TA;
 
             shootlut = new InterpLUT();
             hoodlut = new InterpLUT();
@@ -841,16 +841,13 @@ public class subsystems {
 //                  targetvelocity = 1350; // This seems to be the only one used. //1500
 //                hoodpos = .25;
 
-//                targetvelocity = ll.fetchFlywheelSpeed(limelight);
+                //                targetvelocity = ll.fetchFlywheelSpeed(limelight);
 //                hoodpos = ll.fetchHoodPos(limelight);
-                double ta = ll.fetchTa(limelight);
-
-
-                if (!Double.isNaN(ta)) {
-                    fetchedSpeed = shootlut.get(ll.fetchTa(limelight));
+                double detectedTa = ll.fetchTa(limelight);
+                if (!Double.isNaN(detectedTa) && detectedTa > 0) {
+                    shootTa = detectedTa;
                 }
-
-                targetvelocity = fetchedSpeed;
+                targetvelocity = shootlut.get(shootTa);
 
 
 //                    double fetchedHood = ll.fetchHoodPos(limelight);
@@ -874,7 +871,7 @@ public class subsystems {
                 }
             }
 
-            double newhoodpos = hoodlut.get(ll.fetchTa(limelight)) + Index.INSTANCE.hoodoffset;
+            double newhoodpos = hoodlut.get(shootTa) + Index.INSTANCE.hoodoffset;
 
 
             if (!Double.isNaN(newhoodpos)){
@@ -992,12 +989,17 @@ public class subsystems {
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turret.setTargetPosition(0);
 
-            turret.setPositionPIDFCoefficients(turretP);
+            if (teleop) {
+                turret.setPositionPIDFCoefficients(turretP);
+            } else {
+                turret.setPositionPIDFCoefficients(25);
+
+            }
 
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             turretZeroed = false;
-            lastMagnetState = magnet.getState();
+            lastMagnetState = !magnet.getState();
 
         }
 
@@ -1018,34 +1020,28 @@ public class subsystems {
 
                     turretTargetPos = turret.getCurrentPosition() + correctionTicks;
                 }
-                boolean magnetTriggered = magnet.getState();
-
-                /*
-                 * Zero ONLY on rising edge.
-                 * Prevents resetting every loop while magnet is held.
-                 */
-                if (magnetTriggered && !lastMagnetState) {
-
-                    // Optional safety:
-                    // only zero if we're near expected home
-                    if (Math.abs(turret.getCurrentPosition()) < 150) {
-
-                        turret.setPower(0);
-
-                        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-                        turretTargetPos = 0;
-
-                        turret.setTargetPosition(0);
-
-                        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                        turretZeroed = true;
-                    }
-                }
-
-                lastMagnetState = magnetTriggered;
             }
+
+            boolean magnetTriggered = !magnet.getState();
+
+            /*
+             * Zero only on the edge when the magnet is first detected.
+             * This needs to run in auto too, even when Limelight auto-aim is disabled.
+             */
+            if (magnetTriggered && !lastMagnetState) {
+                if (Math.abs(turret.getCurrentPosition()) < 150) {
+                    turret.setPower(0);
+                    turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+                    turretTargetPos = 0;
+                    turret.setTargetPosition(0);
+
+                    turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    turretZeroed = true;
+                }
+            }
+
+            lastMagnetState = magnetTriggered;
 
             if (teleop) {
                 turretTargetPos = Math.min(turretTargetPos, turretMax);

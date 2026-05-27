@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.subsystems.*;
 
 
 import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
@@ -29,10 +30,17 @@ public class redclose extends NextFTCOpMode {
                         Intake.INSTANCE.intake
                 ),
                 new FollowPath(launch1),
+                new Delay(.25),
+                Index.INSTANCE.closeunsortedlaunch,
                 new ParallelGroup(
                         new FollowPath(line1),
-                        Turret.INSTANCE.setPos(-120)
-                )
+                        Turret.INSTANCE.setPos(-140)
+                ),
+                new Delay(.25),
+                Index.INSTANCE.closeunsortedlaunch,
+                new FollowPath(gate),
+                new FollowPath(returnToLaunch),
+                Index.INSTANCE.closeunsortedlaunch
         );
     }
     public redclose() {
@@ -40,8 +48,11 @@ public class redclose extends NextFTCOpMode {
                 new PedroComponent(Constants::createFollower),
                 new SubsystemComponent(
                         Thrower.INSTANCE,
+                        Index.INSTANCE,
                         Intake.INSTANCE,
-                        Turret.INSTANCE
+                        Turret.INSTANCE,
+                        Camera.INSTANCE,
+                        ColorSensing.INSTANCE
                 )
         );
     }
@@ -52,6 +63,8 @@ public class redclose extends NextFTCOpMode {
         positions.autoTurret = false;
         subsystems.teleop = false;
         subsystems.start = false;
+        subsystems.far = false;
+        Index.INSTANCE.alldown.schedule();
         Turret.INSTANCE.setPos(0).schedule();
     }
 

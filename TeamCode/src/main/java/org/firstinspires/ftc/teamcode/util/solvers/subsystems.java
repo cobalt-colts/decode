@@ -27,7 +27,6 @@ import static org.firstinspires.ftc.teamcode.util.positions.GREY_SATURATION1;
 import static org.firstinspires.ftc.teamcode.util.positions.GREY_SATURATION2;
 import static org.firstinspires.ftc.teamcode.util.positions.GREY_SATURATION3;
 import static org.firstinspires.ftc.teamcode.util.positions.colorToRGBServo;
-import static org.firstinspires.ftc.teamcode.util.positions.flyWheelCorrect;
 import static org.firstinspires.ftc.teamcode.util.positions.isball;
 import static org.firstinspires.ftc.teamcode.util.positions.redAlliance;
 
@@ -54,6 +53,7 @@ import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.command.WaitUntilCommand;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.gamepad.GamepadEx;
+import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.ll;
@@ -100,19 +100,24 @@ public final class subsystems {
         public static double hoodpos = 0.3;
         public static boolean atvelocity = false;
 
-        private static final double TELEOP_DYNAMIC_SPEED_THRESHOLD = 1900 * 0.88;
+        public static double DEFAULT_SHOOT_TA = 0.724;
 
         private final DcMotorEx thrower1;
         private final DcMotorEx thrower2;
         public final Servo hood;
         private final PIDFController controller;
+        private final InterpLUT shootlut;
+        private final InterpLUT hoodlut;
 
         private boolean shooterOn = false;
+        private double shootTa = DEFAULT_SHOOT_TA;
 
         public Thrower(HardwareMap hMap) {
             INSTANCE = this;
 
             controller = new PIDFController(kP, kI, kD, kF);
+            shootlut = new InterpLUT();
+            hoodlut = new InterpLUT();
 
             limelight = hMap.get(Limelight3A.class, "limelight");
             limelight.start();
@@ -127,6 +132,24 @@ public final class subsystems {
             thrower2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             thrower1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             thrower2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
+            shootlut.add(0.1, 911);
+            shootlut.add(0.322, 910);
+            shootlut.add(0.724, 775);
+            shootlut.add(1.079, 700);
+            shootlut.add(1.522, 650);
+            shootlut.add(3.09, 600);
+            shootlut.add(15, 599);
+            shootlut.createLUT();
+
+            hoodlut.add(0.1, .324);
+            hoodlut.add(0.322, .325);
+            hoodlut.add(0.724, .435);
+            hoodlut.add(1.079, .475);
+            hoodlut.add(1.522, .5);
+            hoodlut.add(3.09, .6);
+            hoodlut.add(15, .601);
+            hoodlut.createLUT();
 
             hood.setPosition(0.5);
         }
@@ -152,37 +175,12 @@ public final class subsystems {
 
             shooterOn = true;
 
-            if (teleop) {
-                double fetchedSpeed = ll.fetchFlywheelSpeed(limelight);
-                if (!Double.isNaN(fetchedSpeed)) {
-                    targetvelocity = fetchedSpeed;
-                }
-                if (targetvelocity > TELEOP_DYNAMIC_SPEED_THRESHOLD) {
-                    targetvelocity -= (100 - flyWheelCorrect);
-                }
-                targetvelocity = Math.max(600, targetvelocity);
-
-                double fetchedHood = ll.fetchHoodPos(limelight);
-                hoodpos = Double.isNaN(fetchedHood) ? closeHood : fetchedHood;
-                hoodpos = Math.max(0.08, Math.min(0.4, hoodpos));
-            } else {
-                if (far) {
-                    targetvelocity = 1600;
-                    hoodpos = 0.08;
-                } else {
-                    double fetchedSpeed = ll.fetchFlywheelSpeed(limelight);
-                    if (!Double.isNaN(fetchedSpeed)) {
-                        targetvelocity = fetchedSpeed;
-                    }
-                    double fetchedHood = ll.fetchHoodPos(limelight);
-                    if (!Double.isNaN(fetchedHood)) {
-                        hoodpos = fetchedHood;
-                    }
-                    if (Double.isNaN(hoodpos)) {
-                        hoodpos = 0.08;
-                    }
-                }
+            double detectedTa = ll.fetchTa(limelight);
+            if (!Double.isNaN(detectedTa) && detectedTa > 0) {
+                shootTa = detectedTa;
             }
+            targetvelocity = shootlut.get(shootTa);
+            hoodpos = hoodlut.get(shootTa);
 
             double currentVelocity = (thrower1.getVelocity() / 28.0) * 60.0;
             atvelocity = targetvelocity - currentVelocity <= 10;
@@ -196,7 +194,7 @@ public final class subsystems {
                 thrower2.setPower(pid);
             }
 
-            hood.setPosition(hoodpos);
+            hood.setPosition(Math.max(0, Math.min(1, hoodpos)));
         }
     }
 

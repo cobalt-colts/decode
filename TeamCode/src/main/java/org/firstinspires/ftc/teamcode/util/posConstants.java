@@ -113,7 +113,7 @@ public class posConstants {;
     public static final double turretThreshold = 0.1;
     public static final double turretManual = 0.1; // 0.35
     public static final int turretMax = 300;
-    public static final int turretMin = -100;
+    public static final int turretMin = -140;
     public static final double turretFarAdjust = 7.5; //5
     public static final int limelightSlow = 250;
     public static final int limelightFast = 150; // 100
