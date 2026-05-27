@@ -119,7 +119,7 @@ public class posConstants {;
     public static final int limelightFast = 150; // 100
     public static double tolerance = 0.4;
     public static double ticksPerDegree = .75;
-    public static double turretP = 85;
+    public static double turretP = 50;
 
     // auto turret pos constants
 

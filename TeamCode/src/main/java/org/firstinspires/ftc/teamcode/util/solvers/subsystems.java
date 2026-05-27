@@ -267,7 +267,9 @@ public final class subsystems {
                 }
             }
 
-            turretTargetPos = Math.max(turretMin, Math.min(turretMax, turretTargetPos));
+            if (teleop) {
+                turretTargetPos = Math.max(turretMin, Math.min(turretMax, turretTargetPos));
+            }
             turret.setTargetPosition(turretTargetPos);
             turret.setPower(1);
             atposition = Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2;

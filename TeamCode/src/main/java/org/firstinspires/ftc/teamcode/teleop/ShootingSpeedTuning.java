@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.teamcode.util.ShooterPIDConfig;
+import org.firstinspires.ftc.teamcode.util.posConstants;
 import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 
@@ -77,7 +78,7 @@ public class ShootingSpeedTuning extends NextFTCOpMode {
 
         turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turret.setPositionPIDFCoefficients(150);
+        turret.setPositionPIDFCoefficients(posConstants.turretP);
 
         turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);

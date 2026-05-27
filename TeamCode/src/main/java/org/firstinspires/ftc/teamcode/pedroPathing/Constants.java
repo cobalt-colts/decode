@@ -35,15 +35,15 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .xVelocity(70.8187)
-            .yVelocity(53.4972);
+            .xVelocity(73.382)
+            .yVelocity(54.454);
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12)
             .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.05,0.03))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.1, 0.07017226642080017 , 0.0020073106156556554))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(.08, 0.07238351454620291 , 0.0018221065683911223))
             .centripetalScaling(0);
 
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.95, 100, 1, 1);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)

@@ -925,7 +925,6 @@ public class subsystems {
         public boolean atposition = false;
 
         public static DcMotorEx turret; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "turret");
-        public static int initPos = redFarInit;
 
 
         public Command redgoalinit = new InstantCommand(() -> {
@@ -937,9 +936,7 @@ public class subsystems {
         public Command redfar = new InstantCommand(() -> {
             turretTargetPos = redFarPickup;
         });
-        public Command redgoal = new InstantCommand(() -> {
-            turretTargetPos = redGoalPickup;
-        });
+
 
         public Command redpark = new InstantCommand(() -> {
             turretTargetPos = redGoalPark;
@@ -965,6 +962,12 @@ public class subsystems {
         public Command home = new InstantCommand(() -> {
             turretTargetPos = 0;
         });
+
+        public Command setPos(int pos) {
+            return new InstantCommand(() -> {
+                turretTargetPos = pos;
+            });
+        }
 
 
         private boolean turretZeroed;
@@ -1002,7 +1005,7 @@ public class subsystems {
         public void periodic() {
             Subsystem.super.periodic();
 
-            if (start && teleop && Thrower.limelight != null) {
+            if (start && autoTurret && Thrower.limelight != null) {
                 double alignmentTicks = ll.fetchAlignment(Thrower.limelight);
                 if (!Double.isNaN(alignmentTicks)) {
                     int correctionTicks = (int) Math.round(alignmentTicks * AUTOAIM_GAIN);
@@ -1044,8 +1047,10 @@ public class subsystems {
                 lastMagnetState = magnetTriggered;
             }
 
-            turretTargetPos = Math.min(turretTargetPos, turretMax);
-            turretTargetPos = Math.max(turretTargetPos, turretMin);
+            if (teleop) {
+                turretTargetPos = Math.min(turretTargetPos, turretMax);
+                turretTargetPos = Math.max(turretTargetPos, turretMin);
+            }
             turret.setTargetPosition(turretTargetPos);
             turret.setPower(1);
             atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
