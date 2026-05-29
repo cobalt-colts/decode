@@ -75,7 +75,7 @@ public class milesteleblue extends NextFTCOpMode {
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
 
     Button flickall = button(() -> gamepad1.right_bumper)
-            .whenBecomesTrue(subsystems.Index.INSTANCE.closeunsortedlaunch);
+            .whenBecomesTrue(() -> subsystems.Index.INSTANCE.launchPresentOnce().schedule());
 //
 //    Button shooterBoost = button(() -> gamepad1.touchpad)
 //            .whenBecomesTrue(() -> positions.flyWheelCorrect = 100);

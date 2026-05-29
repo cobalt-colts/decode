@@ -29,7 +29,7 @@ import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 import java.util.ArrayList;
 import java.util.List;
 
-        import dev.nextftc.core.commands.Command;
+import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.conditionals.IfElseCommand;
 import dev.nextftc.core.commands.conditionals.SwitchCommand;
 import dev.nextftc.core.commands.delays.Delay;
@@ -170,17 +170,6 @@ public class subsystems {
             }
 
             hasAnyBalls = (isoccupied[0] || isoccupied[1] || isoccupied[2]);
-
-//            if (!hasAnyBalls) new InstantCommand(Intake);
-            if (start) {
-                if (!teleop) {
-                    if (isoccupied[0] && isoccupied[1] && isoccupied[2]) {
-                        Intake.INSTANCE.intakeMotor.setPower(0);
-                    } else {
-                        Intake.INSTANCE.intakeMotor.setPower(-1);
-                    }
-                }
-            }
 
             // Set the RGB lights based on what colors are seen:
             // Artifact = purple=0.7 or green=0.5, specific to the position represented
@@ -412,12 +401,16 @@ public class subsystems {
         }
 
 
-        public Command launch1 = new SequentialGroupFixed(
-                new SetPosition(flicker1, flicker1up),
-                new Delay(0.3),
-                new SetPosition(flicker1, flicker1down),
-                new Delay(0.12)
-        ).setInterruptible(false);
+        private Command launch1Command() {
+            return new SequentialGroupFixed(
+                    new SetPosition(flicker1, flicker1up),
+                    new Delay(0.3),
+                    new SetPosition(flicker1, flicker1down),
+                    new Delay(0.12)
+            ).setInterruptible(false);
+        }
+
+        public Command launch1 = launch1Command();
 
         public Command transfer2 = new SequentialGroupFixed(
                 new SetPosition(flicker2, flicker2transfer),
@@ -428,18 +421,27 @@ public class subsystems {
                 new Delay(0.1)
         );
 
-        public Command launch2 = new SequentialGroupFixed(
-                new SetPosition(flicker2, flicker2up),
-                new Delay(0.2),
-                new SetPosition(flicker2, flicker2down),
-                new Delay(0.12)
-        ).setInterruptible(false);
-        public Command launch3 = new SequentialGroupFixed(
-                new SetPosition(flicker3, flicker3up),
-                new Delay(0.2),
-                new SetPosition(flicker3, flicker3down),
-                new Delay(0.12)
-        ).setInterruptible(false);
+        private Command launch2Command() {
+            return new SequentialGroupFixed(
+                    new SetPosition(flicker2, flicker2up),
+                    new Delay(0.2),
+                    new SetPosition(flicker2, flicker2down),
+                    new Delay(0.12)
+            ).setInterruptible(false);
+        }
+
+        public Command launch2 = launch2Command();
+
+        private Command launch3Command() {
+            return new SequentialGroupFixed(
+                    new SetPosition(flicker3, flicker3up),
+                    new Delay(0.2),
+                    new SetPosition(flicker3, flicker3down),
+                    new Delay(0.12)
+            ).setInterruptible(false);
+        }
+
+        public Command launch3 = launch3Command();
 
         public final Command alldown = new ParallelGroup(
                 new SetPosition(flicker1, flicker1down),
@@ -449,29 +451,26 @@ public class subsystems {
 
 
         public Command sensedunsorted;
-        boolean launchifballdone = false;
 
-        public Command launchIfBall = new LambdaCommand()
-                .setStart(() -> {
-                    launchifballdone = false;
-                })
-                .setUpdate(() -> {
-                    if (isoccupied[0]) {
-                        launch1.schedule();
-                        launchifballdone = true;
+        public Command launchPresentOnce() {
+            return new SequentialGroupFixed(
+                    new InstantCommand(() -> hoodoffset = 0),
+                    new IfElseCommand(() -> isoccupied[0], launch1Command(), new NullCommand()),
+                    new InstantCommand(() -> hoodoffset = .025),
+                    new IfElseCommand(() -> isoccupied[1], launch2Command(), new NullCommand()),
+                    new InstantCommand(() -> hoodoffset = .060),
+                    new IfElseCommand(() -> isoccupied[2], launch3Command(), new NullCommand()),
+                    new InstantCommand(() -> hoodoffset = 0)
+            ).setInterruptible(false);
+        }
 
-                    } else if (isoccupied[1]) {
-                        launch2.schedule();
-                        launchifballdone = true;
-
-                    } else if (isoccupied[2]) {
-                        launch3.schedule();
-                        launchifballdone = true;
-                    } else {
-                        launchifballdone = true;
-                    }
-                })
-                .setIsDone(() -> launchifballdone);
+        public Command launchIfBall() {
+            return new SequentialGroupFixed(
+                    launchPresentOnce(),
+                    new Delay(0.25),
+                    new IfElseCommand(() -> hasAnyBalls, launchPresentOnce(), new NullCommand())
+            ).setInterruptible(false);
+        }
 
 
         // Merge these two launches to have one with ifelse
@@ -489,24 +488,24 @@ public class subsystems {
 
         public Command farunsortedlaunch = new SequentialGroupFixed(
                 new InstantCommand(() -> hoodoffset = 0),
-                launch1,
+                launch1Command(),
 //                new InstantCommand(() -> hoodoffset += .025), // .25, .35 for close (?)
                 new InstantCommand(() -> hoodoffset += .075),
-                launch2,
+                launch2Command(),
                 new Delay(.25),
 //                new InstantCommand(() -> hoodoffset += .025),
-                launch3,
+                launch3Command(),
                 new InstantCommand(() -> hoodoffset = 0),
                 new Delay(0.25)
         ).setInterruptible(false);
 
         public Command closeunsortedlaunch = new SequentialGroupFixed(
                 new InstantCommand(() -> hoodoffset = 0),
-                launch1,
+                launch1Command(),
                 new InstantCommand(() -> hoodoffset += .025),
-                launch2,
+                launch2Command(),
                 new InstantCommand(() -> hoodoffset += .035),
-                launch3,
+                launch3Command(),
                 new InstantCommand(() -> hoodoffset = 0),
                 new Delay(0.25)
         ).setInterruptible(false);
@@ -708,7 +707,8 @@ public class subsystems {
             }
 
             public DcMotorEx intakeMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
-            double intakePower = -1;
+            public static double intakePower = -1;
+            public static double reversePower = 0.5;
             public static boolean negative = false;
 
             @Override
@@ -719,11 +719,19 @@ public class subsystems {
             }
 
             public Command outtake = new InstantCommand(() -> {
-                intakeMotor.setPower(0.5);
+                intakeMotor.setPower(reversePower);
             });
 
             public Command intake = new InstantCommand(() -> {
-                intakeMotor.setPower(-1);
+                intakeMotor.setPower(intakePower);
+            });
+
+            public Command reverse = new InstantCommand(() -> {
+                intakeMotor.setPower(reversePower);
+            });
+
+            public Command stop = new InstantCommand(() -> {
+                intakeMotor.setPower(0);
             });
 
             @Override
@@ -819,7 +827,8 @@ public class subsystems {
             hoodlut.add(0.322, .325);
             hoodlut.add(0.724, .435);
             hoodlut.add(1.079, .475);
-            hoodlut.add(1.522, .5);
+            hoodlut.add(1.3, .5);
+            hoodlut.add(1.522, .52);
             hoodlut.add(3.09, .6);
             hoodlut.add(15, .601);
             hoodlut.createLUT();

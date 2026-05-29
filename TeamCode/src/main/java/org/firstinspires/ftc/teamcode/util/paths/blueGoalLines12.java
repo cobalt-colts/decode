@@ -6,7 +6,9 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
-public class RedGoalLines12 {
+import org.firstinspires.ftc.ftccommon.internal.manualcontrol.responses.ParentHub;
+
+public class blueGoalLines12 {
 
     public static PathChain launch1;
     public static PathChain line1;
@@ -14,24 +16,25 @@ public class RedGoalLines12 {
     public static PathChain returnToLaunch;
     public static PathChain launch2;
     public static PathChain line2;
+//    public static PathChain gate2;
 
     public static void BuildTrajectories(Follower follower) {
         launch1 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(120.000, 123.000),
-                                new Pose(91.000, 92.000)
+                                new Pose(21.500, 123.000),
+                                new Pose(50.500, 92.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(37))
+                .setConstantHeadingInterpolation(Math.toRadians(143))
                 .build();
 
         line1 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(91.000, 92.000),
-                                new Pose(100.000, 58.000),
-                                new Pose(134.500, 58.000)
+                                new Pose(50.500, 92.000),
+                                new Pose(41.500, 58.000),
+                                new Pose(7.000, 58.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -40,28 +43,28 @@ public class RedGoalLines12 {
         gate = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(91.000, 92.000),
-                                new Pose(101.500, 67.000),
-                                new Pose(127.000, 67.000)
+                                new Pose(50.500, 92.000),
+                                new Pose(50.247, 66.073),
+                                new Pose(14.374, 71.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierCurve(
-                                new Pose(127.000, 67.000),
-                                new Pose(119.777, 60.382),
-                                new Pose(130.000, 52.000)
+                                new Pose(14.374, 71.000),
+                                new Pose(21.091, 57.728),
+                                new Pose(11.500, 52.000)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(40))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(140))
                 .build();
 
         returnToLaunch = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(130.000, 52.000),
-                                new Pose(102.215, 59.031),
-                                new Pose(91.000, 92.000)
+                                new Pose(11.500, 52.000),
+                                new Pose(39.285, 59.031),
+                                new Pose(50.500, 92.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -71,9 +74,9 @@ public class RedGoalLines12 {
         launch2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(134.500, 58.000),
-                                new Pose(100.000, 59.462),
-                                new Pose(91.000, 92.000)
+                                new Pose(7.000, 58.000),
+                                new Pose(41.500, 59.462),
+                                new Pose(50.500, 92.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -83,17 +86,17 @@ public class RedGoalLines12 {
         line2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(91.000, 92.000),
-                                new Pose(100.000, 85.000),
-                                new Pose(125.000, 85.000)
+                                new Pose(50.500, 92.000),
+                                new Pose(41.500, 85.000),
+                                new Pose(16.500, 85.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierCurve(
-                                new Pose(125.000, 85.000),
-                                new Pose(93.304, 85.000),
-                                new Pose(91.000, 92.000)
+                                new Pose(16.500, 85.000),
+                                new Pose(48.196, 85.000),
+                                new Pose(60.000, 115.000)
                         )
                 )
                 .setTangentHeadingInterpolation()

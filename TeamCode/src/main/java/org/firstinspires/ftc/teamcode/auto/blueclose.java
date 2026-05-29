@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12.*;
+import static org.firstinspires.ftc.teamcode.util.paths.blueGoalLines12.*;
 
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
-import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
+import org.firstinspires.ftc.teamcode.util.paths.blueGoalLines12;
 import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.*;
@@ -23,55 +23,52 @@ import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous(name="RED Close")
-public class redclose extends NextFTCOpMode {
+@Autonomous(name="blue Close")
+public class blueclose extends NextFTCOpMode {
     private static final double APPROACH_SPEED = 0.90;
     private static final double LINE_SPEED = 0.78;
     private static final double RETURN_SPEED = 0.95;
     private static final double GATE_SPEED = 0.72;
-
-    private Command followPath(PathChain path, double speed) {
-        return new SequentialGroupFixed(
-                new InstantCommand(() -> PedroComponent.Companion.follower().setMaxPower(speed)),
-                new FollowPath(path)
-        );
-    }
 
     public Command autonomousRoutine() {
         return new SequentialGroupFixed(
                 new ParallelGroup(
                         Intake.INSTANCE.intake
                 ),
-                followPath(launch1, APPROACH_SPEED),
+                new FollowPath(launch1),
                 new Delay(.35),
                 Index.INSTANCE.launchIfBall(),
                 new ParallelGroup(
-                        followPath(line1, LINE_SPEED),
-                        Turret.INSTANCE.setPos(-140)
+                        new FollowPath(line1),
+                        Turret.INSTANCE.setPos(160)
                 ),
                 new ParallelGroup(
                         new SequentialGroupFixed(
                                 new Delay(.75),
                                 Intake.INSTANCE.outtake
                         ),
-                        followPath(launch2, RETURN_SPEED)
+                        new FollowPath(launch2)
                 ),
                 Intake.INSTANCE.outtake,
                 new Delay(.15),
                 Index.INSTANCE.launchIfBall(),
                 Intake.INSTANCE.intake,
-                followPath(gate, GATE_SPEED),
+                new FollowPath(gate),
+//                new FollowPath(gate2, GATE_SPEED),
                 new Delay(.5),
                 Intake.INSTANCE.outtake,
-                followPath(returnToLaunch, RETURN_SPEED),
+                new FollowPath(returnToLaunch),
                 Index.INSTANCE.launchIfBall(),
                 Intake.INSTANCE.intake,
-                followPath(line2, LINE_SPEED),
+                new ParallelGroup(
+                        new FollowPath(line2),
+                        Turret.INSTANCE.setPos(120)
+                ),
                 new Delay(.15),
                 Index.INSTANCE.launchIfBall()
         );
     }
-    public redclose() {
+    public blueclose() {
         addComponents(
                 new PedroComponent(Constants::createFollower),
                 new SubsystemComponent(
@@ -87,7 +84,7 @@ public class redclose extends NextFTCOpMode {
 
     @Override
     public void onInit() {
-        positions.redAlliance = true;
+        positions.redAlliance = false;
         positions.autoTurret = false;
         subsystems.teleop = false;
         subsystems.start = false;
@@ -102,12 +99,12 @@ public class redclose extends NextFTCOpMode {
         subsystems.teleop = false;
         positions.autoTurret = false;
         if (Thrower.limelight != null) {
-            Thrower.limelight.pipelineSwitch(2);
+            Thrower.limelight.pipelineSwitch(3);
         }
-        RedGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(120, 123, Math.toRadians(37)));
+        blueGoalLines12.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(21.5, 123, Math.toRadians(143)));
 
-       autonomousRoutine().schedule();
+        autonomousRoutine().schedule();
     }
 
     @Override
