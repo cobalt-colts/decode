@@ -36,7 +36,7 @@ public class blueclose extends NextFTCOpMode {
                         Intake.INSTANCE.intake
                 ),
                 new FollowPath(launch1),
-                new Delay(.35),
+                new Delay(.75),
                 Index.INSTANCE.launchIfBall(),
                 new ParallelGroup(
                         new FollowPath(line1),
@@ -56,15 +56,23 @@ public class blueclose extends NextFTCOpMode {
                 new FollowPath(gate),
 //                new FollowPath(gate2, GATE_SPEED),
                 new Delay(.5),
-                Intake.INSTANCE.outtake,
-                new FollowPath(returnToLaunch),
+                new ParallelGroup(
+                        new SequentialGroupFixed(
+                                new Delay(.75),
+                                Intake.INSTANCE.outtake
+                        ),
+                        new FollowPath(returnToLaunch)
+
+                ),
                 Index.INSTANCE.launchIfBall(),
                 Intake.INSTANCE.intake,
                 new ParallelGroup(
                         new FollowPath(line2),
                         Turret.INSTANCE.setPos(120)
                 ),
+                Intake.INSTANCE.outtake,
                 new Delay(.15),
+                Index.INSTANCE.launchIfBall(),
                 Index.INSTANCE.launchIfBall()
         );
     }

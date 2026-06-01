@@ -30,8 +30,8 @@ public class RedGoalLines12 {
                 .addPath(
                         new BezierCurve(
                                 new Pose(91.000, 92.000),
-                                new Pose(100.000, 58.000),
-                                new Pose(134.500, 58.000)
+                                new Pose(100.000, 63.000),
+                                new Pose(132.000, 63.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -41,15 +41,15 @@ public class RedGoalLines12 {
                 .addPath(
                         new BezierCurve(
                                 new Pose(91.000, 92.000),
-                                new Pose(101.500, 67.000),
-                                new Pose(127.000, 67.000)
+                                new Pose(91.000, 70.855),
+                                new Pose(127.000, 70.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierCurve(
-                                new Pose(127.000, 67.000),
-                                new Pose(119.777, 60.382),
+                                new Pose(127.000, 70.000),
+                                new Pose(122.431, 62.277),
                                 new Pose(130.000, 52.000)
                         )
                 )
@@ -71,8 +71,8 @@ public class RedGoalLines12 {
         launch2 = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(134.500, 58.000),
-                                new Pose(100.000, 59.462),
+                                new Pose(132.000, 63.000),
+                                new Pose(100.000, 63.000),
                                 new Pose(91.000, 92.000)
                         )
                 )
@@ -92,8 +92,8 @@ public class RedGoalLines12 {
                 .addPath(
                         new BezierCurve(
                                 new Pose(125.000, 85.000),
-                                new Pose(93.304, 85.000),
-                                new Pose(91.000, 92.000)
+                                new Pose(81.143, 83.712),
+                                new Pose(87.000, 110.000)
                         )
                 )
                 .setTangentHeadingInterpolation()

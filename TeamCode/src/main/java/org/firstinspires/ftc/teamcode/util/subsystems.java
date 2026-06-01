@@ -1039,11 +1039,13 @@ public class subsystems {
              */
             if (magnetTriggered && !lastMagnetState) {
                 if (Math.abs(turret.getCurrentPosition()) < 150) {
+                    int requestedTarget = turretTargetPos;
+
                     turret.setPower(0);
                     turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-                    turretTargetPos = 0;
-                    turret.setTargetPosition(0);
+                    turretTargetPos = requestedTarget;
+                    turret.setTargetPosition(turretTargetPos);
 
                     turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     turretZeroed = true;

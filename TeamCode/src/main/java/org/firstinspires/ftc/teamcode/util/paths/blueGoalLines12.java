@@ -44,15 +44,15 @@ public class blueGoalLines12 {
                 .addPath(
                         new BezierCurve(
                                 new Pose(50.500, 92.000),
-                                new Pose(50.247, 66.073),
-                                new Pose(14.374, 71.000)
+                                new Pose(50.500, 72.000),
+                                new Pose(15.750, 71.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierCurve(
-                                new Pose(14.374, 71.000),
-                                new Pose(21.091, 57.728),
+                                new Pose(15.750, 71.000),
+                                new Pose(21.723, 60.382),
                                 new Pose(11.500, 52.000)
                         )
                 )
@@ -95,8 +95,8 @@ public class blueGoalLines12 {
                 .addPath(
                         new BezierCurve(
                                 new Pose(16.500, 85.000),
-                                new Pose(48.196, 85.000),
-                                new Pose(60.000, 115.000)
+                                new Pose(48.535, 89.973),
+                                new Pose(60.000, 110.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
