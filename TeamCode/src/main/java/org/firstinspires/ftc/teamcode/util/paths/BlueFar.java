@@ -6,7 +6,7 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
 
-public class RedFar {
+public class BlueFar {
 
     public static PathChain launch1;
     public static PathChain farline;
@@ -17,8 +17,8 @@ public class RedFar {
         launch1 = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(82.500, 9.500),
-                                new Pose(82.500, 15.000)
+                                new Pose(59.000, 9.500),
+                                new Pose(59.000, 15.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(90))
@@ -27,32 +27,32 @@ public class RedFar {
         cycle = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(82.500, 15.000),
-                                new Pose(93.768, 29.936),
-                                new Pose(99.063, 9.335),
-                                new Pose(131.572, 10.145)
+                                new Pose(59.000, 15.000),
+                                new Pose(47.732, 29.936),
+                                new Pose(42.437, 9.335),
+                                new Pose(9.928, 10.145)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierLine(
-                                new Pose(131.572, 10.145),
-                                new Pose(120.000, 11.000)
+                                new Pose(9.928, 10.145),
+                                new Pose(21.500, 11.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .setReversed()
                 .addPath(
                         new BezierLine(
-                                new Pose(120.000, 11.000),
-                                new Pose(131.572, 10.145)
+                                new Pose(21.500, 11.000),
+                                new Pose(17.000, 10.145)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierLine(
-                                new Pose(131.572, 10.145),
-                                new Pose(82.500, 15.000)
+                                new Pose(17.000, 10.145),
+                                new Pose(59.000, 15.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -62,17 +62,17 @@ public class RedFar {
         farline = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(82.500, 15.000),
-                                new Pose(92.000, 37.000),
-                                new Pose(127.000, 34.750)
+                                new Pose(59.000, 15.000),
+                                new Pose(49.500, 37.000),
+                                new Pose(14.500, 34.750)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierCurve(
-                                new Pose(127.000, 34.750),
-                                new Pose(92.000, 37.000),
-                                new Pose(82.500, 15.000)
+                                new Pose(14.500, 34.750),
+                                new Pose(49.500, 37.000),
+                                new Pose(59.000, 15.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -82,11 +82,11 @@ public class RedFar {
         leave = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(82.500, 15.000),
-                                new Pose(103.500, 32.500)
+                                new Pose(59.000, 15.000),
+                                new Pose(38.000, 32.500)
                         )
                 )
-                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(180))
                 .build();
     }
 }

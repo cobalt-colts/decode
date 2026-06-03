@@ -18,10 +18,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.pedropathing.geometry.Pose;
 import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
@@ -39,6 +42,7 @@ import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.commands.utility.NullCommand;
 import dev.nextftc.core.subsystems.Subsystem;
+import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.ServoEx;
 import dev.nextftc.hardware.positionable.SetPosition;
@@ -57,6 +61,14 @@ public class subsystems {
     public static int matchingSpot = -1;
     public static boolean hasAnyBalls = false;
     public static boolean far = false;
+    private static long lastLimelightOrientationUpdateMs = 0;
+    public static boolean lastMt2RelocalizeSucceeded = false;
+    public static long lastMt2RelocalizeMs = 0;
+    public static double lastMt2XIn = Double.NaN;
+    public static double lastMt2YIn = Double.NaN;
+    public static double lastLimelightYawDeg = Double.NaN;
+    public static double lastTurretAimDeg = Double.NaN;
+    public static String lastLocalizationStatus = "not run";
 
     public static enum motifs {
         PPG,
@@ -72,6 +84,124 @@ public class subsystems {
     public static ServoEx[] flickers = new ServoEx[3];
 
     public static boolean[] isoccupied = new boolean[3];
+
+    public static void updateTeleopLimelightOrientation() {
+        if (!teleop || Thrower.limelight == null || Turret.turret == null) {
+            lastLocalizationStatus = "orientation skipped: missing teleop/limelight/turret";
+            return;
+        }
+
+        Pose pose = PedroComponent.Companion.follower().getPose();
+        double robotYawDeg = Math.toDegrees(pose.getHeading());
+        double turretYawDeg = limelightTurretYawDirection * ticksToTurretDegrees(Turret.getLogicalCurrentPosition());
+        lastLimelightYawDeg = normalizeDegrees(robotYawDeg + turretYawDeg + limelightTurretYawOffsetDeg);
+
+        long now = System.currentTimeMillis();
+        if (now - lastLimelightOrientationUpdateMs < limelightOrientationUpdateIntervalMs) return;
+        if (Thrower.limelight.updateRobotOrientation(lastLimelightYawDeg)) {
+            lastLimelightOrientationUpdateMs = now;
+        } else {
+            lastLocalizationStatus = "orientation post failed";
+        }
+    }
+
+    public static boolean relocalizeTeleopFromMegaTag2() {
+        lastMt2RelocalizeSucceeded = false;
+        if (Thrower.limelight == null) {
+            lastLocalizationStatus = "relocalize failed: no limelight";
+            return false;
+        }
+
+        int teleopPipeline = redAlliance ? redTeleopPipeline : blueTeleopPipeline;
+        try {
+            if (!Thrower.limelight.pipelineSwitch(mt2LocalizationPipeline)) {
+                lastLocalizationStatus = "relocalize failed: localization pipeline switch";
+                return false;
+            }
+
+            for (int i = 0; i < Math.max(1, mt2RelocalizeAttempts); i++) {
+                updateTeleopLimelightOrientation();
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    lastLocalizationStatus = "relocalize interrupted";
+                    return false;
+                }
+
+                LLResult result = Thrower.limelight.getLatestResult();
+                if (!isUsableMegaTag2(result)) continue;
+
+                Pose3D mt2Pose = result.getBotpose_MT2();
+                if (mt2Pose == null || mt2Pose.getPosition() == null) {
+                    lastLocalizationStatus = "relocalize failed: empty mt2 pose";
+                    continue;
+                }
+
+                double xIn = mt2Pose.getPosition().toUnit(DistanceUnit.INCH).x;
+                double yIn = mt2Pose.getPosition().toUnit(DistanceUnit.INCH).y;
+                double heading = PedroComponent.Companion.follower().getPose().getHeading();
+                PedroComponent.Companion.follower().setPose(new Pose(xIn, yIn, heading));
+
+                lastMt2XIn = xIn;
+                lastMt2YIn = yIn;
+                lastMt2RelocalizeMs = System.currentTimeMillis();
+                lastMt2RelocalizeSucceeded = true;
+                lastLocalizationStatus = "relocalized";
+                return true;
+            }
+
+            lastLocalizationStatus = "relocalize failed: no usable mt2";
+            return false;
+        } finally {
+            Thrower.limelight.pipelineSwitch(teleopPipeline);
+        }
+    }
+
+    private static boolean isUsableMegaTag2(LLResult result) {
+        if (result == null || !result.isValid()) return false;
+        if (result.getStaleness() > mt2MaxStalenessMs) return false;
+        if (result.getBotposeTagCount() < mt2MinTagCount) return false;
+
+        double[] stdDevs = result.getStddevMt2();
+        if (stdDevs != null && stdDevs.length >= 2) {
+            if (stdDevs[0] > mt2MaxPositionStdDevMeters || stdDevs[1] > mt2MaxPositionStdDevMeters) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void updateTurretAimFromLocalization() {
+        if (!useFieldTurretAim) return;
+
+        Pose pose = PedroComponent.Companion.follower().getPose();
+        double goalX = (redAlliance ? redGoalAimXIn : blueGoalAimXIn) + turretAimXOffsetIn;
+        double goalY = (redAlliance ? redGoalAimYIn : blueGoalAimYIn) + turretAimYOffsetIn;
+
+        double fieldAngleDeg = Math.toDegrees(Math.atan2(goalY - pose.getY(), goalX - pose.getX()));
+        lastTurretAimDeg = normalizeDegrees(fieldAngleDeg - Math.toDegrees(pose.getHeading()) + turretAimRobotHeadingOffsetDeg);
+        Turret.turretTargetPos = (int) Math.round((turretAimDirection * lastTurretAimDeg * ticksPerDegree) + turretAimOffsetTicks);
+    }
+
+    private static double ticksToTurretDegrees(double ticks) {
+        if (Math.abs(ticksPerDegree) < 1e-6) return 0;
+        return ticks / ticksPerDegree;
+    }
+
+    private static double normalizeDegrees(double degrees) {
+        return Math.toDegrees(Math.atan2(Math.sin(Math.toRadians(degrees)), Math.cos(Math.toRadians(degrees))));
+    }
+
+    public static double teleopDrivePower(double drive, double strafe) {
+        double heading = Math.toRadians(redAlliance ? redTeleopForwardHeadingDeg : blueTeleopForwardHeadingDeg);
+        return (drive * Math.cos(heading)) - (strafe * Math.sin(heading));
+    }
+
+    public static double teleopStrafePower(double drive, double strafe) {
+        double heading = Math.toRadians(redAlliance ? redTeleopForwardHeadingDeg : blueTeleopForwardHeadingDeg);
+        return (drive * Math.sin(heading)) + (strafe * Math.cos(heading));
+    }
 
 
     public static class ColorSensing implements Subsystem {
@@ -917,10 +1047,9 @@ public class subsystems {
 
         public static final Turret INSTANCE = new Turret();
         public static int turretTargetPos = 0;
-        private static final double AUTOAIM_GAIN = 0.9;
-        private static final int AUTOAIM_MAX_STEP_TICKS = 35;
-        private static final int AUTOAIM_MIN_STEP_TICKS = 0;
-
+        public static int lastAutoTurretPos = 0;
+        public static boolean hasAutoTurretPos = false;
+        private static int turretEncoderOffset = 0;
         private DigitalChannel magnet;
 
         public String telemetryWarning = "";
@@ -975,6 +1104,21 @@ public class subsystems {
             });
         }
 
+        public static int getLogicalCurrentPosition() {
+            if (turret == null) return turretTargetPos;
+            return turret.getCurrentPosition() + turretEncoderOffset;
+        }
+
+        public static int getMotorTargetPosition() {
+            return turretTargetPos - turretEncoderOffset;
+        }
+
+        public static void captureAutoTurretPosition() {
+            if (turret == null) return;
+            lastAutoTurretPos = getLogicalCurrentPosition();
+            hasAutoTurretPos = true;
+        }
+
 
         private boolean turretZeroed;
         private boolean lastMagnetState;
@@ -996,7 +1140,14 @@ public class subsystems {
             turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            turret.setTargetPosition(0);
+            if (teleop && hasAutoTurretPos) {
+                turretEncoderOffset = lastAutoTurretPos;
+                turretTargetPos = lastAutoTurretPos;
+            } else {
+                turretEncoderOffset = 0;
+                turretTargetPos = 0;
+            }
+            turret.setTargetPosition(getMotorTargetPosition());
 
             if (teleop) {
                 turret.setPositionPIDFCoefficients(turretP);
@@ -1016,18 +1167,10 @@ public class subsystems {
         public void periodic() {
             Subsystem.super.periodic();
 
-            if (start && autoTurret && Thrower.limelight != null) {
-                double alignmentTicks = ll.fetchAlignment(Thrower.limelight);
-                if (!Double.isNaN(alignmentTicks)) {
-                    int correctionTicks = (int) Math.round(alignmentTicks * AUTOAIM_GAIN);
-                    if (Math.abs(correctionTicks) <= AUTOAIM_MIN_STEP_TICKS) {
-                        correctionTicks = 0;
-                    } else {
-                        correctionTicks = Math.max(-AUTOAIM_MAX_STEP_TICKS,
-                                Math.min(AUTOAIM_MAX_STEP_TICKS, correctionTicks));
-                    }
-
-                    turretTargetPos = turret.getCurrentPosition() + correctionTicks;
+            if (start && teleop) {
+                updateTeleopLimelightOrientation();
+                if (autoTurret) {
+                    updateTurretAimFromLocalization();
                 }
             }
 
@@ -1038,14 +1181,15 @@ public class subsystems {
              * This needs to run in auto too, even when Limelight auto-aim is disabled.
              */
             if (magnetTriggered && !lastMagnetState) {
-                if (Math.abs(turret.getCurrentPosition()) < 150) {
+                if (Math.abs(getLogicalCurrentPosition()) < 150) {
                     int requestedTarget = turretTargetPos;
 
                     turret.setPower(0);
                     turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+                    turretEncoderOffset = 0;
                     turretTargetPos = requestedTarget;
-                    turret.setTargetPosition(turretTargetPos);
+                    turret.setTargetPosition(getMotorTargetPosition());
 
                     turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     turretZeroed = true;
@@ -1058,9 +1202,9 @@ public class subsystems {
                 turretTargetPos = Math.min(turretTargetPos, turretMax);
                 turretTargetPos = Math.max(turretTargetPos, turretMin);
             }
-            turret.setTargetPosition(turretTargetPos);
+            turret.setTargetPosition(getMotorTargetPosition());
             turret.setPower(1);
-            atposition = (Math.abs(turret.getCurrentPosition() - turretTargetPos) <= 2);
+            atposition = (Math.abs(getLogicalCurrentPosition() - turretTargetPos) <= 2);
 //
 //            if (telemetryWarning.length() > 0) {
 //                ActiveOpMode.telemetry().addLine(telemetryWarning);

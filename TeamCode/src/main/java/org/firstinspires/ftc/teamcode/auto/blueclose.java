@@ -77,6 +77,8 @@ public class blueclose extends NextFTCOpMode {
         );
     }
     public blueclose() {
+        subsystems.teleop = false;
+        subsystems.start = false;
         addComponents(
                 new PedroComponent(Constants::createFollower),
                 new SubsystemComponent(
@@ -117,6 +119,7 @@ public class blueclose extends NextFTCOpMode {
 
     @Override
     public void onStop() {
+        Turret.captureAutoTurretPosition();
         subsystems.start = false;
     }
 

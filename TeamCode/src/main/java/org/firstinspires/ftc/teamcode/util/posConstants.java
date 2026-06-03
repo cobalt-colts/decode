@@ -113,13 +113,37 @@ public class posConstants {;
     public static final double turretThreshold = 0.1;
     public static final double turretManual = 0.1; // 0.35
     public static final int turretMax = 300;
-    public static final int turretMin = -140;
+    public static final int turretMin = -170;
     public static final double turretFarAdjust = 7.5; //5
     public static final int limelightSlow = 250;
     public static final int limelightFast = 150; // 100
     public static double tolerance = 0.4;
     public static double ticksPerDegree = .75;
     public static double turretP = 50;
+
+    // MegaTag2 / field-space aiming
+    public static int mt2RelocalizeAttempts = 12;
+    public static long mt2MaxStalenessMs = 150;
+    public static long limelightOrientationUpdateIntervalMs = 50;
+    public static int mt2LocalizationPipeline = 0;
+    public static int redTeleopPipeline = 2;
+    public static int blueTeleopPipeline = 3;
+    public static int mt2MinTagCount = 1;
+    public static double mt2MaxPositionStdDevMeters = 0.45;
+    public static double limelightTurretYawDirection = 1.0;
+    public static double limelightTurretYawOffsetDeg = 0.0;
+    public static double redGoalAimXIn = -58.3727;
+    public static double redGoalAimYIn = 55.6425;
+    public static double blueGoalAimXIn = -58.3727;
+    public static double blueGoalAimYIn = -55.6425;
+    public static double turretAimXOffsetIn = 0.0;
+    public static double turretAimYOffsetIn = 0.0;
+    public static double turretAimRobotHeadingOffsetDeg = 0.0;
+    public static double turretAimDirection = 1.0;
+    public static double turretAimOffsetTicks = 0.0;
+    public static boolean useFieldTurretAim = true;
+    public static double redTeleopForwardHeadingDeg = 90.0;
+    public static double blueTeleopForwardHeadingDeg = -90.0;
 
     // auto turret pos constants
 

@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.util.paths.RedFar.*;
+import static org.firstinspires.ftc.teamcode.util.paths.BlueFar.*;
+
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
-import org.firstinspires.ftc.teamcode.util.paths.RedFar;
-import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
+import org.firstinspires.ftc.teamcode.util.paths.BlueFar;
 import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Camera;
@@ -19,15 +19,14 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
-import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous(name="RED Far")
-public class redfar extends NextFTCOpMode {
+@Autonomous(name="BLUE Far")
+public class bluefar extends NextFTCOpMode {
 
     public Command autonomousRoutine() {
         return new SequentialGroupFixed(
@@ -39,32 +38,34 @@ public class redfar extends NextFTCOpMode {
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             new ParallelGroup(
-                    Turret.INSTANCE.setPos(-60),
+                    Turret.INSTANCE.setPos(95),
                     new FollowPath(cycle)
             ),
             Intake.INSTANCE.outtake,
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             new ParallelGroup(
-                    Turret.INSTANCE.setPos(30),
+                    Turret.INSTANCE.setPos(0),
                     Intake.INSTANCE.intake,
                     new FollowPath(farline)
             ),
             Intake.INSTANCE.outtake,
+            new Delay(.5),
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             Intake.INSTANCE.intake,
             new ParallelGroup(
-                    Turret.INSTANCE.setPos(-60),
+                    Turret.INSTANCE.setPos(95),
                     new FollowPath(cycle)
             ),
             Intake.INSTANCE.outtake,
+            new Delay(.5),
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             new FollowPath(leave)
         );
     }
-    public redfar() {
+    public bluefar() {
         subsystems.teleop = false;
         subsystems.start = false;
         addComponents(
@@ -82,13 +83,13 @@ public class redfar extends NextFTCOpMode {
 
     @Override
     public void onInit() {
-        positions.redAlliance = true;
+        positions.redAlliance = false;
         positions.autoTurret = false;
         subsystems.teleop = false;
         subsystems.start = false;
         subsystems.far = false;
         Index.INSTANCE.alldown.schedule();
-        Turret.INSTANCE.setPos(30).schedule();
+        Turret.INSTANCE.setPos(-30).schedule();
     }
 
     @Override
@@ -97,11 +98,10 @@ public class redfar extends NextFTCOpMode {
         subsystems.teleop = false;
         positions.autoTurret = false;
         if (Thrower.limelight != null) {
-            Thrower.limelight.pipelineSwitch(2);
+            Thrower.limelight.pipelineSwitch(3);
         }
-        RedFar.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(82.5, 9.5, Math.toRadians(90)));
-
+        BlueFar.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(59, 9.5, Math.toRadians(90)));
         autonomousRoutine().schedule();
     }
 

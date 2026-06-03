@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.config.Config;
 //import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,6 +15,9 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 //import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
 //import org.firstinspires.ftc.teamcode.Prism.*;
@@ -21,7 +25,6 @@ import org.firstinspires.ftc.teamcode.util.*;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
 
-import static org.firstinspires.ftc.teamcode.util.ll.fetchAlignment;
 import static org.firstinspires.ftc.teamcode.util.posConstants.*;
 import static org.firstinspires.ftc.teamcode.util.posConstants.controller;
 import static org.firstinspires.ftc.teamcode.util.positions.*;
@@ -34,6 +37,14 @@ import dev.nextftc.ftc.ActiveOpMode;
 //@Configurable
 @TeleOp(name = "STATE Teleop")
 public class STATETeleOp extends LinearOpMode {
+    private boolean lastMt2RelocalizeSucceeded = false;
+    private long lastMt2RelocalizeMs = 0;
+    private double lastMt2XIn = Double.NaN;
+    private double lastMt2YIn = Double.NaN;
+    private double lastLimelightYawDeg = Double.NaN;
+    private double lastTurretAimDeg = Double.NaN;
+    private long lastLimelightOrientationUpdateMs = 0;
+    private String lastLocalizationStatus = "not run";
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -107,7 +118,7 @@ public class STATETeleOp extends LinearOpMode {
         hood = hardwareMap.servo.get("hood");
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(mt2LocalizationPipeline);
         limelight.start();
         telemetry.setMsTransmissionInterval(limelightFast);
 
@@ -118,13 +129,13 @@ public class STATETeleOp extends LinearOpMode {
         while(!isStarted() && !isStopRequested() && !startReady) {
             if (gamepad1.optionsWasPressed()) {
                 redAlliance = true;
-                limelight.pipelineSwitch(2); // red pipeline
+                limelight.pipelineSwitch(redTeleopPipeline);
                 gamepad1.setLedColor(1, 0, 0, 1000);
                 startReady = true;
             }
             else if (gamepad1.shareWasPressed()) {
                 redAlliance = false;
-                limelight.pipelineSwitch(3); // blue pipeline
+                limelight.pipelineSwitch(blueTeleopPipeline);
                 gamepad1.setLedColor(0, 0, 1, 1000);
                 startReady = true;
             }
@@ -132,6 +143,8 @@ public class STATETeleOp extends LinearOpMode {
 
         waitForStart();
         if (isStopRequested()) return;
+        updateLimelightRobotOrientation();
+        relocalizeFromMegaTag2(mt2RelocalizeAttempts);
 
         while (opModeIsActive()) {
             drive();
@@ -150,9 +163,10 @@ public class STATETeleOp extends LinearOpMode {
     }
 
     public void drive() {
-        pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
+        pinpoint.update();
+        updateLimelightRobotOrientation();
         if (gamepad1.share) redAlliance = false;
-        if (gamepad1.optionsWasPressed()) pinpoint.resetPosAndIMU();
+        if (gamepad1.optionsWasPressed()) relocalizeFromMegaTag2(mt2RelocalizeAttempts);
 
         double y = -gamepad1.left_stick_y;
         double x = gamepad1.left_stick_x;
@@ -160,7 +174,7 @@ public class STATETeleOp extends LinearOpMode {
 
 //        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double botHeading = pinpoint.getPosition().getHeading(AngleUnit.RADIANS);
-        botHeading += Math.PI;
+        botHeading -= getTeleopForwardHeadingRad();
         botHeading = Math.atan2(Math.sin(botHeading), Math.cos(botHeading));
         double rotX = 1.1 * (x * Math.cos(-botHeading) - y * Math.sin(-botHeading));
         double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
@@ -170,6 +184,121 @@ public class STATETeleOp extends LinearOpMode {
         backLeftPower = (rotY - rotX + rx) / denominator;
         frontRightPower = (rotY - rotX - rx) / denominator;
         backRightPower = (rotY + rotX - rx) / denominator;
+    }
+
+    private void updateLimelightRobotOrientation() {
+        if (limelight == null || pinpoint == null || turret == null) {
+            lastLocalizationStatus = "orientation skipped: missing limelight/pinpoint/turret";
+            return;
+        }
+
+        double robotYawDeg = pinpoint.getHeading(AngleUnit.DEGREES);
+        double turretYawDeg = limelightTurretYawDirection * ticksToTurretDegrees(turret.getCurrentPosition());
+        lastLimelightYawDeg = normalizeDegrees(robotYawDeg + turretYawDeg + limelightTurretYawOffsetDeg);
+        long now = System.currentTimeMillis();
+        if (now - lastLimelightOrientationUpdateMs < limelightOrientationUpdateIntervalMs) return;
+        if (limelight.updateRobotOrientation(lastLimelightYawDeg)) {
+            lastLimelightOrientationUpdateMs = now;
+        } else {
+            lastLocalizationStatus = "orientation post failed";
+        }
+    }
+
+    private boolean relocalizeFromMegaTag2(int attempts) {
+        lastMt2RelocalizeSucceeded = false;
+        if (limelight == null || pinpoint == null) {
+            lastLocalizationStatus = "relocalize failed: no limelight/pinpoint";
+            gamepad1.rumble(0.6, 0.0, 180);
+            return false;
+        }
+
+        int teleopPipeline = redAlliance ? redTeleopPipeline : blueTeleopPipeline;
+        try {
+            if (!limelight.pipelineSwitch(mt2LocalizationPipeline)) {
+                lastLocalizationStatus = "relocalize failed: localization pipeline switch";
+                gamepad1.rumble(0.6, 0.0, 180);
+                return false;
+            }
+
+            for (int i = 0; i < Math.max(1, attempts) && opModeIsActive(); i++) {
+                updateLimelightRobotOrientation();
+                sleep(20);
+
+                LLResult result = limelight.getLatestResult();
+                if (!isUsableMegaTag2(result)) continue;
+
+                Pose3D mt2Pose = result.getBotpose_MT2();
+                if (mt2Pose == null || mt2Pose.getPosition() == null) {
+                    lastLocalizationStatus = "relocalize failed: empty mt2 pose";
+                    continue;
+                }
+
+                double xIn = mt2Pose.getPosition().toUnit(DistanceUnit.INCH).x;
+                double yIn = mt2Pose.getPosition().toUnit(DistanceUnit.INCH).y;
+                double headingRad = pinpoint.getHeading(AngleUnit.RADIANS);
+                pinpoint.setPosition(new Pose2D(DistanceUnit.INCH, xIn, yIn, AngleUnit.RADIANS, headingRad));
+                pinpoint.update();
+
+                lastMt2XIn = xIn;
+                lastMt2YIn = yIn;
+                lastMt2RelocalizeMs = System.currentTimeMillis();
+                lastMt2RelocalizeSucceeded = true;
+                lastLocalizationStatus = "relocalized";
+                gamepad1.rumble(0.15, 0.15, 120);
+                return true;
+            }
+
+            lastLocalizationStatus = "relocalize failed: no usable mt2";
+            gamepad1.rumble(0.6, 0.0, 180);
+            return false;
+        } finally {
+            limelight.pipelineSwitch(teleopPipeline);
+        }
+    }
+
+    private boolean isUsableMegaTag2(LLResult result) {
+        if (result == null || !result.isValid()) return false;
+        if (result.getStaleness() > mt2MaxStalenessMs) return false;
+        if (result.getBotposeTagCount() < mt2MinTagCount) return false;
+
+        double[] stdDevs = result.getStddevMt2();
+        if (stdDevs != null && stdDevs.length >= 2) {
+            double xStdDev = stdDevs[0];
+            double yStdDev = stdDevs[1];
+            if (xStdDev > mt2MaxPositionStdDevMeters || yStdDev > mt2MaxPositionStdDevMeters) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void updateTurretAimFromLocalization() {
+        if (!useFieldTurretAim || pinpoint == null) return;
+
+        Pose2D pose = pinpoint.getPosition();
+        double robotX = pose.getX(DistanceUnit.INCH);
+        double robotY = pose.getY(DistanceUnit.INCH);
+        double robotHeadingDeg = pose.getHeading(AngleUnit.DEGREES);
+
+        double goalX = (redAlliance ? redGoalAimXIn : blueGoalAimXIn) + turretAimXOffsetIn;
+        double goalY = (redAlliance ? redGoalAimYIn : blueGoalAimYIn) + turretAimYOffsetIn;
+
+        double fieldAngleDeg = Math.toDegrees(Math.atan2(goalY - robotY, goalX - robotX));
+        lastTurretAimDeg = normalizeDegrees(fieldAngleDeg - robotHeadingDeg + turretAimRobotHeadingOffsetDeg);
+        turretPos = (turretAimDirection * lastTurretAimDeg * ticksPerDegree) + turretAimOffsetTicks;
+    }
+
+    private double ticksToTurretDegrees(double ticks) {
+        if (Math.abs(ticksPerDegree) < 1e-6) return 0;
+        return ticks / ticksPerDegree;
+    }
+
+    private double normalizeDegrees(double degrees) {
+        return Math.toDegrees(Math.atan2(Math.sin(Math.toRadians(degrees)), Math.cos(Math.toRadians(degrees))));
+    }
+
+    private double getTeleopForwardHeadingRad() {
+        return Math.toRadians(redAlliance ? redTeleopForwardHeadingDeg : blueTeleopForwardHeadingDeg);
     }
 
     public void index() {
@@ -406,6 +535,7 @@ public class STATETeleOp extends LinearOpMode {
 ////            else turretPos = turretMin;
 //        } else turretPos = (turret.getCurrentPosition() + fetchAlignment(limelight, redAlliance));
 
+        updateTurretAimFromLocalization();
         turretPos = Math.min((int) turretPos, turretMax);
         turretPos = Math.max((int) turretPos, turretMin);
 
@@ -487,6 +617,12 @@ public class STATETeleOp extends LinearOpMode {
         telemetry.addData("alldown: ", allDown);
         telemetry.addData("red: ", redAlliance);
         telemetry.addData("pinpoint: ", pinpoint.getHeading(AngleUnit.RADIANS));
+        telemetry.addData("mt2 relocalized: ", lastMt2RelocalizeSucceeded);
+        telemetry.addData("mt2 x: ", lastMt2XIn);
+        telemetry.addData("mt2 y: ", lastMt2YIn);
+        telemetry.addData("ll yaw: ", lastLimelightYawDeg);
+        telemetry.addData("turret aim deg: ", lastTurretAimDeg);
+        telemetry.addData("localization: ", lastLocalizationStatus);
         telemetry.addData("thrower1velocity", thrower1.getVelocity());
         telemetry.addData("targetVelocity", targetVelocity);
         telemetry.addData("velocitydiff", Math.abs(targetVelocity - thrower1.getVelocity()));

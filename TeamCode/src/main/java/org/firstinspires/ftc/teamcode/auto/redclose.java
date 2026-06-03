@@ -35,7 +35,7 @@ public class redclose extends NextFTCOpMode {
                 Index.INSTANCE.launchIfBall(),
                 new ParallelGroup(
                         new FollowPath(line1),
-                        Turret.INSTANCE.setPos(-150)
+                        Turret.INSTANCE.setPos(-160)
                 ),
                 new ParallelGroup(
                         new SequentialGroupFixed(
@@ -54,7 +54,10 @@ public class redclose extends NextFTCOpMode {
                 new FollowPath(returnToLaunch),
                 Index.INSTANCE.launchIfBall(),
                 Intake.INSTANCE.intake,
-                new FollowPath(line2),
+                new ParallelGroup(
+                        Turret.INSTANCE.setPos(-160),
+                        new FollowPath(line2)
+                ),
                 Intake.INSTANCE.outtake,
                 new Delay(.15),
                 Index.INSTANCE.launchIfBall(),
@@ -62,6 +65,8 @@ public class redclose extends NextFTCOpMode {
         );
     }
     public redclose() {
+        subsystems.teleop = false;
+        subsystems.start = false;
         addComponents(
                 new PedroComponent(Constants::createFollower),
                 new SubsystemComponent(
@@ -102,6 +107,7 @@ public class redclose extends NextFTCOpMode {
 
     @Override
     public void onStop() {
+        Turret.captureAutoTurretPosition();
         subsystems.start = false;
     }
 
