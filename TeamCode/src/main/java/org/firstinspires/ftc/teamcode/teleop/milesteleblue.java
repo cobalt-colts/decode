@@ -21,6 +21,7 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.extensions.pedro.PedroDriverControlled;
 import dev.nextftc.ftc.ActiveOpMode;
@@ -55,6 +56,8 @@ public class milesteleblue extends NextFTCOpMode {
                 )
                 .setLinearHeadingInterpolation(PedroComponent.Companion.follower().getHeading(), Math.toRadians(positions.redAlliance ? 180 : 0))
                 .build();
+
+        return new FollowPath(park);
     }
 
     public milesteleblue() throws InterruptedException {
@@ -93,7 +96,7 @@ public class milesteleblue extends NextFTCOpMode {
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
 
     Button park = button(() -> gamepad1.dpad_down)
-            .whenBecomesTrue()
+            .whenBecomesTrue(autoPark());
 
     Button flickall = button(() -> gamepad1.right_bumper)
             .whenBecomesTrue(() -> subsystems.Index.INSTANCE.launchPresentOnce().schedule());
