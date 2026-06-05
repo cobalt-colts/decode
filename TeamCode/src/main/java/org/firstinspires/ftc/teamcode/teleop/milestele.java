@@ -60,7 +60,7 @@ public class milestele extends NextFTCOpMode {
 
     Button reset = button(() -> gamepad1.options)
             .whenBecomesTrue(() -> {
-                subsystems.relocalizeTeleopFromMegaTag2();
+                subsystems.setTeleopForwardToCurrentHeading();
             });
 
     Button flick1 = button(() -> gamepad1.dpad_left)
@@ -100,6 +100,7 @@ public class milestele extends NextFTCOpMode {
     @Override
     public void onStartButtonPressed() {
         positions.redAlliance = true;
+        PedroComponent.Companion.follower().setStartingPose(new Pose(0, 0, Math.toRadians(redTeleopForwardHeadingDeg)));
         DriverControlledCommand driverControlled = new PedroDriverControlled(
                 () -> subsystems.teleopDrivePower(gamepad1.left_stick_y, gamepad1.left_stick_x),
                 () -> subsystems.teleopStrafePower(gamepad1.left_stick_y, gamepad1.left_stick_x),
@@ -107,7 +108,6 @@ public class milestele extends NextFTCOpMode {
                 false
         );
         driverControlled.schedule();
-        PedroComponent.Companion.follower().setStartingPose(new Pose(0, 0, Math.toRadians(-180)));
         subsystems.start = true;
         subsystems.teleop = true;
         positions.autoTurret = true;
@@ -115,7 +115,6 @@ public class milestele extends NextFTCOpMode {
             subsystems.Thrower.limelight.pipelineSwitch(redTeleopPipeline);
             teleopPipelineConfigured = true;
         }
-        subsystems.relocalizeTeleopFromMegaTag2();
     }
 
     @Override
@@ -138,11 +137,22 @@ public class milestele extends NextFTCOpMode {
         ActiveOpMode.telemetry().addData("intake", gamepad1.left_bumper ? "OUT" : "IN");
         ActiveOpMode.telemetry().addData("alliance", positions.redAlliance ? "RED" : "BLUE");
         ActiveOpMode.telemetry().addData("forward heading", redTeleopForwardHeadingDeg);
-        ActiveOpMode.telemetry().addData("mt2 relocalized", subsystems.lastMt2RelocalizeSucceeded);
-        ActiveOpMode.telemetry().addData("mt2 x", subsystems.lastMt2XIn);
-        ActiveOpMode.telemetry().addData("mt2 y", subsystems.lastMt2YIn);
-        ActiveOpMode.telemetry().addData("ll yaw", subsystems.lastLimelightYawDeg);
+        ActiveOpMode.telemetry().addData("robot heading deg", subsystems.lastRobotHeadingDeg);
+        ActiveOpMode.telemetry().addData("ll tx", subsystems.lastLimelightTxDeg);
+        ActiveOpMode.telemetry().addData("ll aim valid", subsystems.lastLimelightAimValid);
+        ActiveOpMode.telemetry().addData("ll aim stale ms", subsystems.lastLimelightAimStalenessMs);
+        ActiveOpMode.telemetry().addData("ll aim bearing", subsystems.lastLimelightAimBearingDeg);
+        ActiveOpMode.telemetry().addData("turret aim raw deg", subsystems.lastTurretAimDegRaw);
         ActiveOpMode.telemetry().addData("turret aim deg", subsystems.lastTurretAimDeg);
+        ActiveOpMode.telemetry().addData("turret logical ticks", subsystems.lastTurretLogicalPosition);
+        ActiveOpMode.telemetry().addData("turret encoder offset", subsystems.lastTurretEncoderOffsetTicks);
+        ActiveOpMode.telemetry().addData("turret target ticks", subsystems.lastTurretTargetPos);
+        ActiveOpMode.telemetry().addData("turret motor target", subsystems.lastTurretMotorTargetPos);
+        ActiveOpMode.telemetry().addData("magnet raw", subsystems.lastMagnetRawState);
+        ActiveOpMode.telemetry().addData("magnet triggered", subsystems.lastMagnetTriggered);
+        ActiveOpMode.telemetry().addData("hood vel error rpm", subsystems.Thrower.lastVelocityErrorRpm);
+        ActiveOpMode.telemetry().addData("hood vel error filtered", subsystems.Thrower.lastVelocityErrorFilteredRpm);
+        ActiveOpMode.telemetry().addData("hood vel offset", subsystems.Thrower.lastVelocityHoodOffset);
         ActiveOpMode.telemetry().addData("localization", subsystems.lastLocalizationStatus);
         ActiveOpMode.telemetry().update();
     }

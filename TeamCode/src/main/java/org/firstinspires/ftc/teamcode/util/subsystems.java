@@ -23,8 +23,6 @@ import com.seattlesolvers.solverslib.controller.PIDFController;
 import com.seattlesolvers.solverslib.util.InterpLUT;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.ImageRegion;
 import org.firstinspires.ftc.vision.opencv.PredominantColorProcessor;
@@ -61,13 +59,22 @@ public class subsystems {
     public static int matchingSpot = -1;
     public static boolean hasAnyBalls = false;
     public static boolean far = false;
-    private static long lastLimelightOrientationUpdateMs = 0;
-    public static boolean lastMt2RelocalizeSucceeded = false;
-    public static long lastMt2RelocalizeMs = 0;
-    public static double lastMt2XIn = Double.NaN;
-    public static double lastMt2YIn = Double.NaN;
-    public static double lastLimelightYawDeg = Double.NaN;
+    private static double limelightAimBearingDeg = Double.NaN;
+    private static double filteredTurretAimTicks = Double.NaN;
+    private static long lastLimelightAimMs = 0;
+    public static double lastRobotHeadingDeg = Double.NaN;
+    public static double lastLimelightTxDeg = Double.NaN;
+    public static double lastLimelightAimBearingDeg = Double.NaN;
+    public static double lastLimelightAimStalenessMs = Double.NaN;
+    public static boolean lastLimelightAimValid = false;
+    public static double lastTurretAimDegRaw = Double.NaN;
     public static double lastTurretAimDeg = Double.NaN;
+    public static int lastTurretLogicalPosition = 0;
+    public static int lastTurretEncoderOffsetTicks = 0;
+    public static int lastTurretTargetPos = 0;
+    public static int lastTurretMotorTargetPos = 0;
+    public static boolean lastMagnetRawState = true;
+    public static boolean lastMagnetTriggered = false;
     public static String lastLocalizationStatus = "not run";
 
     public static enum motifs {
@@ -86,102 +93,130 @@ public class subsystems {
     public static boolean[] isoccupied = new boolean[3];
 
     public static void updateTeleopLimelightOrientation() {
-        if (!teleop || Thrower.limelight == null || Turret.turret == null) {
-            lastLocalizationStatus = "orientation skipped: missing teleop/limelight/turret";
+        lastRobotHeadingDeg = Math.toDegrees(PedroComponent.Companion.follower().getPose().getHeading());
+    }
+
+    public static void setTeleopForwardToCurrentHeading() {
+        double headingDeg = normalizeDegrees(Math.toDegrees(PedroComponent.Companion.follower().getPose().getHeading()) + 180.0);
+        if (redAlliance) {
+            redTeleopForwardHeadingDeg = headingDeg;
+        } else {
+            blueTeleopForwardHeadingDeg = headingDeg;
+        }
+        lastRobotHeadingDeg = headingDeg;
+        lastLocalizationStatus = "forward reset";
+    }
+
+    private static void updateTurretAimFromLimelightTx() {
+        if (!useLimelightTxTurretAim) return;
+        if (Thrower.limelight == null || Turret.turret == null) {
+            lastLimelightAimValid = false;
+            lastLocalizationStatus = "aim skipped: missing limelight/turret";
             return;
         }
 
         Pose pose = PedroComponent.Companion.follower().getPose();
-        double robotYawDeg = Math.toDegrees(pose.getHeading());
-        double turretYawDeg = limelightTurretYawDirection * ticksToTurretDegrees(Turret.getLogicalCurrentPosition());
-        lastLimelightYawDeg = normalizeDegrees(robotYawDeg + turretYawDeg + limelightTurretYawOffsetDeg);
-
+        double robotHeadingDeg = Math.toDegrees(pose.getHeading());
+        int currentTicks = Turret.getLogicalCurrentPosition();
+        double currentTurretDeg = ticksToTurretDegrees(currentTicks);
         long now = System.currentTimeMillis();
-        if (now - lastLimelightOrientationUpdateMs < limelightOrientationUpdateIntervalMs) return;
-        if (Thrower.limelight.updateRobotOrientation(lastLimelightYawDeg)) {
-            lastLimelightOrientationUpdateMs = now;
+
+        LLResult result = Thrower.limelight.getLatestResult();
+        double tx = getGoalTx(result);
+        lastLimelightAimStalenessMs = result == null ? Double.NaN : result.getStaleness();
+        boolean freshTx = !Double.isNaN(tx)
+                && result != null
+                && result.isValid()
+                && result.getStaleness() <= limelightAimMaxStalenessMs
+                && Math.abs(tx) <= limelightAimMaxTxDeg;
+
+        if (freshTx) {
+            if (Math.abs(tx) <= limelightAimTxDeadbandDeg) tx = 0;
+            lastLimelightTxDeg = tx;
+            limelightAimBearingDeg = normalizeDegrees(
+                    robotHeadingDeg
+                            + currentTurretDeg
+                            + (limelightTxDirection * tx)
+                            + turretAimCameraOffsetDeg
+            );
+            lastLimelightAimMs = now;
+            lastLimelightAimValid = true;
+            lastLocalizationStatus = "tx aim";
         } else {
-            lastLocalizationStatus = "orientation post failed";
+            lastLimelightAimValid = false;
+            if (now - lastLimelightAimMs > limelightAimLostHoldMs) {
+                filteredTurretAimTicks = Double.NaN;
+                lastLocalizationStatus = "tx aim lost";
+                return;
+            }
         }
+
+        if (Double.isNaN(limelightAimBearingDeg)) return;
+
+        lastLimelightAimBearingDeg = limelightAimBearingDeg;
+        lastRobotHeadingDeg = robotHeadingDeg;
+        lastTurretAimDegRaw = normalizeDegrees(limelightAimBearingDeg - robotHeadingDeg);
+        lastTurretAimDeg = normalizeDegrees(lastTurretAimDegRaw);
+
+        double rawTargetTicks = (turretAimDirection * lastTurretAimDeg * ticksPerDegree) + turretAimOffsetTicks;
+        rawTargetTicks = Math.max(currentTicks - limelightAimMaxCorrectionTicks,
+                Math.min(currentTicks + limelightAimMaxCorrectionTicks, rawTargetTicks));
+        int reachableTarget = nearestReachableTurretTarget(rawTargetTicks, currentTicks);
+
+        if (Double.isNaN(filteredTurretAimTicks)) {
+            filteredTurretAimTicks = currentTicks;
+        }
+
+        double alpha = Math.max(0, Math.min(1, limelightAimFilterAlpha));
+        double filteredTarget = filteredTurretAimTicks + (alpha * (reachableTarget - filteredTurretAimTicks));
+        double maxStep = Math.max(1, limelightAimMaxStepTicks);
+        filteredTarget = Math.max(filteredTurretAimTicks - maxStep, Math.min(filteredTurretAimTicks + maxStep, filteredTarget));
+        filteredTurretAimTicks = filteredTarget;
+        Turret.turretTargetPos = clampTurretTarget((int) Math.round(filteredTurretAimTicks));
     }
 
-    public static boolean relocalizeTeleopFromMegaTag2() {
-        lastMt2RelocalizeSucceeded = false;
-        if (Thrower.limelight == null) {
-            lastLocalizationStatus = "relocalize failed: no limelight";
-            return false;
-        }
+    private static double getGoalTx(LLResult result) {
+        if (result == null || !result.isValid()) return Double.NaN;
 
-        int teleopPipeline = redAlliance ? redTeleopPipeline : blueTeleopPipeline;
-        try {
-            if (!Thrower.limelight.pipelineSwitch(mt2LocalizationPipeline)) {
-                lastLocalizationStatus = "relocalize failed: localization pipeline switch";
-                return false;
-            }
-
-            for (int i = 0; i < Math.max(1, mt2RelocalizeAttempts); i++) {
-                updateTeleopLimelightOrientation();
-                try {
-                    Thread.sleep(20);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    lastLocalizationStatus = "relocalize interrupted";
-                    return false;
+        List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+        if (fiducials != null) {
+            for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                int id = fiducial.getFiducialId();
+                if (id == 24 || id == 20) {
+                    return fiducial.getTargetXDegrees();
                 }
-
-                LLResult result = Thrower.limelight.getLatestResult();
-                if (!isUsableMegaTag2(result)) continue;
-
-                Pose3D mt2Pose = result.getBotpose_MT2();
-                if (mt2Pose == null || mt2Pose.getPosition() == null) {
-                    lastLocalizationStatus = "relocalize failed: empty mt2 pose";
-                    continue;
-                }
-
-                double xIn = mt2Pose.getPosition().toUnit(DistanceUnit.INCH).x;
-                double yIn = mt2Pose.getPosition().toUnit(DistanceUnit.INCH).y;
-                double heading = PedroComponent.Companion.follower().getPose().getHeading();
-                PedroComponent.Companion.follower().setPose(new Pose(xIn, yIn, heading));
-
-                lastMt2XIn = xIn;
-                lastMt2YIn = yIn;
-                lastMt2RelocalizeMs = System.currentTimeMillis();
-                lastMt2RelocalizeSucceeded = true;
-                lastLocalizationStatus = "relocalized";
-                return true;
-            }
-
-            lastLocalizationStatus = "relocalize failed: no usable mt2";
-            return false;
-        } finally {
-            Thrower.limelight.pipelineSwitch(teleopPipeline);
-        }
-    }
-
-    private static boolean isUsableMegaTag2(LLResult result) {
-        if (result == null || !result.isValid()) return false;
-        if (result.getStaleness() > mt2MaxStalenessMs) return false;
-        if (result.getBotposeTagCount() < mt2MinTagCount) return false;
-
-        double[] stdDevs = result.getStddevMt2();
-        if (stdDevs != null && stdDevs.length >= 2) {
-            if (stdDevs[0] > mt2MaxPositionStdDevMeters || stdDevs[1] > mt2MaxPositionStdDevMeters) {
-                return false;
             }
         }
-        return true;
+
+        return result.getTx();
     }
 
-    private static void updateTurretAimFromLocalization() {
-        if (!useFieldTurretAim) return;
+    private static int nearestReachableTurretTarget(double baseTargetTicks, int currentLogicalPosition) {
+        double ticksPerRev = 360.0 * ticksPerDegree;
+        if (Math.abs(ticksPerRev) < 1e-6) {
+            return clampTurretTarget((int) Math.round(baseTargetTicks));
+        }
 
-        Pose pose = PedroComponent.Companion.follower().getPose();
-        double goalX = (redAlliance ? redGoalAimXIn : blueGoalAimXIn) + turretAimXOffsetIn;
-        double goalY = (redAlliance ? redGoalAimYIn : blueGoalAimYIn) + turretAimYOffsetIn;
+        double best = Double.NaN;
+        double bestErr = Double.POSITIVE_INFINITY;
 
-        double fieldAngleDeg = Math.toDegrees(Math.atan2(goalY - pose.getY(), goalX - pose.getX()));
-        lastTurretAimDeg = normalizeDegrees(fieldAngleDeg - Math.toDegrees(pose.getHeading()) + turretAimRobotHeadingOffsetDeg);
-        Turret.turretTargetPos = (int) Math.round((turretAimDirection * lastTurretAimDeg * ticksPerDegree) + turretAimOffsetTicks);
+        for (int k = -2; k <= 2; k++) {
+            double candidate = baseTargetTicks + (k * ticksPerRev);
+            if (candidate < turretMin || candidate > turretMax) continue;
+
+            double err = Math.abs(candidate - currentLogicalPosition);
+            if (err < bestErr) {
+                bestErr = err;
+                best = candidate;
+            }
+        }
+
+        if (Double.isNaN(best)) best = Math.max(turretMin, Math.min(turretMax, baseTargetTicks));
+        return clampTurretTarget((int) Math.round(best));
+    }
+
+    private static int clampTurretTarget(int targetTicks) {
+        return Math.max(turretMin, Math.min(turretMax, targetTicks));
     }
 
     private static double ticksToTurretDegrees(double ticks) {
@@ -586,9 +621,7 @@ public class subsystems {
             return new SequentialGroupFixed(
                     new InstantCommand(() -> hoodoffset = 0),
                     new IfElseCommand(() -> isoccupied[0], launch1Command(), new NullCommand()),
-                    new InstantCommand(() -> hoodoffset = .025),
                     new IfElseCommand(() -> isoccupied[1], launch2Command(), new NullCommand()),
-                    new InstantCommand(() -> hoodoffset = .060),
                     new IfElseCommand(() -> isoccupied[2], launch3Command(), new NullCommand()),
                     new InstantCommand(() -> hoodoffset = 0)
             ).setInterruptible(false);
@@ -619,11 +652,8 @@ public class subsystems {
         public Command farunsortedlaunch = new SequentialGroupFixed(
                 new InstantCommand(() -> hoodoffset = 0),
                 launch1Command(),
-//                new InstantCommand(() -> hoodoffset += .025), // .25, .35 for close (?)
-                new InstantCommand(() -> hoodoffset += .075),
                 launch2Command(),
                 new Delay(.25),
-//                new InstantCommand(() -> hoodoffset += .025),
                 launch3Command(),
                 new InstantCommand(() -> hoodoffset = 0),
                 new Delay(0.25)
@@ -632,9 +662,7 @@ public class subsystems {
         public Command closeunsortedlaunch = new SequentialGroupFixed(
                 new InstantCommand(() -> hoodoffset = 0),
                 launch1Command(),
-                new InstantCommand(() -> hoodoffset += .025),
                 launch2Command(),
-                new InstantCommand(() -> hoodoffset += .035),
                 launch3Command(),
                 new InstantCommand(() -> hoodoffset = 0),
                 new Delay(0.25)
@@ -881,8 +909,15 @@ public class subsystems {
         public static final Thrower INSTANCE = new Thrower();
 
         public static double targetvelocity = 1370; // Starting value, good for near auto
+        public static double HOOD_VEL_GAIN = 0.0006;
+        public static double HOOD_OFFSET_MAX = 0.10;
+        public static double VEL_FILTER_ALPHA = 0.3;
+        public static double lastVelocityErrorRpm = 0;
+        public static double lastVelocityErrorFilteredRpm = 0;
+        public static double lastVelocityHoodOffset = 0;
 
         private double velocity = 0;    // What is this variable for?
+        private double velErrorFiltered = 0;
 
         private Thrower() {
         }
@@ -920,6 +955,10 @@ public class subsystems {
             controller = new PIDFController(kP, kI, kD, kF);
 
             shootTa = DEFAULT_SHOOT_TA;
+            velErrorFiltered = 0;
+            lastVelocityErrorRpm = 0;
+            lastVelocityErrorFilteredRpm = 0;
+            lastVelocityHoodOffset = 0;
 
             shootlut = new InterpLUT();
             hoodlut = new InterpLUT();
@@ -995,7 +1034,8 @@ public class subsystems {
 //                    hoodpos = Math.min(0.4, hoodpos);
             }
 
-            atvelocity = (targetvelocity) - (masterShootingSpeedMotor.getVelocity() / 28) * 60 <= 10;
+            double currentRpm = (masterShootingSpeedMotor.getVelocity() / 28.0) * 60.0;
+            atvelocity = (targetvelocity) - currentRpm <= 10;
 
             double currentVelocity = masterShootingSpeedMotor.getVelocity();
             double pid = controller.calculate(currentVelocity, targetvelocity);
@@ -1010,7 +1050,15 @@ public class subsystems {
                 }
             }
 
-            double newhoodpos = hoodlut.get(shootTa) + Index.INSTANCE.hoodoffset;
+            double alpha = Math.max(0, Math.min(1, VEL_FILTER_ALPHA));
+            lastVelocityErrorRpm = targetvelocity - currentRpm;
+            velErrorFiltered = (alpha * lastVelocityErrorRpm) + ((1 - alpha) * velErrorFiltered);
+            lastVelocityErrorFilteredRpm = velErrorFiltered;
+
+            double deficit = Math.max(0, velErrorFiltered);
+            lastVelocityHoodOffset = Math.min(HOOD_OFFSET_MAX, HOOD_VEL_GAIN * deficit);
+
+            double newhoodpos = hoodlut.get(shootTa) + lastVelocityHoodOffset + Index.INSTANCE.hoodoffset;
 
 
             if (!Double.isNaN(newhoodpos)){
@@ -1170,11 +1218,14 @@ public class subsystems {
             if (start && teleop) {
                 updateTeleopLimelightOrientation();
                 if (autoTurret) {
-                    updateTurretAimFromLocalization();
+                    updateTurretAimFromLimelightTx();
                 }
             }
 
-            boolean magnetTriggered = !magnet.getState();
+            boolean rawMagnetState = magnet.getState();
+            boolean magnetTriggered = !rawMagnetState;
+            lastMagnetRawState = rawMagnetState;
+            lastMagnetTriggered = magnetTriggered;
 
             /*
              * Zero only on the edge when the magnet is first detected.
@@ -1182,13 +1233,13 @@ public class subsystems {
              */
             if (magnetTriggered && !lastMagnetState) {
                 if (Math.abs(getLogicalCurrentPosition()) < 150) {
-                    int requestedTarget = turretTargetPos;
+                    int requestedMotorTarget = getMotorTargetPosition();
 
                     turret.setPower(0);
                     turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
                     turretEncoderOffset = 0;
-                    turretTargetPos = requestedTarget;
+                    turretTargetPos = requestedMotorTarget;
                     turret.setTargetPosition(getMotorTargetPosition());
 
                     turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -1203,8 +1254,12 @@ public class subsystems {
                 turretTargetPos = Math.max(turretTargetPos, turretMin);
             }
             turret.setTargetPosition(getMotorTargetPosition());
-            turret.setPower(1);
+            turret.setPower(turretRunToPositionPower);
             atposition = (Math.abs(getLogicalCurrentPosition() - turretTargetPos) <= 2);
+            lastTurretLogicalPosition = getLogicalCurrentPosition();
+            lastTurretEncoderOffsetTicks = turretEncoderOffset;
+            lastTurretTargetPos = turretTargetPos;
+            lastTurretMotorTargetPos = getMotorTargetPosition();
 //
 //            if (telemetryWarning.length() > 0) {
 //                ActiveOpMode.telemetry().addLine(telemetryWarning);
