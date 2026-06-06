@@ -150,9 +150,6 @@ public class milestele extends NextFTCOpMode {
         ActiveOpMode.telemetry().addData("turret motor target", subsystems.lastTurretMotorTargetPos);
         ActiveOpMode.telemetry().addData("magnet raw", subsystems.lastMagnetRawState);
         ActiveOpMode.telemetry().addData("magnet triggered", subsystems.lastMagnetTriggered);
-        ActiveOpMode.telemetry().addData("hood vel error rpm", subsystems.Thrower.lastVelocityErrorRpm);
-        ActiveOpMode.telemetry().addData("hood vel error filtered", subsystems.Thrower.lastVelocityErrorFilteredRpm);
-        ActiveOpMode.telemetry().addData("hood vel offset", subsystems.Thrower.lastVelocityHoodOffset);
         ActiveOpMode.telemetry().addData("localization", subsystems.lastLocalizationStatus);
         ActiveOpMode.telemetry().update();
     }

@@ -1,15 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.PathChain;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SensorGoBildaPinpoint;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.internal.hardware.android.GpioPin;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
 import org.firstinspires.ftc.teamcode.util.positions;
@@ -21,7 +15,6 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.InstantCommand;
 import dev.nextftc.core.components.BindingsComponent;
 import dev.nextftc.core.components.SubsystemComponent;
-import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
 import dev.nextftc.extensions.pedro.PedroDriverControlled;
 import dev.nextftc.ftc.ActiveOpMode;
@@ -46,20 +39,6 @@ public class milesteleblue extends NextFTCOpMode {
 
     private boolean teleopPipelineConfigured = false;
 
-    private Command autoPark() {
-        PathChain park = PedroComponent.Companion.follower().pathBuilder()
-                .addPath(
-                        new BezierLine(
-                                PedroComponent.Companion.follower().getPose(),
-                                new Pose(positions.redAlliance ? 38 : 103.5, 33)
-                        )
-                )
-                .setLinearHeadingInterpolation(PedroComponent.Companion.follower().getHeading(), Math.toRadians(positions.redAlliance ? 180 : 0))
-                .build();
-
-        return new FollowPath(park);
-    }
-
     public milesteleblue() throws InterruptedException {
         positions.redAlliance = false;
         subsystems.teleop = true;
@@ -79,8 +58,6 @@ public class milesteleblue extends NextFTCOpMode {
         );
     }
 
-    private GoBildaPinpointDriver pinpoint;
-
     Button reset = button(() -> gamepad1.options)
             .whenBecomesTrue(() -> {
                 subsystems.setTeleopForwardToCurrentHeading();
@@ -94,9 +71,6 @@ public class milesteleblue extends NextFTCOpMode {
 
     Button flick3 = button(() -> gamepad1.dpad_right)
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
-
-    Button park = button(() -> gamepad1.dpad_down)
-            .whenBecomesTrue(autoPark());
 
     Button flickall = button(() -> gamepad1.right_bumper)
             .whenBecomesTrue(() -> subsystems.Index.INSTANCE.launchPresentOnce().schedule());
@@ -121,16 +95,15 @@ public class milesteleblue extends NextFTCOpMode {
         subsystems.far = false;
         positions.autoTurret = true;
         positions.flyWheelCorrect = 0;
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     }
 
     @Override
     public void onStartButtonPressed() {
-        positions.redAlliance = false;
+        positions.redAlliance = true;
         PedroComponent.Companion.follower().setStartingPose(new Pose(0, 0, Math.toRadians(blueTeleopForwardHeadingDeg)));
         DriverControlledCommand driverControlled = new PedroDriverControlled(
-                () -> subsystems.teleopDrivePower(Gamepads.gamepad1().leftStickY().get(), Gamepads.gamepad1().leftStickX().get()),
-                () -> subsystems.teleopStrafePower(Gamepads.gamepad1().leftStickY().get(), Gamepads.gamepad1().leftStickX().get()),
+                () -> subsystems.teleopDrivePower(gamepad1.left_stick_y, gamepad1.left_stick_x),
+                () -> subsystems.teleopStrafePower(gamepad1.left_stick_y, gamepad1.left_stick_x),
                 Gamepads.gamepad1().rightStickX().negate(),
                 false
         );
@@ -163,16 +136,20 @@ public class milesteleblue extends NextFTCOpMode {
         subsystems.updateTeleopLimelightOrientation();
         ActiveOpMode.telemetry().addData("intake", gamepad1.left_bumper ? "OUT" : "IN");
         ActiveOpMode.telemetry().addData("alliance", positions.redAlliance ? "RED" : "BLUE");
-        ActiveOpMode.telemetry().addData("forward heading", blueTeleopForwardHeadingDeg);
-        ActiveOpMode.telemetry().addData("turret target pos", subsystems.Turret.turretTargetPos);
-        ActiveOpMode.telemetry().addData("turret current pos", subsystems.Turret.getLogicalCurrentPosition());
-        ActiveOpMode.telemetry().addData("pinpoint heading", pinpoint.getHeading(AngleUnit.DEGREES));
-        ActiveOpMode.telemetry().addData("target turret vel", subsystems.Thrower.targetvelocity);
+        ActiveOpMode.telemetry().addData("forward heading", redTeleopForwardHeadingDeg);
+        ActiveOpMode.telemetry().addData("robot heading deg", subsystems.lastRobotHeadingDeg);
         ActiveOpMode.telemetry().addData("ll tx", subsystems.lastLimelightTxDeg);
         ActiveOpMode.telemetry().addData("ll aim valid", subsystems.lastLimelightAimValid);
         ActiveOpMode.telemetry().addData("ll aim stale ms", subsystems.lastLimelightAimStalenessMs);
         ActiveOpMode.telemetry().addData("ll aim bearing", subsystems.lastLimelightAimBearingDeg);
+        ActiveOpMode.telemetry().addData("turret aim raw deg", subsystems.lastTurretAimDegRaw);
         ActiveOpMode.telemetry().addData("turret aim deg", subsystems.lastTurretAimDeg);
+        ActiveOpMode.telemetry().addData("turret logical ticks", subsystems.lastTurretLogicalPosition);
+        ActiveOpMode.telemetry().addData("turret encoder offset", subsystems.lastTurretEncoderOffsetTicks);
+        ActiveOpMode.telemetry().addData("turret target ticks", subsystems.lastTurretTargetPos);
+        ActiveOpMode.telemetry().addData("turret motor target", subsystems.lastTurretMotorTargetPos);
+        ActiveOpMode.telemetry().addData("magnet raw", subsystems.lastMagnetRawState);
+        ActiveOpMode.telemetry().addData("magnet triggered", subsystems.lastMagnetTriggered);
         ActiveOpMode.telemetry().addData("localization", subsystems.lastLocalizationStatus);
         ActiveOpMode.telemetry().update();
     }

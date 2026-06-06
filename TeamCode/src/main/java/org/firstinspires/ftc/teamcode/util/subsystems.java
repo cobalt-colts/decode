@@ -909,15 +909,8 @@ public class subsystems {
         public static final Thrower INSTANCE = new Thrower();
 
         public static double targetvelocity = 1370; // Starting value, good for near auto
-        public static double HOOD_VEL_GAIN = 0.0006;
-        public static double HOOD_OFFSET_MAX = 0.10;
-        public static double VEL_FILTER_ALPHA = 0.3;
-        public static double lastVelocityErrorRpm = 0;
-        public static double lastVelocityErrorFilteredRpm = 0;
-        public static double lastVelocityHoodOffset = 0;
 
         private double velocity = 0;    // What is this variable for?
-        private double velErrorFiltered = 0;
 
         private Thrower() {
         }
@@ -955,10 +948,6 @@ public class subsystems {
             controller = new PIDFController(kP, kI, kD, kF);
 
             shootTa = DEFAULT_SHOOT_TA;
-            velErrorFiltered = 0;
-            lastVelocityErrorRpm = 0;
-            lastVelocityErrorFilteredRpm = 0;
-            lastVelocityHoodOffset = 0;
 
             shootlut = new InterpLUT();
             hoodlut = new InterpLUT();
@@ -1050,17 +1039,7 @@ public class subsystems {
                 }
             }
 
-            double alpha = Math.max(0, Math.min(1, VEL_FILTER_ALPHA));
-            lastVelocityErrorRpm = targetvelocity - currentRpm;
-            velErrorFiltered = (alpha * lastVelocityErrorRpm) + ((1 - alpha) * velErrorFiltered);
-            lastVelocityErrorFilteredRpm = velErrorFiltered;
-
-            double deficit = Math.max(0, velErrorFiltered);
-            lastVelocityHoodOffset = Math.min(HOOD_OFFSET_MAX, HOOD_VEL_GAIN * deficit);
-
-            double newhoodpos = hoodlut.get(shootTa) + lastVelocityHoodOffset + Index.INSTANCE.hoodoffset;
-
-
+            double newhoodpos = hoodlut.get(shootTa) + Index.INSTANCE.hoodoffset;
             if (!Double.isNaN(newhoodpos)){
                 hoodpos = newhoodpos;
             }
