@@ -17,7 +17,7 @@ public class ShooterPIDConfig {
 
     // These will be tunable in Dashboard
     public static double kP = 0.005; //100
-    public static double kI = 0.01;
+    public static double kI = 0.002; // was 0.01 — high kI overshoots far shots; try 0.0 if still long
     public static double kD = 0.0;
     public static double kF = 0.0005;
 

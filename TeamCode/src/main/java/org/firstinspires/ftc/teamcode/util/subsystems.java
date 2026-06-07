@@ -909,6 +909,7 @@ public class subsystems {
         public static final Thrower INSTANCE = new Thrower();
 
         public static double targetvelocity = 1370; // Starting value, good for near auto
+        public static double AT_VEL_TOL = 20; // ticks/sec band for "at speed" (tune in Dashboard)
 
         private double velocity = 0;    // What is this variable for?
 
@@ -1023,11 +1024,17 @@ public class subsystems {
 //                    hoodpos = Math.min(0.4, hoodpos);
             }
 
-            double currentRpm = (masterShootingSpeedMotor.getVelocity() / 28.0) * 60.0;
-            atvelocity = (targetvelocity) - currentRpm <= 10;
+            // ONE unit only: ticks/sec (that's what getVelocity() returns).
+            double currentTps = masterShootingSpeedMotor.getVelocity();   // ticks/sec
+            double velError = targetvelocity - currentTps;                // shootlut must be in ticks/sec
+            atvelocity = Math.abs(velError) <= AT_VEL_TOL;                // symmetric: not "at speed" if overspeed
 
-            double currentVelocity = masterShootingSpeedMotor.getVelocity();
-            double pid = controller.calculate(currentVelocity, targetvelocity);
+            double pid = controller.calculate(currentTps, targetvelocity);
+
+            // 3-line diagnostic. On a FAR shot, compare these on the driver station:
+            ActiveOpMode.telemetry().addData("targetvelocity", targetvelocity);
+            ActiveOpMode.telemetry().addData("getVelocity (ticks/sec)", currentTps);
+            ActiveOpMode.telemetry().addData("currentRpm", (currentTps / 28.0) * 60.0);
 
             if (targetvelocity < 100) {
                 masterShootingSpeedMotor.setMotorDisable();
