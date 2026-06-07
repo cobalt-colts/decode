@@ -615,6 +615,13 @@ public class subsystems {
         );
 
 
+        public boolean isFull() {
+            if (isoccupied[0] && isoccupied[1] && isoccupied[2]) {
+                return true;
+            }
+            return false;
+        }
+
         public Command sensedunsorted;
 
         public Command launchPresentOnce() {
@@ -867,6 +874,7 @@ public class subsystems {
             public DcMotorEx intakeMotor; // = ActiveOpMode.hardwareMap().get(DcMotorEx.class, "intake");
             public static double intakePower = -1;
             public static double reversePower = 0.5;
+
             public static boolean negative = false;
 
             @Override
@@ -973,8 +981,8 @@ public class subsystems {
             masterShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
             slaveShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-            shootlut.add(0.1, 911);
-            shootlut.add(0.322, 910);
+            shootlut.add(0.1, 901);
+            shootlut.add(0.322, 900);
             shootlut.add(0.724, 775);
             shootlut.add(1.079, 700);
             shootlut.add(1.522, 650);
