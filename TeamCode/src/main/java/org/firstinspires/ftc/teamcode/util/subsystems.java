@@ -923,6 +923,7 @@ public class subsystems {
         public static double HOOD_CLOSED = 0.30;     // all the way closed = straight shot (flywheel at target)
         public static double HOOD_OPEN = 0.55;       // all the way open = lob (flywheel too slow)
         private double velErrFilt = 0;               // filtered velocity error (ticks/sec)
+        private boolean reachedSpeed = false;        // comp stays off until wheel first hits target
 
         private double velocity = 0;    // What is this variable for?
 
@@ -1044,7 +1045,11 @@ public class subsystems {
 
             // Hood velocity comp: how far BELOW target speed are we (filtered)?
             velErrFilt = 0.3 * velError + 0.7 * velErrFilt;
-            double deficit = Math.max(0, velErrFilt);   // only positive = wheel too slow
+            // Comp is OFF until the wheel first reaches target (no spin-up lob),
+            // and ignores error inside the at-speed band (no comp from normal PID wobble).
+            if (atvelocity) reachedSpeed = true;
+            if (!isshooteron || targetvelocity < 100) { reachedSpeed = false; velErrFilt = 0; }
+            double deficit = reachedSpeed ? Math.max(0, velErrFilt - AT_VEL_TOL) : 0;
 
             double pid = controller.calculate(currentTps, targetvelocity);
 
