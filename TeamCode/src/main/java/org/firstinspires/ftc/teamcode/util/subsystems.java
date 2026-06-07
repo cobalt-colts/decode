@@ -918,6 +918,10 @@ public class subsystems {
 
         public static double targetvelocity = 1370; // Starting value, good for near auto
         public static double AT_VEL_TOL = 20; // ticks/sec band for "at speed" (tune in Dashboard)
+        public static double HOOD_VEL_GAIN = 0.0013; // hood units per tick/sec of deficit — tune in Dashboard
+        public static double HOOD_COMP_MAX = 0.10;   // max extra arc from velocity comp
+        public static double HOOD_MIN = 0.08;        // mechanical floor — VERIFY ON BOT
+        private double velErrFilt = 0;               // filtered velocity error (ticks/sec)
 
         private double velocity = 0;    // What is this variable for?
 
@@ -1037,6 +1041,10 @@ public class subsystems {
             double velError = targetvelocity - currentTps;                // shootlut must be in ticks/sec
             atvelocity = Math.abs(velError) <= AT_VEL_TOL;                // symmetric: not "at speed" if overspeed
 
+            // Hood velocity comp: how far BELOW target speed are we (filtered)?
+            velErrFilt = 0.3 * velError + 0.7 * velErrFilt;
+            double deficit = Math.max(0, velErrFilt);   // only positive = wheel too slow
+
             double pid = controller.calculate(currentTps, targetvelocity);
 
             // 3-line diagnostic. On a FAR shot, compare these on the driver station:
@@ -1054,7 +1062,9 @@ public class subsystems {
                 }
             }
 
-            double newhoodpos = hoodlut.get(shootTa) + Index.INSTANCE.hoodoffset;
+            // Slow wheel -> LOWER hoodpos -> higher arc (on this bot lower = more arc).
+            double newhoodpos = hoodlut.get(shootTa) - Math.min(HOOD_COMP_MAX, HOOD_VEL_GAIN * deficit);
+            newhoodpos = Math.max(HOOD_MIN, newhoodpos); // don't drive hood past mechanical floor
             if (!Double.isNaN(newhoodpos)){
                 hoodpos = newhoodpos;
             }
