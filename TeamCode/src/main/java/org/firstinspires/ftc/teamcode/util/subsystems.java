@@ -920,7 +920,8 @@ public class subsystems {
         public static double AT_VEL_TOL = 20; // ticks/sec band for "at speed" (tune in Dashboard)
         public static double HOOD_VEL_GAIN = 0.0013; // hood units per tick/sec of deficit — tune in Dashboard
         public static double HOOD_COMP_MAX = 0.10;   // max extra arc from velocity comp
-        public static double HOOD_MIN = .55;        // mechanical floor — VERIFY ON BOT
+        public static double HOOD_CLOSED = 0.30;     // all the way closed = straight shot (flywheel at target)
+        public static double HOOD_OPEN = 0.55;       // all the way open = lob (flywheel too slow)
         private double velErrFilt = 0;               // filtered velocity error (ticks/sec)
 
         private double velocity = 0;    // What is this variable for?
@@ -1062,14 +1063,14 @@ public class subsystems {
                 }
             }
 
-            // Slow wheel -> LOWER hoodpos -> higher arc (on this bot lower = more arc).
-            double newhoodpos = hoodlut.get(shootTa) - Math.min(HOOD_COMP_MAX, HOOD_VEL_GAIN * deficit);
-            newhoodpos = Math.max(HOOD_MIN, newhoodpos); // don't drive hood past mechanical floor
+            // Slow wheel -> hood OPENS (toward 0.55) for a lob. At target speed -> sits at hoodlut value.
+            double newhoodpos = hoodlut.get(shootTa) + Math.min(HOOD_COMP_MAX, HOOD_VEL_GAIN * deficit);
+            newhoodpos = Math.clamp(newhoodpos, HOOD_CLOSED, HOOD_OPEN); // servo's real travel is 0.30-0.55
             if (!Double.isNaN(newhoodpos)){
                 hoodpos = newhoodpos;
             }
 
-            hood.setPosition(Math.clamp(hoodpos, 0, 1));
+            hood.setPosition(Math.clamp(hoodpos, HOOD_CLOSED, HOOD_OPEN));
 
 //                ActiveOpMode.telemetry().addData("thrower1vel - velocity: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
 //                ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);
