@@ -22,13 +22,14 @@ import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
+import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous(name="RED Far")
 public class redfar extends NextFTCOpMode {
-
     public Command autonomousRoutine() {
         return new SequentialGroupFixed(
             new ParallelGroup(
@@ -39,26 +40,25 @@ public class redfar extends NextFTCOpMode {
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             new ParallelGroup(
-                    Turret.INSTANCE.setPos(-60),
+                    Turret.INSTANCE.setPos(0),
                     new FollowPath(cycle)
             ),
             Intake.INSTANCE.outtake,
+            new TurnTo(Angle.fromDeg(70)),
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             new ParallelGroup(
-                    Turret.INSTANCE.setPos(30),
                     Intake.INSTANCE.intake,
                     new FollowPath(farline)
             ),
+            new TurnTo(Angle.fromDeg(60)),
             Intake.INSTANCE.outtake,
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             Intake.INSTANCE.intake,
-            new ParallelGroup(
-                    Turret.INSTANCE.setPos(-60),
-                    new FollowPath(cycle)
-            ),
+            new FollowPath(cycle),
             Intake.INSTANCE.outtake,
+            new TurnTo(Angle.fromDeg(70)),
             Index.INSTANCE.launchIfBall(),
             Index.INSTANCE.launchIfBall(),
             new FollowPath(leave)

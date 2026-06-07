@@ -4,16 +4,16 @@
     "y": 9.5,
     "heading": "linear",
     "startDeg": 90,
-    "endDeg": 180,
+    "endDeg": 90,
     "locked": false
   },
   "lines": [
     {
-      "id": "mpq1eaca-igyq75",
+      "id": "launch1-line",
       "name": "launch1",
       "endPoint": {
         "x": 82.5,
-        "y": 15,
+        "y": 15.0,
         "heading": "constant",
         "reverse": false,
         "degrees": 90
@@ -26,22 +26,22 @@
       "waitAfterName": ""
     },
     {
-      "id": "mpvosbzx-stjaez",
-      "name": "cornerline",
+      "id": "cycle-1",
+      "name": "cycle_curve",
       "endPoint": {
-        "x": 131.57229524772495,
-        "y": 10.144590495449954,
+        "x": 131.572,
+        "y": 10.145,
         "heading": "tangential",
         "reverse": false
       },
       "controlPoints": [
         {
-          "x": 93.76790507219724,
-          "y": 29.936292943569587
+          "x": 93.768,
+          "y": 29.936
         },
         {
-          "x": 99.06315279717197,
-          "y": 9.335180708989203
+          "x": 99.063,
+          "y": 9.335
         }
       ],
       "color": "#8D7B8A",
@@ -51,11 +51,11 @@
       "waitAfterName": ""
     },
     {
-      "id": "mpvr0qv7-d5dq20",
-      "name": "bump1",
+      "id": "cycle-2",
+      "name": "cycle_bump1",
       "endPoint": {
-        "x": 120,
-        "y": 11,
+        "x": 120.0,
+        "y": 11.0,
         "heading": "tangential",
         "reverse": true
       },
@@ -67,11 +67,11 @@
       "waitAfterName": ""
     },
     {
-      "id": "mpvr51y1-1hn3fe",
-      "name": "bump2",
+      "id": "cycle-3",
+      "name": "cycle_bump2",
       "endPoint": {
-        "x": 131.57229524772495,
-        "y": 10.144590495449954,
+        "x": 131.572,
+        "y": 10.145,
         "heading": "tangential",
         "reverse": false
       },
@@ -83,11 +83,11 @@
       "waitAfterName": ""
     },
     {
-      "id": "mpvov3hn-0r8j24",
-      "name": "launch2",
+      "id": "cycle-4",
+      "name": "cycle_return",
       "endPoint": {
         "x": 82.5,
-        "y": 15,
+        "y": 15.0,
         "heading": "tangential",
         "reverse": true
       },
@@ -99,18 +99,18 @@
       "waitAfterName": ""
     },
     {
-      "id": "mpvp29ga-asayjp",
-      "name": "line",
+      "id": "farline-1",
+      "name": "farline_out",
       "endPoint": {
-        "x": 127,
+        "x": 127.0,
         "y": 34.75,
         "heading": "tangential",
         "reverse": false
       },
       "controlPoints": [
         {
-          "x": 92,
-          "y": 37
+          "x": 92.0,
+          "y": 37.0
         }
       ],
       "color": "#DC6776",
@@ -120,21 +120,39 @@
       "waitAfterName": ""
     },
     {
-      "id": "mpvp3jri-70n688",
-      "name": "launch3",
+      "id": "farline-2",
+      "name": "farline_return",
       "endPoint": {
         "x": 82.5,
-        "y": 15,
+        "y": 15.0,
         "heading": "tangential",
         "reverse": true
       },
       "controlPoints": [
         {
-          "x": 92,
-          "y": 37
+          "x": 92.0,
+          "y": 37.0
         }
       ],
       "color": "#DC6776",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": ""
+    },
+    {
+      "id": "leave-1",
+      "name": "leave",
+      "endPoint": {
+        "x": 103.5,
+        "y": 32.5,
+        "heading": "linear",
+        "reverse": false,
+        "startDeg": 90,
+        "endDeg": 0
+      },
+      "controlPoints": [],
+      "color": "#22C55E",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -202,63 +220,75 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "mpq1eaca-igyq75"
+      "lineId": "launch1-line"
     },
     {
       "kind": "path",
-      "lineId": "mpvosbzx-stjaez"
+      "lineId": "cycle-1"
     },
     {
       "kind": "path",
-      "lineId": "mpvr0qv7-d5dq20"
+      "lineId": "cycle-2"
     },
     {
       "kind": "path",
-      "lineId": "mpvr51y1-1hn3fe"
+      "lineId": "cycle-3"
     },
     {
       "kind": "path",
-      "lineId": "mpvov3hn-0r8j24"
+      "lineId": "cycle-4"
     },
     {
       "kind": "path",
-      "lineId": "mpvp29ga-asayjp"
+      "lineId": "farline-1"
     },
     {
       "kind": "path",
-      "lineId": "mpvp3jri-70n688"
+      "lineId": "farline-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "leave-1"
     }
   ],
   "pathChains": [
     {
-      "id": "mppzv00u-zrozsn",
+      "id": "chain-launch1",
       "name": "launch1",
       "color": "#D55DDD",
       "lineIds": [
-        "mpq1eaca-igyq75"
+        "launch1-line"
       ]
     },
     {
-      "id": "mpvosrp8-ynwglb",
+      "id": "chain-cycle",
       "name": "cycle",
       "color": "#8D7B8A",
       "lineIds": [
-        "mpvosbzx-stjaez",
-        "mpvr0qv7-d5dq20",
-        "mpvr51y1-1hn3fe",
-        "mpvov3hn-0r8j24"
+        "cycle-1",
+        "cycle-2",
+        "cycle-3",
+        "cycle-4"
       ]
     },
     {
-      "id": "mpvp2cx7-acdcw0",
+      "id": "chain-farline",
       "name": "farline",
       "color": "#DC6776",
       "lineIds": [
-        "mpvp29ga-asayjp",
-        "mpvp3jri-70n688"
+        "farline-1",
+        "farline-2"
+      ]
+    },
+    {
+      "id": "chain-leave",
+      "name": "leave",
+      "color": "#22C55E",
+      "lineIds": [
+        "leave-1"
       ]
     }
   ],
   "version": "1.2.1",
-  "timestamp": "2026-06-01T22:07:52.258Z"
+  "timestamp": "2026-06-06T00:00:00.000Z"
 }

@@ -45,14 +45,14 @@ public class BlueFar {
                 .addPath(
                         new BezierLine(
                                 new Pose(21.500, 11.000),
-                                new Pose(17.000, 10.145)
+                                new Pose(9.928, 10.145)
                         )
                 )
                 .setTangentHeadingInterpolation()
                 .addPath(
                         new BezierLine(
-                                new Pose(17.000, 10.145),
-                                new Pose(59.000, 15.000)
+                                new Pose(9.928, 10.145),
+                                new Pose(54.500, 15.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -62,7 +62,7 @@ public class BlueFar {
         farline = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(59.000, 15.000),
+                                new Pose(54.500, 15.000),
                                 new Pose(49.500, 37.000),
                                 new Pose(14.500, 34.750)
                         )
@@ -72,7 +72,7 @@ public class BlueFar {
                         new BezierCurve(
                                 new Pose(14.500, 34.750),
                                 new Pose(49.500, 37.000),
-                                new Pose(59.000, 15.000)
+                                new Pose(54.500, 15.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -82,7 +82,7 @@ public class BlueFar {
         leave = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(59.000, 15.000),
+                                new Pose(54.500, 15.000),
                                 new Pose(38.000, 32.500)
                         )
                 )

@@ -52,7 +52,7 @@ public class RedFar {
                 .addPath(
                         new BezierLine(
                                 new Pose(131.572, 10.145),
-                                new Pose(82.500, 15.000)
+                                new Pose(87.000, 15.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -62,7 +62,7 @@ public class RedFar {
         farline = follower.pathBuilder()
                 .addPath(
                         new BezierCurve(
-                                new Pose(82.500, 15.000),
+                                new Pose(87.000, 15.000),
                                 new Pose(92.000, 37.000),
                                 new Pose(127.000, 34.750)
                         )
@@ -72,7 +72,7 @@ public class RedFar {
                         new BezierCurve(
                                 new Pose(127.000, 34.750),
                                 new Pose(92.000, 37.000),
-                                new Pose(82.500, 15.000)
+                                new Pose(87.000, 15.000)
                         )
                 )
                 .setTangentHeadingInterpolation()
@@ -82,7 +82,7 @@ public class RedFar {
         leave = follower.pathBuilder()
                 .addPath(
                         new BezierLine(
-                                new Pose(82.500, 15.000),
+                                new Pose(87.000, 15.000),
                                 new Pose(103.500, 32.500)
                         )
                 )

@@ -21,8 +21,11 @@ import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
+import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
+import dev.nextftc.extensions.pedro.TurnBy;
+import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
 @Autonomous(name="BLUE Far")
@@ -30,39 +33,36 @@ public class bluefar extends NextFTCOpMode {
 
     public Command autonomousRoutine() {
         return new SequentialGroupFixed(
-            new ParallelGroup(
-                    Intake.INSTANCE.intake,
-                    new FollowPath(launch1)
-            ),
-            new Delay(3),
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
-            new ParallelGroup(
-                    Turret.INSTANCE.setPos(95),
-                    new FollowPath(cycle)
-            ),
-            Intake.INSTANCE.outtake,
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
-            new ParallelGroup(
-                    Turret.INSTANCE.setPos(0),
-                    Intake.INSTANCE.intake,
-                    new FollowPath(farline)
-            ),
-            Intake.INSTANCE.outtake,
-            new Delay(.5),
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
-            Intake.INSTANCE.intake,
-            new ParallelGroup(
-                    Turret.INSTANCE.setPos(95),
-                    new FollowPath(cycle)
-            ),
-            Intake.INSTANCE.outtake,
-            new Delay(.5),
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
-            new FollowPath(leave)
+                new ParallelGroup(
+                        Intake.INSTANCE.intake,
+                        new FollowPath(launch1)
+                ),
+                new Delay(3),
+                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.launchIfBall(),
+                new ParallelGroup(
+                        Turret.INSTANCE.setPos(0),
+                        new FollowPath(cycle)
+                ),
+                Intake.INSTANCE.outtake,
+                new TurnBy(Angle.fromDeg(-73)),
+                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.launchIfBall(),
+                new ParallelGroup(
+                        Intake.INSTANCE.intake,
+                        new FollowPath(farline)
+                ),
+                Intake.INSTANCE.outtake,
+                new TurnTo(Angle.fromDeg(95)),
+                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.launchIfBall(),
+                Intake.INSTANCE.intake,
+                new FollowPath(cycle),
+                Intake.INSTANCE.outtake,
+                new TurnBy(Angle.fromDeg(-73)),
+                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.launchIfBall(),
+                new FollowPath(leave)
         );
     }
     public bluefar() {
