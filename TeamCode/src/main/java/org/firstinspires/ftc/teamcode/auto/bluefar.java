@@ -38,30 +38,30 @@ public class bluefar extends NextFTCOpMode {
                         new FollowPath(launch1)
                 ),
                 new Delay(3),
-                Index.INSTANCE.launchIfBall(),
-                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
                 new ParallelGroup(
                         Turret.INSTANCE.setPos(0),
                         new FollowPath(cycle)
                 ),
                 Intake.INSTANCE.outtake,
                 new TurnBy(Angle.fromDeg(-73)),
-                Index.INSTANCE.launchIfBall(),
-                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
                 new ParallelGroup(
                         Intake.INSTANCE.intake,
                         new FollowPath(farline)
                 ),
                 Intake.INSTANCE.outtake,
                 new TurnTo(Angle.fromDeg(95)),
-                Index.INSTANCE.launchIfBall(),
-                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
                 Intake.INSTANCE.intake,
                 new FollowPath(cycle),
                 Intake.INSTANCE.outtake,
                 new TurnBy(Angle.fromDeg(-73)),
-                Index.INSTANCE.launchIfBall(),
-                Index.INSTANCE.launchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
+                Index.INSTANCE.farLaunchIfBall(),
                 new FollowPath(leave)
         );
     }

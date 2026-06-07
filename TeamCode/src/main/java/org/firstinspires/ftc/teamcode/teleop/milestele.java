@@ -73,10 +73,22 @@ public class milestele extends NextFTCOpMode {
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
 
     Button flickall = button(() -> gamepad1.right_bumper)
-            .whenBecomesTrue(() -> subsystems.Index.INSTANCE.launchPresentOnce().schedule());
+            .whenBecomesTrue(() -> {
+                if (subsystems.isFarShot()) {
+                    subsystems.Index.INSTANCE.farLaunchPresentOnce().schedule();
+                } else {
+                    subsystems.Index.INSTANCE.launchPresentOnce().schedule();
+                }
+            });
 
     Button altflick = button(() -> gamepad1.right_trigger_pressed)
-            .whenBecomesTrue(() -> subsystems.Index.INSTANCE.closeunsortedlaunch.schedule());
+            .whenBecomesTrue(() -> {
+                if (subsystems.isFarShot()) {
+                    subsystems.Index.INSTANCE.farunsortedlaunch.schedule();
+                } else {
+                    subsystems.Index.INSTANCE.closeunsortedlaunch.schedule();
+                }
+            });
 //
 //    Button shooterBoost = button(() -> gamepad1.touchpad)
 //            .whenBecomesTrue(() -> positions.flyWheelCorrect = 100);
@@ -108,6 +120,7 @@ public class milestele extends NextFTCOpMode {
                 false
         );
         driverControlled.schedule();
+        subsystems.Index.INSTANCE.alldown.schedule();
         subsystems.start = true;
         subsystems.teleop = true;
         positions.autoTurret = true;
@@ -143,6 +156,7 @@ public class milestele extends NextFTCOpMode {
         ActiveOpMode.telemetry().addData("ll aim stale ms", subsystems.lastLimelightAimStalenessMs);
         ActiveOpMode.telemetry().addData("ll aim bearing", subsystems.lastLimelightAimBearingDeg);
         ActiveOpMode.telemetry().addData("turret aim raw deg", subsystems.lastTurretAimDegRaw);
+        ActiveOpMode.telemetry().addData("turret aim fudge deg", subsystems.lastTurretAimFudgeDeg);
         ActiveOpMode.telemetry().addData("turret aim deg", subsystems.lastTurretAimDeg);
         ActiveOpMode.telemetry().addData("turret logical ticks", subsystems.lastTurretLogicalPosition);
         ActiveOpMode.telemetry().addData("turret encoder offset", subsystems.lastTurretEncoderOffsetTicks);

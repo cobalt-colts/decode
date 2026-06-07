@@ -11,6 +11,7 @@ import android.util.Size;
 import com.acmerobotics.dashboard.config.Config;
 //import com.bylazar.telemetry.PanelsTelemetry;
 //import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -49,7 +50,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Config
+@Configurable
 public class subsystems {
+
+    public static double HOOD_TRIM = -0.1;   // Dashboard: negative = close the whole curve
+    public static double FAR_TURRET_TA_THRESHOLD = 0.5;
+    public static double RED_FAR_TURRET_AIM_FUDGE_DEG = 4.0;
+    public static double BLUE_FAR_TURRET_AIM_FUDGE_DEG = -4.0;
     private static final Logger log = LoggerFactory.getLogger(subsystems.class);
     public static boolean start = false;
     public static boolean teleop = false;
@@ -69,6 +76,7 @@ public class subsystems {
     public static boolean lastLimelightAimValid = false;
     public static double lastTurretAimDegRaw = Double.NaN;
     public static double lastTurretAimDeg = Double.NaN;
+    public static double lastTurretAimFudgeDeg = 0.0;
     public static int lastTurretLogicalPosition = 0;
     public static int lastTurretEncoderOffsetTicks = 0;
     public static int lastTurretTargetPos = 0;
@@ -156,7 +164,8 @@ public class subsystems {
         lastLimelightAimBearingDeg = limelightAimBearingDeg;
         lastRobotHeadingDeg = robotHeadingDeg;
         lastTurretAimDegRaw = normalizeDegrees(limelightAimBearingDeg - robotHeadingDeg);
-        lastTurretAimDeg = normalizeDegrees(lastTurretAimDegRaw);
+        lastTurretAimFudgeDeg = farTurretAimFudgeDeg();
+        lastTurretAimDeg = normalizeDegrees(lastTurretAimDegRaw + lastTurretAimFudgeDeg);
 
         double rawTargetTicks = (turretAimDirection * lastTurretAimDeg * ticksPerDegree) + turretAimOffsetTicks;
         rawTargetTicks = Math.max(currentTicks - limelightAimMaxCorrectionTicks,
@@ -226,6 +235,18 @@ public class subsystems {
 
     private static double normalizeDegrees(double degrees) {
         return Math.toDegrees(Math.atan2(Math.sin(Math.toRadians(degrees)), Math.cos(Math.toRadians(degrees))));
+    }
+
+    private static double farTurretAimFudgeDeg() {
+        if (!isFarShot()) {
+            return 0.0;
+        }
+
+        return redAlliance ? RED_FAR_TURRET_AIM_FUDGE_DEG : BLUE_FAR_TURRET_AIM_FUDGE_DEG;
+    }
+
+    public static boolean isFarShot() {
+        return !Double.isNaN(Thrower.lastShootTa) && Thrower.lastShootTa < FAR_TURRET_TA_THRESHOLD;
     }
 
     public static double teleopDrivePower(double drive, double strafe) {
@@ -634,11 +655,35 @@ public class subsystems {
             ).setInterruptible(false);
         }
 
+        public Command farLaunchPresentOnce() {
+            return new SequentialGroupFixed(
+                    new InstantCommand(() -> hoodoffset = 0),
+                    new IfElseCommand(() -> isoccupied[0], new SequentialGroupFixed(
+                            launch1Command(),
+                            new Delay(0.25)
+                    ), new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[1], new SequentialGroupFixed(
+                            launch2Command(),
+                            new Delay(0.25)
+                    ), new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[2], launch3Command(), new NullCommand()),
+                    new InstantCommand(() -> hoodoffset = 0)
+            ).setInterruptible(false);
+        }
+
         public Command launchIfBall() {
             return new SequentialGroupFixed(
                     launchPresentOnce(),
                     new Delay(0.25),
                     new IfElseCommand(() -> hasAnyBalls, launchPresentOnce(), new NullCommand())
+            ).setInterruptible(false);
+        }
+
+        public Command farLaunchIfBall() {
+            return new SequentialGroupFixed(
+                    farLaunchPresentOnce(),
+                    new Delay(0.25),
+                    new IfElseCommand(() -> hasAnyBalls, farLaunchPresentOnce(), new NullCommand())
             ).setInterruptible(false);
         }
 
@@ -659,6 +704,7 @@ public class subsystems {
         public Command farunsortedlaunch = new SequentialGroupFixed(
                 new InstantCommand(() -> hoodoffset = 0),
                 launch1Command(),
+                new Delay(.25),
                 launch2Command(),
                 new Delay(.25),
                 launch3Command(),
@@ -918,7 +964,7 @@ public class subsystems {
 
         public static double targetvelocity = 1370; // Starting value, good for near auto
         public static double AT_VEL_TOL = 20; // ticks/sec band for "at speed" (tune in Dashboard)
-        public static double HOOD_VEL_GAIN = 0.0013; // hood units per tick/sec of deficit — tune in Dashboard
+        public static double HOOD_VEL_GAIN = 0.0040; // hood units per tick/sec of deficit — tune in Dashboard -- 0.0013
         public static double HOOD_COMP_MAX = 0.10;   // max extra arc from velocity comp
         public static double HOOD_CLOSED = 0.30;     // all the way closed = straight shot (flywheel at target)
         public static double HOOD_OPEN = 0.55;       // all the way open = lob (flywheel too slow)
@@ -946,9 +992,9 @@ public class subsystems {
 
         public static double hoodpos = .5;  // Initial value, somewhat reasonable for near auto
         public static double DEFAULT_SHOOT_TA = 0.724;
+        public static double lastShootTa = DEFAULT_SHOOT_TA;
 
         private double shootTa = DEFAULT_SHOOT_TA;
-
 
         public Command shooteron = new InstantCommand(() -> {
             isshooteron = true;
@@ -963,6 +1009,7 @@ public class subsystems {
             controller = new PIDFController(kP, kI, kD, kF);
 
             shootTa = DEFAULT_SHOOT_TA;
+            lastShootTa = shootTa;
 
             shootlut = new InterpLUT();
             hoodlut = new InterpLUT();
@@ -987,8 +1034,8 @@ public class subsystems {
             masterShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
             slaveShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-            shootlut.add(0.1, 901);
-            shootlut.add(0.322, 900);
+            shootlut.add(0.1, 881);
+            shootlut.add(0.322, 880);
             shootlut.add(0.724, 775);
             shootlut.add(1.079, 700);
             shootlut.add(1.522, 650);
@@ -1007,7 +1054,9 @@ public class subsystems {
             hoodlut.createLUT();
 
 
-            hood.setPosition(0.5);
+            if (!teleop) {
+                hood.setPosition(0.5);
+            }
 
             //thrower1.setVelocity(0);
             //thrower2.setPower(thrower1.getPower());
@@ -1029,6 +1078,7 @@ public class subsystems {
                 if (!Double.isNaN(detectedTa) && detectedTa > 0) {
                     shootTa = detectedTa;
                 }
+                lastShootTa = shootTa;
                 targetvelocity = shootlut.get(shootTa);
 
 
@@ -1069,13 +1119,18 @@ public class subsystems {
             }
 
             // Slow wheel -> hood OPENS (toward 0.55) for a lob. At target speed -> sits at hoodlut value.
-            double newhoodpos = hoodlut.get(shootTa) + Math.min(HOOD_COMP_MAX, HOOD_VEL_GAIN * deficit);
+            double hoodTrim = shootTa < 0.5 ? HOOD_TRIM : 0;
+            double hoodVelComp = shootTa < 0.5 ? Math.min(HOOD_COMP_MAX, HOOD_VEL_GAIN * deficit) : 0;
+            double newhoodpos = hoodlut.get(shootTa) + hoodTrim + hoodVelComp;
+
             newhoodpos = Math.clamp(newhoodpos, HOOD_CLOSED, HOOD_OPEN); // servo's real travel is 0.30-0.55
             if (!Double.isNaN(newhoodpos)){
                 hoodpos = newhoodpos;
             }
 
-            hood.setPosition(Math.clamp(hoodpos, HOOD_CLOSED, HOOD_OPEN));
+            if (!teleop || start) {
+                hood.setPosition(Math.clamp(hoodpos, HOOD_CLOSED, HOOD_OPEN));
+            }
 
 //                ActiveOpMode.telemetry().addData("thrower1vel - velocity: ", Math.abs(Math.abs(thrower1.getVelocity()) - Math.abs(velocity)));
 //                ActiveOpMode.telemetry().addData("atvelocity: ", atvelocity);

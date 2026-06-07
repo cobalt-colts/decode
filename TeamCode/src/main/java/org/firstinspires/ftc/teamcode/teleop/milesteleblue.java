@@ -73,10 +73,22 @@ public class milesteleblue extends NextFTCOpMode {
             .whenBecomesTrue(subsystems.Index.INSTANCE.launch3);
 
     Button flickall = button(() -> gamepad1.right_bumper)
-            .whenBecomesTrue(() -> subsystems.Index.INSTANCE.launchPresentOnce().schedule());
+            .whenBecomesTrue(() -> {
+                if (subsystems.isFarShot()) {
+                    subsystems.Index.INSTANCE.farLaunchPresentOnce().schedule();
+                } else {
+                    subsystems.Index.INSTANCE.launchPresentOnce().schedule();
+                }
+            });
 
     Button altflick = button(() -> gamepad1.right_trigger_pressed)
-            .whenBecomesTrue(() -> subsystems.Index.INSTANCE.closeunsortedlaunch.schedule());
+            .whenBecomesTrue(() -> {
+                if (subsystems.isFarShot()) {
+                    subsystems.Index.INSTANCE.farunsortedlaunch.schedule();
+                } else {
+                    subsystems.Index.INSTANCE.closeunsortedlaunch.schedule();
+                }
+            });
 //
 //    Button shooterBoost = button(() -> gamepad1.touchpad)
 //            .whenBecomesTrue(() -> positions.flyWheelCorrect = 100);
@@ -99,7 +111,7 @@ public class milesteleblue extends NextFTCOpMode {
 
     @Override
     public void onStartButtonPressed() {
-        positions.redAlliance = true;
+        positions.redAlliance = false;
         PedroComponent.Companion.follower().setStartingPose(new Pose(0, 0, Math.toRadians(blueTeleopForwardHeadingDeg)));
         DriverControlledCommand driverControlled = new PedroDriverControlled(
                 () -> subsystems.teleopDrivePower(gamepad1.left_stick_y, gamepad1.left_stick_x),
@@ -136,13 +148,14 @@ public class milesteleblue extends NextFTCOpMode {
         subsystems.updateTeleopLimelightOrientation();
         ActiveOpMode.telemetry().addData("intake", gamepad1.left_bumper ? "OUT" : "IN");
         ActiveOpMode.telemetry().addData("alliance", positions.redAlliance ? "RED" : "BLUE");
-        ActiveOpMode.telemetry().addData("forward heading", redTeleopForwardHeadingDeg);
+        ActiveOpMode.telemetry().addData("forward heading", blueTeleopForwardHeadingDeg);
         ActiveOpMode.telemetry().addData("robot heading deg", subsystems.lastRobotHeadingDeg);
         ActiveOpMode.telemetry().addData("ll tx", subsystems.lastLimelightTxDeg);
         ActiveOpMode.telemetry().addData("ll aim valid", subsystems.lastLimelightAimValid);
         ActiveOpMode.telemetry().addData("ll aim stale ms", subsystems.lastLimelightAimStalenessMs);
         ActiveOpMode.telemetry().addData("ll aim bearing", subsystems.lastLimelightAimBearingDeg);
         ActiveOpMode.telemetry().addData("turret aim raw deg", subsystems.lastTurretAimDegRaw);
+        ActiveOpMode.telemetry().addData("turret aim fudge deg", subsystems.lastTurretAimFudgeDeg);
         ActiveOpMode.telemetry().addData("turret aim deg", subsystems.lastTurretAimDeg);
         ActiveOpMode.telemetry().addData("turret logical ticks", subsystems.lastTurretLogicalPosition);
         ActiveOpMode.telemetry().addData("turret encoder offset", subsystems.lastTurretEncoderOffsetTicks);

@@ -37,30 +37,30 @@ public class redfar extends NextFTCOpMode {
                     new FollowPath(launch1)
             ),
             new Delay(3),
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
             new ParallelGroup(
                     Turret.INSTANCE.setPos(0),
                     new FollowPath(cycle)
             ),
             Intake.INSTANCE.outtake,
             new TurnTo(Angle.fromDeg(70)),
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
             new ParallelGroup(
                     Intake.INSTANCE.intake,
                     new FollowPath(farline)
             ),
             new TurnTo(Angle.fromDeg(60)),
             Intake.INSTANCE.outtake,
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
             Intake.INSTANCE.intake,
             new FollowPath(cycle),
             Intake.INSTANCE.outtake,
             new TurnTo(Angle.fromDeg(70)),
-            Index.INSTANCE.launchIfBall(),
-            Index.INSTANCE.launchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
+            Index.INSTANCE.farLaunchIfBall(),
             new FollowPath(leave)
         );
     }
