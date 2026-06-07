@@ -120,6 +120,7 @@ public class milesteleblue extends NextFTCOpMode {
                 false
         );
         driverControlled.schedule();
+        subsystems.Index.INSTANCE.alldown.schedule();
         subsystems.start = true;
         subsystems.teleop = true;
         positions.autoTurret = true;
@@ -135,7 +136,7 @@ public class milesteleblue extends NextFTCOpMode {
 
         if (!subsystems.start || !subsystems.teleop) {
             subsystems.Intake.INSTANCE.intakeMotor.setPower(0);
-        } else if (gamepad1.left_bumper) {
+        } else if (gamepad1.left_bumper || gamepad2.left_bumper) {
             subsystems.Intake.INSTANCE.intakeMotor.setPower(0.5);
         } else {
             subsystems.Intake.INSTANCE.intakeMotor.setPower(-1);

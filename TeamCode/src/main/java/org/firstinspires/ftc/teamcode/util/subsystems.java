@@ -55,7 +55,7 @@ public class subsystems {
 
     public static double HOOD_TRIM = -0.1;   // Dashboard: negative = close the whole curve
     public static double FAR_TURRET_TA_THRESHOLD = 0.5;
-    public static double RED_FAR_TURRET_AIM_FUDGE_DEG = 4.0;
+    public static double RED_FAR_TURRET_AIM_FUDGE_DEG = 2.0;
     public static double BLUE_FAR_TURRET_AIM_FUDGE_DEG = -4.0;
     private static final Logger log = LoggerFactory.getLogger(subsystems.class);
     public static boolean start = false;

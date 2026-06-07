@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.groups.ParallelRaceGroup;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.core.units.Angle;
@@ -45,7 +46,10 @@ public class bluefar extends NextFTCOpMode {
                         new FollowPath(cycle)
                 ),
                 Intake.INSTANCE.outtake,
-                new TurnBy(Angle.fromDeg(-73)),
+                new ParallelRaceGroup(
+                        new Delay(1),
+                        new TurnBy(Angle.fromDeg(-73))
+                ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
                 new ParallelGroup(
@@ -53,13 +57,19 @@ public class bluefar extends NextFTCOpMode {
                         new FollowPath(farline)
                 ),
                 Intake.INSTANCE.outtake,
-                new TurnTo(Angle.fromDeg(95)),
+                new ParallelRaceGroup(
+                        new Delay(1),
+                        new TurnTo(Angle.fromDeg(95))
+                ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
                 Intake.INSTANCE.intake,
                 new FollowPath(cycle),
                 Intake.INSTANCE.outtake,
-                new TurnBy(Angle.fromDeg(-73)),
+                new ParallelRaceGroup(
+                        new Delay(1),
+                        new TurnBy(Angle.fromDeg(-73))
+                ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
                 new FollowPath(leave)

@@ -39,7 +39,7 @@ public class Constants {
             .yVelocity(54.454);
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(12)
-            .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.05,0.03))
+            .headingPIDFCoefficients(new PIDFCoefficients(1,0,0.05,0.02))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(.1, 0.07238351454620291 , 0.0018221065683911223)) // .08 for Kp
             .centripetalScaling(0);
 

@@ -20,11 +20,13 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
 import dev.nextftc.core.commands.delays.WaitUntil;
+import dev.nextftc.core.commands.groups.ParallelRaceGroup;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
 import dev.nextftc.core.units.Angle;
 import dev.nextftc.extensions.pedro.FollowPath;
 import dev.nextftc.extensions.pedro.PedroComponent;
+import dev.nextftc.extensions.pedro.TurnBy;
 import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
@@ -44,21 +46,30 @@ public class redfar extends NextFTCOpMode {
                     new FollowPath(cycle)
             ),
             Intake.INSTANCE.outtake,
-            new TurnTo(Angle.fromDeg(70)),
+            new ParallelRaceGroup(
+                    new Delay(1),
+                    new TurnTo(Angle.fromDeg(75))
+            ),
             Index.INSTANCE.farLaunchIfBall(),
             Index.INSTANCE.farLaunchIfBall(),
             new ParallelGroup(
                     Intake.INSTANCE.intake,
                     new FollowPath(farline)
             ),
-            new TurnTo(Angle.fromDeg(60)),
+            new ParallelRaceGroup(
+                    new Delay(1),
+                    new TurnBy(Angle.fromDeg(-2))
+            ),
             Intake.INSTANCE.outtake,
             Index.INSTANCE.farLaunchIfBall(),
             Index.INSTANCE.farLaunchIfBall(),
             Intake.INSTANCE.intake,
             new FollowPath(cycle),
             Intake.INSTANCE.outtake,
-            new TurnTo(Angle.fromDeg(70)),
+            new ParallelRaceGroup(
+                    new Delay(1),
+                    new TurnTo(Angle.fromDeg(73))
+            ),
             Index.INSTANCE.farLaunchIfBall(),
             Index.INSTANCE.farLaunchIfBall(),
             new FollowPath(leave)
@@ -88,7 +99,7 @@ public class redfar extends NextFTCOpMode {
         subsystems.start = false;
         subsystems.far = false;
         Index.INSTANCE.alldown.schedule();
-        Turret.INSTANCE.setPos(30).schedule();
+        Turret.INSTANCE.setPos(32).schedule();
     }
 
     @Override
