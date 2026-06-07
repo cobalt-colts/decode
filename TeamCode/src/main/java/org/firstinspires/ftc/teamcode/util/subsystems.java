@@ -920,7 +920,7 @@ public class subsystems {
         public static double AT_VEL_TOL = 20; // ticks/sec band for "at speed" (tune in Dashboard)
         public static double HOOD_VEL_GAIN = 0.0013; // hood units per tick/sec of deficit — tune in Dashboard
         public static double HOOD_COMP_MAX = 0.10;   // max extra arc from velocity comp
-        public static double HOOD_MIN = 0.08;        // mechanical floor — VERIFY ON BOT
+        public static double HOOD_MIN = .55;        // mechanical floor — VERIFY ON BOT
         private double velErrFilt = 0;               // filtered velocity error (ticks/sec)
 
         private double velocity = 0;    // What is this variable for?
