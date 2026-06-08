@@ -1262,12 +1262,7 @@ public class subsystems {
             }
             turret.setTargetPosition(getMotorTargetPosition());
 
-            if (teleop) {
-                turret.setPositionPIDFCoefficients(turretP);
-            } else {
-                turret.setPositionPIDFCoefficients(25);
-
-            }
+            turret.setPositionPIDFCoefficients(turretP);
 
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 

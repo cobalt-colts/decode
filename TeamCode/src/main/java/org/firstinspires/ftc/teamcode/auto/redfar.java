@@ -42,7 +42,7 @@ public class redfar extends NextFTCOpMode {
             Index.INSTANCE.farLaunchIfBall(),
             Index.INSTANCE.farLaunchIfBall(),
             new ParallelGroup(
-                    Turret.INSTANCE.setPos(0),
+                    Turret.INSTANCE.setPos(3),
                     new FollowPath(cycle)
             ),
             Intake.INSTANCE.outtake,
@@ -59,7 +59,7 @@ public class redfar extends NextFTCOpMode {
             ),
             new ParallelRaceGroup(
                     new Delay(1),
-                    new TurnBy(Angle.fromDeg(-1))
+                    new TurnBy(Angle.fromDeg(-3))
             ),
             Intake.INSTANCE.outtake,
             Index.INSTANCE.farLaunchIfBall(),
