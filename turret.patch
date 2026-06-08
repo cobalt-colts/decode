@@ -1,0 +1,29 @@
+diff --git a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/subsystems.java b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/subsystems.java
+index 5157665..dbf02e9 100644
+--- a/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/subsystems.java
++++ b/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/util/subsystems.java
+@@ -1297,18 +1297,14 @@ public class subsystems {
+              * This needs to run in auto too, even when Limelight auto-aim is disabled.
+              */
+             if (magnetTriggered && !lastMagnetState) {
+-                if (Math.abs(getLogicalCurrentPosition()) < 150) {
+-                    int requestedMotorTarget = getMotorTargetPosition();
+-
+-                    turret.setPower(0);
+-                    turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+-
+-                    turretEncoderOffset = 0;
+-                    turretTargetPos = requestedMotorTarget;
+-                    turret.setTargetPosition(getMotorTargetPosition());
+-
+-                    turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
++                if (Math.abs(getLogicalCurrentPosition()) < 30) {   // was 150 — small window = small worst-case correction
++                    // Offset-only re-zero: logical 0 = right here. No mode change,
++                    // no setPower(0), RUN_TO_POSITION never interrupted — no torque gap.
++                    // Raw motor target updates automatically below via getMotorTargetPosition().
++                    turretEncoderOffset = -turret.getCurrentPosition();
+                     turretZeroed = true;
++                } else {
++                    telemetryWarning = "TURRET SLIP > 30 ticks - re-init when safe";
+                 }
+             }
