@@ -59,7 +59,7 @@ public class bluefar extends NextFTCOpMode {
                 Intake.INSTANCE.outtake,
                 new ParallelRaceGroup(
                         new Delay(1),
-                        new TurnTo(Angle.fromDeg(95))
+                        new TurnBy(Angle.fromDeg(8))
                 ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),

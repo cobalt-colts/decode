@@ -45,7 +45,7 @@ public class BlueFar {
                 .addPath(
                         new BezierLine(
                                 new Pose(21.500, 11.000),
-                                new Pose(9.928, 10.145)
+                                new Pose(17, 10.145)
                         )
                 )
                 .setTangentHeadingInterpolation()
