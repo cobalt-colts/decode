@@ -29,8 +29,8 @@ import dev.nextftc.extensions.pedro.TurnBy;
 import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous(name="BLUE Far")
-public class bluefar extends NextFTCOpMode {
+@Autonomous(name="PARTNER BLUE Far")
+public class bluefarpart extends NextFTCOpMode {
 
     public Command autonomousRoutine() {
         return new SequentialGroupFixed(
@@ -52,14 +52,12 @@ public class bluefar extends NextFTCOpMode {
                 ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
-                new ParallelGroup(
-                        Intake.INSTANCE.intake,
-                        new FollowPath(farline)
-                ),
+                Intake.INSTANCE.intake,
+                new FollowPath(cycle),
                 Intake.INSTANCE.outtake,
                 new ParallelRaceGroup(
                         new Delay(1),
-                        new TurnBy(Angle.fromDeg(6))
+                        new TurnBy(Angle.fromDeg(-65))
                 ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
@@ -75,7 +73,7 @@ public class bluefar extends NextFTCOpMode {
                 new FollowPath(leave)
         );
     }
-    public bluefar() {
+    public bluefarpart() {
         subsystems.teleop = false;
         subsystems.start = false;
         addComponents(

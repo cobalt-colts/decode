@@ -666,7 +666,12 @@ public class subsystems {
                             launch2Command(),
                             new Delay(0.25)
                     ), new NullCommand()),
-                    new IfElseCommand(() -> isoccupied[2], launch3Command(), new NullCommand()),
+                    new IfElseCommand(() -> isoccupied[2],
+                            new SequentialGroupFixed(
+                                    new Delay(.25),
+                                    launch3Command()
+                            ),
+                            new NullCommand()),
                     new InstantCommand(() -> hoodoffset = 0)
             ).setInterruptible(false);
         }
@@ -1034,7 +1039,7 @@ public class subsystems {
             masterShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
             slaveShootingSpeedMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-            shootlut.add(0.1, 881);
+            shootlut.add(0.000001, 881);
             shootlut.add(0.322, 880);
             shootlut.add(0.724, 775);
             shootlut.add(1.079, 700);
@@ -1043,7 +1048,7 @@ public class subsystems {
             shootlut.add(15, 599);
             shootlut.createLUT();
 
-            hoodlut.add(0.1, .324);
+            hoodlut.add(0.0000001, .324);
             hoodlut.add(0.322, .325);
             hoodlut.add(0.724, .435);
             hoodlut.add(1.079, .475);

@@ -59,7 +59,7 @@ public class redfar extends NextFTCOpMode {
             ),
             new ParallelRaceGroup(
                     new Delay(1),
-                    new TurnBy(Angle.fromDeg(-3))
+                    new TurnBy(Angle.fromDeg(-2))
             ),
             Intake.INSTANCE.outtake,
             Index.INSTANCE.farLaunchIfBall(),

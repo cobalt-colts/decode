@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.util.paths.BlueFar.*;
-
+import static org.firstinspires.ftc.teamcode.util.paths.RedFar.*;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.util.SequentialGroupFixed;
-import org.firstinspires.ftc.teamcode.util.paths.BlueFar;
+import org.firstinspires.ftc.teamcode.util.paths.RedFar;
+import org.firstinspires.ftc.teamcode.util.paths.RedGoalLines12;
 import org.firstinspires.ftc.teamcode.util.positions;
 import org.firstinspires.ftc.teamcode.util.subsystems;
 import org.firstinspires.ftc.teamcode.util.subsystems.Camera;
@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.util.subsystems.Turret;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.delays.Delay;
+import dev.nextftc.core.commands.delays.WaitUntil;
 import dev.nextftc.core.commands.groups.ParallelRaceGroup;
 import dev.nextftc.core.commands.groups.ParallelGroup;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -29,9 +30,8 @@ import dev.nextftc.extensions.pedro.TurnBy;
 import dev.nextftc.extensions.pedro.TurnTo;
 import dev.nextftc.ftc.NextFTCOpMode;
 
-@Autonomous(name="BLUE Far")
-public class bluefar extends NextFTCOpMode {
-
+@Autonomous(name="PARTNER RED Far")
+public class redfarpart extends NextFTCOpMode {
     public Command autonomousRoutine() {
         return new SequentialGroupFixed(
                 new ParallelGroup(
@@ -42,24 +42,23 @@ public class bluefar extends NextFTCOpMode {
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
                 new ParallelGroup(
-                        Turret.INSTANCE.setPos(0),
+                        Turret.INSTANCE.setPos(3),
                         new FollowPath(cycle)
                 ),
                 Intake.INSTANCE.outtake,
                 new ParallelRaceGroup(
                         new Delay(1),
-                        new TurnBy(Angle.fromDeg(-70))
+                        new TurnTo(Angle.fromDeg(75))
                 ),
+                new Delay(1),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
-                new ParallelGroup(
-                        Intake.INSTANCE.intake,
-                        new FollowPath(farline)
-                ),
+                Intake.INSTANCE.intake,
+                new FollowPath(cycle),
                 Intake.INSTANCE.outtake,
                 new ParallelRaceGroup(
                         new Delay(1),
-                        new TurnBy(Angle.fromDeg(6))
+                        new TurnTo(Angle.fromDeg(74.5))
                 ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
@@ -68,14 +67,14 @@ public class bluefar extends NextFTCOpMode {
                 Intake.INSTANCE.outtake,
                 new ParallelRaceGroup(
                         new Delay(1),
-                        new TurnBy(Angle.fromDeg(-65))
+                        new TurnTo(Angle.fromDeg(74.5))
                 ),
                 Index.INSTANCE.farLaunchIfBall(),
                 Index.INSTANCE.farLaunchIfBall(),
                 new FollowPath(leave)
         );
     }
-    public bluefar() {
+    public redfarpart() {
         subsystems.teleop = false;
         subsystems.start = false;
         addComponents(
@@ -93,13 +92,13 @@ public class bluefar extends NextFTCOpMode {
 
     @Override
     public void onInit() {
-        positions.redAlliance = false;
+        positions.redAlliance = true;
         positions.autoTurret = false;
         subsystems.teleop = false;
         subsystems.start = false;
         subsystems.far = false;
         Index.INSTANCE.alldown.schedule();
-        Turret.INSTANCE.setPos(-30).schedule();
+        Turret.INSTANCE.setPos(30).schedule();
     }
 
     @Override
@@ -108,10 +107,11 @@ public class bluefar extends NextFTCOpMode {
         subsystems.teleop = false;
         positions.autoTurret = false;
         if (Thrower.limelight != null) {
-            Thrower.limelight.pipelineSwitch(3);
+            Thrower.limelight.pipelineSwitch(2);
         }
-        BlueFar.BuildTrajectories(PedroComponent.Companion.follower());
-        PedroComponent.Companion.follower().setStartingPose(new Pose(59, 9.5, Math.toRadians(90)));
+        RedFar.BuildTrajectories(PedroComponent.Companion.follower());
+        PedroComponent.Companion.follower().setStartingPose(new Pose(82.5, 9.5, Math.toRadians(90)));
+
         autonomousRoutine().schedule();
     }
 
