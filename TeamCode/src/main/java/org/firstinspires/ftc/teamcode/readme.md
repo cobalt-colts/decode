@@ -1,4 +1,7 @@
 # Performance documentation for Hack Club: The Game.
+
+![banner.png](https://fileshare.milesmuehlbach.com/public/media/robotics/Screenshot_20260706_222752.png)
+
 This season has been a tumultuous one for us. For starters, it was my first ever season participating in First Tech Challenge. I was pretty much just expected to learn everything from the get-go which caused lots of hours, strife, and quite frankly underperforming robots early in the season.
 
 After I got my stuff together, I'd say around January, I was still supposed to "stay in my lane" and only program autonomous. After advancing from our league tournament due to an award and *not* robot performance, we were determined to do well at the state tournament.
@@ -22,3 +25,23 @@ Our good work didn't go unnoticed however, as despite us placing 25th out of 48,
 
 Enough with my yapping though, here's the actual robot performance to prove it!
 
+## Cowtown Premier Event Matches
+
+### Qualifications
+[Qualification Match 5](https://www.youtube.com/live/B4b05NELgms?si=1tf--Nv_xcIbNFSm&t=5431)<br>
+[Qualification Match 12](https://www.youtube.com/live/B4b05NELgms?si=HOpSgHYL2vUagxIV&t=12169)<br>
+[Qualification Match 20](https://www.youtube.com/live/B4b05NELgms?si=kgcHyrumFDh1BJdb&t=14988)<br>
+[Qualification Match 36](https://www.youtube.com/live/B4b05NELgms?si=7h4suida0v113sWH&t=21916)<br>
+[Qualification Match 44](https://www.youtube.com/live/ZW8I6p_2ZFQ?si=NvJjik05hVDiK9Hi&t=913)<br>
+[Qualification Match 57](https://www.youtube.com/live/ZW8I6p_2ZFQ?si=a_2zjXXa_-ypZavO&t=4714)<br>
+[Qualification Match 63](https://www.youtube.com/live/ZW8I6p_2ZFQ?si=DM9pHbjRaRkHq8iV&t=6820)<br>
+[Qualification Match 72](https://www.youtube.com/live/ZW8I6p_2ZFQ?si=-23uAaBPHrPD-Fd8&t=9449)<br>
+
+### Playoffs
+[Playoff Match 1](https://www.youtube.com/live/ZW8I6p_2ZFQ?si=FJRcDeNwFMERX55_&t=19427)<br>
+[Playoff Match 5](https://www.youtube.com/live/ZW8I6p_2ZFQ?si=aWvfwMcZV4GuzXBu&t=21690)<br>
+
+While we didn't make it far in playoffs, we set our all season high score during them and (in my opinion) performed our very best in those last playoff moments. It really was a surreal and wonderful way to end an otherwise terrible season.
+
+Here's a photo of us with our alliance partner:
+![cowtown alliance](https://fileshare.milesmuehlbach.com/public/media/robotics/cowtownalliacne.jpg)
